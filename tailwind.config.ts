@@ -67,9 +67,10 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         larifa: {
-          "baby-blue": "hsl(var(--larifa-baby-blue))",
-          sky: "hsl(var(--larifa-sky))",
-          slate: "hsl(var(--larifa-slate))",
+          cream: "hsl(var(--larifa-cream))",
+          warm: "hsl(var(--larifa-warm))",
+          terracotta: "hsl(var(--larifa-terracotta))",
+          charcoal: "hsl(var(--larifa-charcoal))",
         },
       },
       borderRadius: {
