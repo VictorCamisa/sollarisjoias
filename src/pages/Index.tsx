@@ -12,11 +12,17 @@ const Index = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-secondary via-background to-background">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-larifa-sky blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-larifa-sky blur-3xl" />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
+        <div className="absolute inset-0 opacity-[0.08]">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-accent blur-3xl" />
+          <div className="absolute bottom-1/3 right-1/3 w-72 h-72 rounded-full bg-accent blur-3xl" />
         </div>
+
+        {/* Subtle grid lines like the PDF blueprint aesthetic */}
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
+          backgroundSize: '80px 80px'
+        }} />
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -59,7 +65,7 @@ const Index = () => {
           <div className="flex flex-wrap justify-center gap-3">
             {categories.map((cat) => (
               <Link key={cat.id} to={`/produtos?categoria=${cat.slug}`}>
-                <Button variant="outline" className="rounded-xl font-sans text-sm tracking-wide">
+                <Button variant="outline" className="rounded-xl font-sans text-sm tracking-wide hover:bg-accent hover:text-accent-foreground hover:border-accent transition-colors">
                   {cat.name}
                 </Button>
               </Link>
