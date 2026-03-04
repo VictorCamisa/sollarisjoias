@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import FavoriteButton from "@/components/store/FavoriteButton";
 
 interface ProductCardProps {
   id: string;
@@ -18,8 +19,8 @@ const ProductCard = ({ id, name, price, image, category, index = 0 }: ProductCar
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <Link to={`/produto/${id}`} className="group block">
-        <div className="aspect-[3/4] rounded-2xl bg-secondary overflow-hidden mb-3">
+      <Link to={`/produto/${id}`} className="group block relative">
+        <div className="aspect-[3/4] rounded-2xl bg-secondary overflow-hidden mb-3 relative">
           {image ? (
             <img
               src={image}
@@ -30,6 +31,9 @@ const ProductCard = ({ id, name, price, image, category, index = 0 }: ProductCar
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-muted to-secondary group-hover:scale-105 transition-transform duration-500" />
           )}
+          <div className="absolute top-2 right-2">
+            <FavoriteButton productId={id} className="bg-card/80 backdrop-blur-sm" />
+          </div>
         </div>
         {category && (
           <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1 font-sans">

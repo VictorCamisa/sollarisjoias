@@ -1,12 +1,13 @@
 import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Package, FolderOpen, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/admin/produtos", icon: Package, label: "Produtos" },
   { to: "/admin/categorias", icon: FolderOpen, label: "Categorias" },
+  { to: "/admin/pedidos", icon: ShoppingCart, label: "Pedidos" },
   { to: "/admin/configuracoes", icon: Settings, label: "Configurações" },
 ];
 

@@ -1,1 +1,4 @@
 project_id = "yflvtkskttmfyghlfihj"
+
+[functions.style-assistant]
+verify_jwt = false

@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Search, Menu, X } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { totalItems, setOpen } = useCart();
+  const { count: favCount } = useFavorites();
 
   const isHome = location.pathname === "/";
 
@@ -38,11 +40,20 @@ const Navbar = () => {
           <Link to="/" className="hover:opacity-60 transition-opacity text-foreground">Início</Link>
           <Link to="/produtos" className="hover:opacity-60 transition-opacity text-foreground">Coleção</Link>
           <Link to="/novidades" className="hover:opacity-60 transition-opacity text-foreground">Novidades</Link>
+          <Link to="/sobre" className="hover:opacity-60 transition-opacity text-foreground">Sobre</Link>
         </nav>
 
         <div className="flex items-center gap-4">
           <Link to="/busca" className="hover:opacity-60 transition-opacity text-foreground">
             <Search className="h-5 w-5" />
+          </Link>
+          <Link to="/favoritos" className="relative hover:opacity-60 transition-opacity text-foreground">
+            <Heart className="h-5 w-5" />
+            {favCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {favCount}
+              </span>
+            )}
           </Link>
           <button onClick={() => setOpen(true)} className="relative hover:opacity-60 transition-opacity text-foreground">
             <ShoppingBag className="h-5 w-5" />
@@ -64,6 +75,8 @@ const Navbar = () => {
           <Link to="/" className="block text-foreground">Início</Link>
           <Link to="/produtos" className="block text-foreground">Coleção</Link>
           <Link to="/novidades" className="block text-foreground">Novidades</Link>
+          <Link to="/sobre" className="block text-foreground">Sobre</Link>
+          <Link to="/favoritos" className="block text-foreground">Favoritos</Link>
         </nav>
       )}
     </header>

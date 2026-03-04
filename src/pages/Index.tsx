@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductCard, { ProductCardSkeleton } from "@/components/store/ProductCard";
 import { useProducts, useCategories } from "@/hooks/useStore";
+import SEOHead from "@/components/seo/SEOHead";
 
 const Index = () => {
   const { data: featured, isLoading: loadingFeatured } = useProducts(undefined, true);
@@ -11,6 +12,7 @@ const Index = () => {
 
   return (
     <>
+      <SEOHead />
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 opacity-[0.08]">
