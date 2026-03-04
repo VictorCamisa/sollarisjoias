@@ -133,9 +133,9 @@ async function streamChat({
 }
 
 const SUGGESTIONS = [
-  "Me ajuda a montar um look para um jantar romântico",
-  "Quero um outfit casual de fim de semana",
-  "Preciso de um look para reunião de trabalho",
+  "Oi Lari! Quero ajuda pra escolher um look",
+  "Tô procurando algo pra um evento especial",
+  "Me mostra o que tem de novidade",
 ];
 
 // Product card component
@@ -315,12 +315,12 @@ const StyleAssistant = () => {
               {messages.length === 0 && (
                 <div className="text-center py-6">
                   <Sparkles className="h-8 w-8 text-accent mx-auto mb-3" />
-                  <p className="font-serif text-sm font-semibold mb-1">Olá! Eu sou a Lari ✨</p>
+                  <p className="font-serif text-sm font-semibold mb-1">Oii! Eu sou a Lari 💕</p>
                   <p className="text-xs text-muted-foreground mb-1">
-                    Sua estilista virtual e vendedora da LARIFA.
+                    Sua estilista pessoal da LARIFA!
                   </p>
                   <p className="text-xs text-muted-foreground mb-4">
-                    Eu busco, mostro fotos, monto seu look, crio o pedido e envio pro WhatsApp!
+                    Eu te ajudo a encontrar as peças perfeitas e monto seu pedido completo ✨
                   </p>
                   <div className="flex flex-col gap-2">
                     {SUGGESTIONS.map((s) => (
