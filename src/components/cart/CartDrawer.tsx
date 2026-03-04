@@ -1,15 +1,47 @@
+import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CartDrawer = () => {
   const { items, isOpen, setOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    if (!name.trim() || !phone.trim()) {
+      setShowForm(true);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Save order to database
+      await supabase.from("orders" as any).insert({
+        customer_name: name.trim(),
+        customer_phone: phone.trim(),
+        items: items.map((i) => ({ name: i.name, size: i.size, color: i.color, quantity: i.quantity, price: i.price, image: i.image })),
+        total: totalPrice,
+        status: "pending",
+      } as any);
+    } catch {
+      // Non-blocking: order saving is best-effort
+    }
+    setSaving(false);
+
     const link = generateWhatsAppLink(items, totalPrice);
     window.open(link, "_blank");
+    clearCart();
+    setShowForm(false);
+    setName("");
+    setPhone("");
+    toast.success("Pedido registrado! Finalize pelo WhatsApp.");
   };
 
   return (
@@ -77,11 +109,28 @@ const CartDrawer = () => {
                   R$ {totalPrice.toFixed(2).replace(".", ",")}
                 </span>
               </div>
+              {showForm && (
+                <div className="space-y-2">
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Seu nome"
+                    className="w-full bg-secondary rounded-xl px-3 py-2 text-sm outline-none border border-border focus:border-accent"
+                  />
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="WhatsApp (ex: 11999999999)"
+                    className="w-full bg-secondary rounded-xl px-3 py-2 text-sm outline-none border border-border focus:border-accent"
+                  />
+                </div>
+              )}
               <Button
                 onClick={handleCheckout}
                 className="w-full rounded-xl h-12 text-sm font-semibold tracking-wide"
+                disabled={saving || (showForm && (!name.trim() || !phone.trim()))}
               >
-                Finalizar via WhatsApp
+                {showForm ? "Confirmar e Enviar via WhatsApp" : "Finalizar Pedido"}
               </Button>
               <button
                 onClick={clearCart}

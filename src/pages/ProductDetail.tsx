@@ -7,6 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProduct } from "@/hooks/useStore";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import ShareButton from "@/components/store/ShareButton";
+import FavoriteButton from "@/components/store/FavoriteButton";
+import SEOHead from "@/components/seo/SEOHead";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -72,6 +75,11 @@ const ProductDetail = () => {
 
   return (
     <div className="pt-24 pb-16">
+      <SEOHead
+        title={`${product.name} — LARIFA`}
+        description={product.description || `${product.name} por R$ ${product.price.toFixed(2).replace(".", ",")}`}
+        image={images[0]}
+      />
       <div className="container mx-auto px-6">
         <Link
           to="/produtos"
@@ -188,13 +196,17 @@ const ProductDetail = () => {
               </div>
             )}
 
-            <Button
-              onClick={handleAddToCart}
-              className="w-full rounded-xl h-12 text-sm font-semibold tracking-wide"
-              disabled={!product.stock_status}
-            >
-              {product.stock_status ? "Adicionar ao Carrinho" : "Esgotado"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAddToCart}
+                className="flex-1 rounded-xl h-12 text-sm font-semibold tracking-wide"
+                disabled={!product.stock_status}
+              >
+                {product.stock_status ? "Adicionar ao Carrinho" : "Esgotado"}
+              </Button>
+              <FavoriteButton productId={product.id} className="border border-border h-12 w-12" />
+              <ShareButton name={product.name} />
+            </div>
           </motion.div>
         </div>
       </div>
