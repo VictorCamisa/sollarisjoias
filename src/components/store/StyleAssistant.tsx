@@ -271,6 +271,7 @@ const StyleAssistant = () => {
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             onClick={() => setOpen(true)}
+            data-style-assistant-trigger
             className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
           >
             <Sparkles className="h-6 w-6" />
