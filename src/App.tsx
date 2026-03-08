@@ -23,6 +23,10 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
+import AdminCustomers from "./pages/admin/AdminCustomers";
+import AccountLogin from "./pages/account/Login";
+import AccountRegister from "./pages/account/Register";
+import Account from "./pages/account/Account";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +52,9 @@ const App = () => (
                   <Route path="/busca" element={<SearchPage />} />
                   <Route path="/sobre" element={<About />} />
                   <Route path="/favoritos" element={<Favorites />} />
+                  <Route path="/conta/login" element={<AccountLogin />} />
+                  <Route path="/conta/cadastro" element={<AccountRegister />} />
+                  <Route path="/conta" element={<Account />} />
                 </Route>
 
                 {/* Admin */}
@@ -58,6 +65,7 @@ const App = () => (
                   <Route path="categorias" element={<AdminCategories />} />
                   <Route path="pedidos" element={<AdminOrders />} />
                   <Route path="newsletter" element={<AdminNewsletter />} />
+                  <Route path="clientes" element={<AdminCustomers />} />
                   <Route path="configuracoes" element={<AdminSettings />} />
                 </Route>
 

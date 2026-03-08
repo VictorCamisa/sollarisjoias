@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Search, Menu, X, Heart } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, Heart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -44,6 +44,9 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-4">
+          <Link to="/conta" className="hover:opacity-60 transition-opacity text-foreground">
+            <User className="h-5 w-5" />
+          </Link>
           <Link to="/busca" className="hover:opacity-60 transition-opacity text-foreground">
             <Search className="h-5 w-5" />
           </Link>
@@ -77,6 +80,7 @@ const Navbar = () => {
           <Link to="/novidades" className="block text-foreground">Novidades</Link>
           <Link to="/sobre" className="block text-foreground">Sobre</Link>
           <Link to="/favoritos" className="block text-foreground">Favoritos</Link>
+          <Link to="/conta" className="block text-foreground">Minha Conta</Link>
         </nav>
       )}
     </header>
