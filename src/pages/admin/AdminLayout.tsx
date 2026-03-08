@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart, Mail, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart, Mail, Menu, X, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
