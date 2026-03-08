@@ -94,46 +94,91 @@ export type Database = {
       }
       products: {
         Row: {
+          banho: string | null
           category_id: string | null
           colors: string[] | null
           created_at: string
           description: string | null
+          foto_detalhe: string | null
+          foto_frontal: string | null
+          foto_lateral: string | null
+          foto_lifestyle: string | null
           id: string
           images: string[] | null
+          internal_notes: string | null
           is_featured: boolean
+          material: string | null
           name: string
+          original_price: number | null
+          pedra: string | null
           price: number
+          priority: string | null
           sizes: string[] | null
+          sku: string | null
+          stock_quantity: number | null
           stock_status: boolean
+          tags: string[] | null
+          tags_seo: string | null
           updated_at: string
+          weight_g: number | null
         }
         Insert: {
+          banho?: string | null
           category_id?: string | null
           colors?: string[] | null
           created_at?: string
           description?: string | null
+          foto_detalhe?: string | null
+          foto_frontal?: string | null
+          foto_lateral?: string | null
+          foto_lifestyle?: string | null
           id?: string
           images?: string[] | null
+          internal_notes?: string | null
           is_featured?: boolean
+          material?: string | null
           name: string
+          original_price?: number | null
+          pedra?: string | null
           price?: number
+          priority?: string | null
           sizes?: string[] | null
+          sku?: string | null
+          stock_quantity?: number | null
           stock_status?: boolean
+          tags?: string[] | null
+          tags_seo?: string | null
           updated_at?: string
+          weight_g?: number | null
         }
         Update: {
+          banho?: string | null
           category_id?: string | null
           colors?: string[] | null
           created_at?: string
           description?: string | null
+          foto_detalhe?: string | null
+          foto_frontal?: string | null
+          foto_lateral?: string | null
+          foto_lifestyle?: string | null
           id?: string
           images?: string[] | null
+          internal_notes?: string | null
           is_featured?: boolean
+          material?: string | null
           name?: string
+          original_price?: number | null
+          pedra?: string | null
           price?: number
+          priority?: string | null
           sizes?: string[] | null
+          sku?: string | null
+          stock_quantity?: number | null
           stock_status?: boolean
+          tags?: string[] | null
+          tags_seo?: string | null
           updated_at?: string
+          weight_g?: number | null
         }
         Relationships: [
           {
@@ -149,6 +194,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          pix_discount_percent: number | null
           store_name: string
           updated_at: string
           whatsapp_number: string
@@ -156,6 +202,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          pix_discount_percent?: number | null
           store_name?: string
           updated_at?: string
           whatsapp_number?: string
@@ -163,6 +210,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          pix_discount_percent?: number | null
           store_name?: string
           updated_at?: string
           whatsapp_number?: string
