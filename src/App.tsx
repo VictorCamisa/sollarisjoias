@@ -65,6 +65,7 @@ const App = () => (
                   <Route path="categorias" element={<AdminCategories />} />
                   <Route path="pedidos" element={<AdminOrders />} />
                   <Route path="newsletter" element={<AdminNewsletter />} />
+                  <Route path="clientes" element={<AdminCustomers />} />
                   <Route path="configuracoes" element={<AdminSettings />} />
                 </Route>
 

@@ -80,6 +80,7 @@ const Navbar = () => {
           <Link to="/novidades" className="block text-foreground">Novidades</Link>
           <Link to="/sobre" className="block text-foreground">Sobre</Link>
           <Link to="/favoritos" className="block text-foreground">Favoritos</Link>
+          <Link to="/conta" className="block text-foreground">Minha Conta</Link>
         </nav>
       )}
     </header>
