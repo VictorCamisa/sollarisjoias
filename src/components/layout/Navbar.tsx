@@ -44,6 +44,9 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-4">
+          <Link to="/conta" className="hover:opacity-60 transition-opacity text-foreground">
+            <User className="h-5 w-5" />
+          </Link>
           <Link to="/busca" className="hover:opacity-60 transition-opacity text-foreground">
             <Search className="h-5 w-5" />
           </Link>
