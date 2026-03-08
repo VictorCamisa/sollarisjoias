@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -11,7 +12,7 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,9 +20,29 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       await signIn(email, password);
+
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
+
+      if (!userId) throw new Error("Sessão inválida. Faça login novamente.");
+
+      const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+        _user_id: userId,
+        _role: "admin",
+      });
+
+      if (roleError || !isAdmin) {
+        await signOut();
+        throw new Error("Este usuário não tem acesso ao painel administrativo.");
+      }
+
       navigate("/admin");
     } catch (err: any) {
       toast.error(err.message || "Erro ao fazer login");
+    } finally {
+      setLoading(false);
+    }
+  };
     } finally {
       setLoading(false);
     }
