@@ -40,8 +40,8 @@ const AdminLayout = () => {
     <div className="min-h-screen flex bg-background">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex flex-col w-60 border-r border-border p-6">
-        <Link to="/" className="font-serif text-lg tracking-[0.3em] font-semibold mb-10">
-          LARIFA
+        <Link to="/" className="font-serif text-lg font-semibold mb-10">
+          Larifa<span className="text-accent">.</span>
         </Link>
 
         <nav className="flex-1 space-y-1">
