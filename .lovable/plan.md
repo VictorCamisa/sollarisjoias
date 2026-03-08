@@ -1,72 +1,72 @@
 
 
-## Analise: O que precisa ser adaptado no sistema LARIFA
+## Plano: Central de Gestão de Clientes no Admin
 
-Com base no conceito **LARIFA AI Fashion** (marca AI-First de moda feminina) extraido da apresentacao anterior e nos dois documentos de business plan que voce enviou, aqui esta minha analise do que o sistema atual **ja tem** vs **o que falta**.
+### Contexto
 
----
+Hoje o admin não tem nenhum módulo de clientes. Os pedidos salvam `customer_name`, `customer_phone`, `customer_email` como texto solto, sem vínculo a um cadastro de cliente. Não existe tabela `profiles` nem autenticação para clientes no storefront.
 
-### O que ja esta implementado
+### O que será feito
 
-- Identidade visual editorial quente (creme, terracotta, Playfair Display + Inter)
-- Catalogo de produtos com categorias, filtros, busca
-- Carrinho com persistencia local + checkout via WhatsApp
-- Painel admin com CRUD de produtos, categorias e configuracoes
-- Autenticacao admin com roles (RLS)
-- 30 produtos mockados com fotos Unsplash
+**1. Banco de dados**
 
----
+- Criar tabela `profiles` (id referenciando auth.users, nome, telefone, endereço, notas internas, created_at)
+- Trigger automático: ao criar conta no auth, cria profile automaticamente
+- RLS: admin lê/edita todos; cliente lê/edita só o próprio
+- Adicionar coluna `customer_id` (uuid, nullable, FK para profiles) na tabela `orders` para vincular pedidos a clientes cadastrados
 
-### O que precisa ser adaptado/adicionado
+**2. Autenticação de clientes no storefront**
 
-#### 1. Conceito AI-First na experiencia do cliente
-O sistema atual e um e-commerce tradicional. O diferencial LARIFA e ser **AI-First** -- a inteligencia artificial deveria estar presente na experiencia:
+- Criar páginas `/conta/login` e `/conta/cadastro` para clientes se registrarem (email + senha)
+- Página `/conta` com dados do perfil e histórico de pedidos
+- Ao fazer pedido, se logado, vincula automaticamente o `customer_id`
 
-- **Assistente de estilo IA**: Chat ou widget onde a cliente descreve a ocasiao/estilo e recebe sugestoes de looks montados com produtos da loja
-- **Recomendacoes personalizadas**: Secao "Feito para voce" na home baseada em historico/preferencias
-- **Descricoes geradas por IA**: Textos de produto com tom editorial, gerados automaticamente
+**3. Módulo Admin: Clientes (`/admin/clientes`)**
 
-#### 2. Paginas institucionais ausentes
-- **Sobre / Quem Somos**: Historia da marca, conceito AI-First, proposta de valor
-- **Politicas**: Trocas, devolucoes, privacidade
-- **FAQ**: Perguntas frequentes sobre tamanhos, envio, etc.
+- Lista de todos os clientes com busca por nome/email/telefone
+- Ficha do cliente com:
+  - Dados cadastrais (editáveis pelo admin)
+  - Histórico completo de pedidos (com totais)
+  - Métricas: total gasto, quantidade de pedidos, último pedido
+  - Notas internas do admin sobre o cliente
+- Ação: resetar senha do cliente (via `supabase.auth.admin` em edge function)
+- Ação: desativar/banir cliente
 
-#### 3. Funcionalidades de e-commerce faltantes
-- **Gestao de pedidos**: Tabela `orders` para rastrear pedidos (hoje so manda WhatsApp sem registro)
-- **Cupons/descontos**: Sistema de promocoes
-- **Frete e CEP**: Calculo de frete ou pelo menos informacao de envio
-- **Favoritos/wishlist**: Salvar produtos que a cliente gostou
-- **Avaliacoes/reviews**: Social proof nos produtos
+**4. Edge function `admin-manage-user`**
 
-#### 4. Marketing e conversao
-- **Banner rotativo na home**: Em vez de hero estatico, carousel com campanhas/promocoes
-- **Secao Instagram/Social**: Feed ou link para redes sociais
-- **Newsletter/captacao de leads**: Campo de email no footer ou popup
-- **SEO**: Meta tags, Open Graph, sitemap
+- Função serverless que usa `SUPABASE_SERVICE_ROLE_KEY` para:
+  - Resetar senha (envia email de recuperação)
+  - Desativar conta
+- Protegida: verifica se quem chama é admin via `has_role`
 
-#### 5. Experiencia mobile
-- **PWA**: App-like experience no celular
-- **Compartilhar produto**: Botao de compartilhar via WhatsApp/redes
+**5. Navegação**
 
-#### 6. Admin mais robusto
-- **Painel de pedidos**: Visualizar pedidos recebidos via WhatsApp (ou internamente)
-- **Relatorios**: Produtos mais vistos, cliques no WhatsApp, conversao
-- **Gestao de banners**: Admin para trocar hero/banners sem codigo
-- **Gestao de cupons**: Criar e gerenciar codigos de desconto
+- Adicionar "Clientes" (`Users` icon) no menu lateral do admin entre Pedidos e Newsletter
 
----
+### Estrutura da tabela `profiles`
 
-### Prioridades recomendadas (ordem de impacto)
+```text
+profiles
+├── id          uuid  PK  (= auth.users.id)
+├── full_name   text
+├── phone       text
+├── address     text
+├── notes       text       (notas internas admin)
+├── created_at  timestamptz
+└── updated_at  timestamptz
+```
 
-| Prioridade | Adaptacao | Justificativa |
-|---|---|---|
-| 1 | Assistente de estilo IA | Diferencial central da marca |
-| 2 | Pagina "Sobre" com conceito AI-First | Posicionamento de marca |
-| 3 | Registro de pedidos no banco | Controle basico de vendas |
-| 4 | Newsletter + SEO | Captacao e descoberta |
-| 5 | Favoritos + Compartilhar | Engajamento do cliente |
+### Arquivos novos/editados
 
----
-
-Se quiser, posso comecar implementando qualquer um desses itens. Qual voce quer priorizar?
+| Arquivo | Ação |
+|---------|------|
+| Migration SQL | Criar `profiles`, trigger, coluna `customer_id` em orders |
+| `supabase/functions/admin-manage-user/index.ts` | Edge function para reset senha / desativar |
+| `src/pages/admin/AdminCustomers.tsx` | Lista + ficha de clientes |
+| `src/pages/admin/AdminLayout.tsx` | Adicionar link "Clientes" |
+| `src/App.tsx` | Rota `/admin/clientes` + rotas de conta do cliente |
+| `src/pages/account/Login.tsx` | Login do cliente |
+| `src/pages/account/Register.tsx` | Cadastro do cliente |
+| `src/pages/account/Account.tsx` | Área do cliente (perfil + histórico) |
+| `src/components/layout/Navbar.tsx` | Link para conta/login |
 
