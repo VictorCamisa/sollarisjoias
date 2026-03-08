@@ -20,13 +20,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const checkAdmin = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
-    setIsAdmin(!!data);
+
+    if (error) {
+      setIsAdmin(false);
+      return false;
+    }
+
+    const isUserAdmin = !!data;
+    setIsAdmin(isUserAdmin);
+    return isUserAdmin;
   };
 
   useEffect(() => {
@@ -43,14 +51,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const initSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        checkAdmin(session.user.id);
+        await checkAdmin(session.user.id);
+      } else {
+        setIsAdmin(false);
       }
+
       setLoading(false);
-    });
+    };
+
+    initSession();
 
     return () => subscription.unsubscribe();
   }, []);
