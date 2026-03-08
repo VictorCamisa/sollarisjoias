@@ -23,6 +23,10 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
+import AdminCustomers from "./pages/admin/AdminCustomers";
+import AccountLogin from "./pages/account/Login";
+import AccountRegister from "./pages/account/Register";
+import Account from "./pages/account/Account";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
