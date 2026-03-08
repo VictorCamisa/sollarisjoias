@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,88 +6,105 @@
 
 @layer base {
   :root {
-    --background: 30 25% 95%;
-    --foreground: 20 10% 10%;
+    /* Brand Guide: Larifa Identity System */
+    /* Primary: Azul Larifa #1B4F8A → hsl(213, 67%, 32%) */
+    --primary: 213 67% 32%;
+    --primary-foreground: 0 0% 100%;
 
-    --card: 30 20% 97%;
-    --card-foreground: 20 10% 10%;
+    /* Background: Off-White Quente #FAF7F2 → hsl(36, 53%, 96%) */
+    --background: 36 53% 96%;
+    --foreground: 240 28% 14%;  /* #1A1A2E */
 
-    --popover: 30 20% 97%;
-    --popover-foreground: 20 10% 10%;
+    /* Card: White #FFFFFF */
+    --card: 0 0% 100%;
+    --card-foreground: 240 28% 14%;
 
-    --primary: 20 10% 10%;
-    --primary-foreground: 30 25% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 28% 14%;
 
-    --secondary: 28 18% 91%;
-    --secondary-foreground: 20 10% 10%;
+    /* Secondary: Nude/Champagne #E8DDD3 → hsl(29, 27%, 87%) */
+    --secondary: 29 27% 87%;
+    --secondary-foreground: 240 28% 14%;
 
-    --muted: 25 12% 92%;
-    --muted-foreground: 20 8% 46%;
+    /* Muted: Nude Claro #F0E8DF → hsl(30, 33%, 91%) */
+    --muted: 30 33% 91%;
+    --muted-foreground: 240 7% 46%;  /* #6B6B7B */
 
-    --accent: 16 45% 59%;
-    --accent-foreground: 30 25% 95%;
+    /* Accent: Dourado Ouro 18k #B8860B → hsl(43, 89%, 38%) */
+    --accent: 43 89% 38%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 25 15% 88%;
-    --input: 25 15% 88%;
-    --ring: 16 45% 59%;
+    /* Border: Nude #E8DDD3 */
+    --border: 29 27% 87%;
+    --input: 29 27% 87%;
+    --ring: 213 67% 32%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem; /* 8px per Brand Guide */
 
-    --sidebar-background: 30 20% 97%;
-    --sidebar-foreground: 20 10% 10%;
-    --sidebar-primary: 20 10% 10%;
-    --sidebar-primary-foreground: 30 20% 97%;
-    --sidebar-accent: 28 18% 91%;
-    --sidebar-accent-foreground: 20 10% 10%;
-    --sidebar-border: 25 15% 88%;
-    --sidebar-ring: 16 45% 59%;
+    /* Brand-specific tokens */
+    --larifa-blue: 213 67% 32%;         /* #1B4F8A */
+    --larifa-blue-dark: 215 73% 22%;    /* #0F3460 */
+    --larifa-blue-light: 213 63% 44%;   /* #2A6CB7 */
+    --larifa-gold: 43 89% 38%;          /* #B8860B */
+    --larifa-gold-light: 43 75% 49%;    /* #DAA520 */
+    --larifa-bg: 36 53% 96%;            /* #FAF7F2 */
+    --larifa-bg-warm: 32 26% 92%;       /* #F3EDE4 */
+    --larifa-nude: 29 27% 87%;          /* #E8DDD3 */
+    --larifa-nude-light: 30 33% 91%;    /* #F0E8DF */
+    --larifa-text: 240 28% 14%;         /* #1A1A2E */
+    --larifa-text-light: 240 7% 46%;    /* #6B6B7B */
 
-    --larifa-cream: 30 25% 95%;
-    --larifa-warm: 28 18% 91%;
-    --larifa-terracotta: 16 45% 59%;
-    --larifa-charcoal: 20 10% 10%;
+    /* Sidebar (admin) */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 28% 14%;
+    --sidebar-primary: 213 67% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 33% 91%;
+    --sidebar-accent-foreground: 240 28% 14%;
+    --sidebar-border: 29 27% 87%;
+    --sidebar-ring: 213 67% 32%;
   }
 
   .dark {
-    --background: 20 15% 7%;
-    --foreground: 30 20% 92%;
+    --background: 240 20% 6%;
+    --foreground: 36 30% 92%;
 
-    --card: 20 12% 10%;
-    --card-foreground: 30 20% 92%;
+    --card: 240 15% 9%;
+    --card-foreground: 36 30% 92%;
 
-    --popover: 20 12% 10%;
-    --popover-foreground: 30 20% 92%;
+    --popover: 240 15% 9%;
+    --popover-foreground: 36 30% 92%;
 
-    --primary: 30 20% 92%;
-    --primary-foreground: 20 15% 7%;
+    --primary: 213 67% 52%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 10% 14%;
-    --secondary-foreground: 30 20% 92%;
+    --secondary: 240 10% 14%;
+    --secondary-foreground: 36 30% 92%;
 
-    --muted: 20 8% 15%;
-    --muted-foreground: 25 10% 60%;
+    --muted: 240 8% 15%;
+    --muted-foreground: 240 7% 55%;
 
-    --accent: 16 45% 50%;
-    --accent-foreground: 30 20% 92%;
+    --accent: 43 75% 49%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 10% 18%;
-    --input: 20 10% 18%;
-    --ring: 16 45% 50%;
+    --border: 240 10% 18%;
+    --input: 240 10% 18%;
+    --ring: 213 67% 52%;
 
-    --sidebar-background: 20 15% 7%;
-    --sidebar-foreground: 30 20% 92%;
-    --sidebar-primary: 16 45% 60%;
-    --sidebar-primary-foreground: 20 15% 7%;
-    --sidebar-accent: 20 10% 14%;
-    --sidebar-accent-foreground: 30 20% 92%;
-    --sidebar-border: 20 10% 18%;
-    --sidebar-ring: 16 45% 50%;
+    --sidebar-background: 240 20% 6%;
+    --sidebar-foreground: 36 30% 92%;
+    --sidebar-primary: 213 67% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 10% 14%;
+    --sidebar-accent-foreground: 36 30% 92%;
+    --sidebar-border: 240 10% 18%;
+    --sidebar-ring: 213 67% 52%;
   }
 }
 
@@ -101,7 +118,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
   }
 }
 
@@ -112,5 +129,19 @@
   }
   .animate-marquee {
     animation: marquee 20s linear infinite;
+  }
+
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-slide-up {
+    animation: fadeSlideUp 0.6s ease-out forwards;
   }
 }

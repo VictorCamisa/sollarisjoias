@@ -14,13 +14,13 @@ export default {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1280px",
       },
     },
     extend: {
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["Cormorant Garamond", "Georgia", "serif"],
+        sans: ["DM Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,10 +67,17 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         larifa: {
-          cream: "hsl(var(--larifa-cream))",
-          warm: "hsl(var(--larifa-warm))",
-          terracotta: "hsl(var(--larifa-terracotta))",
-          charcoal: "hsl(var(--larifa-charcoal))",
+          blue: "hsl(var(--larifa-blue))",
+          "blue-dark": "hsl(var(--larifa-blue-dark))",
+          "blue-light": "hsl(var(--larifa-blue-light))",
+          gold: "hsl(var(--larifa-gold))",
+          "gold-light": "hsl(var(--larifa-gold-light))",
+          bg: "hsl(var(--larifa-bg))",
+          "bg-warm": "hsl(var(--larifa-bg-warm))",
+          nude: "hsl(var(--larifa-nude))",
+          "nude-light": "hsl(var(--larifa-nude-light))",
+          text: "hsl(var(--larifa-text))",
+          "text-light": "hsl(var(--larifa-text-light))",
         },
       },
       borderRadius: {
