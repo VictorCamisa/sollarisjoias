@@ -1,15 +1,30 @@
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useMemo } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import ProductCard, { ProductCardSkeleton } from "@/components/store/ProductCard";
 import { useProducts, useCategories } from "@/hooks/useStore";
 import { Button } from "@/components/ui/button";
 
+const NEW_PRODUCTS_DAYS = 30;
+
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { pathname } = useLocation();
+  const isNovidadesPage = pathname === "/novidades";
   const activeCategory = searchParams.get("categoria") || undefined;
+
   const { data: products, isLoading } = useProducts(activeCategory);
   const { data: categories } = useCategories();
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    if (!isNovidadesPage) return products;
+
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - NEW_PRODUCTS_DAYS);
+
+    return products.filter((p) => new Date(p.created_at) >= cutoff);
+  }, [products, isNovidadesPage]);
 
   return (
     <div className="pt-24 pb-16">
@@ -20,9 +35,13 @@ const Products = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold mb-4">Coleção</h1>
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold mb-4">
+            {isNovidadesPage ? "Novidades" : "Coleção"}
+          </h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Explore todas as peças da LARIFA.
+            {isNovidadesPage
+              ? `Peças adicionadas nos últimos ${NEW_PRODUCTS_DAYS} dias.`
+              : "Explore todas as peças da LARIFA."}
           </p>
         </motion.div>
 
@@ -54,8 +73,8 @@ const Products = () => {
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading
             ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            : products && products.length > 0
-              ? products.map((p, i) => (
+            : filteredProducts.length > 0
+              ? filteredProducts.map((p, i) => (
                   <ProductCard
                     key={p.id}
                     id={p.id}
@@ -68,7 +87,11 @@ const Products = () => {
                 ))
               : (
                 <div className="col-span-full text-center text-muted-foreground py-20">
-                  <p>Nenhum produto encontrado.</p>
+                  <p>
+                    {isNovidadesPage
+                      ? "Nenhuma novidade encontrada no período."
+                      : "Nenhum produto encontrado."}
+                  </p>
                 </div>
               )}
         </div>
