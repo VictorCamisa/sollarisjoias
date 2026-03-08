@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ShoppingBag, Search, Menu, X, Heart, User, Truck, CreditCard, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
+import logoImg from "@/assets/logo-larifa.png";
 import { useFavorites } from "@/contexts/FavoritesContext";
 
 const TopBar = () => (
@@ -66,9 +67,7 @@ const Navbar = () => {
 
           {/* Center: Logo */}
           <Link to="/" className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:mx-auto">
-            <span className="font-serif text-[32px] font-semibold tracking-tight text-primary">
-              Larifa<span className="text-accent">.</span>
-            </span>
+            <img src={logoImg} alt="Larifa." className="h-10 md:h-12 w-auto" />
           </Link>
 
           {/* Right nav (desktop) */}

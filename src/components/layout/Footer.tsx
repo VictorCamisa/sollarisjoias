@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import NewsletterForm from "@/components/store/NewsletterForm";
 import { Instagram } from "lucide-react";
+import logoImg from "@/assets/logo-larifa.png";
 
 const Footer = () => {
   return (
@@ -9,9 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo + tagline */}
           <div>
-            <span className="font-serif text-2xl font-semibold">
-              Larifa<span className="text-accent">.</span>
-            </span>
+            <img src={logoImg} alt="Larifa." className="h-10 w-auto brightness-0 invert" />
             <p className="text-background/60 text-sm font-sans leading-relaxed mt-4 max-w-xs">
               Semijoias premium com design exclusivo e qualidade de joalheria. Cada peça conta a sua história.
             </p>
