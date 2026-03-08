@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ShoppingBag, Search, Menu, X, Heart, User, Truck, CreditCard, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
+import logoImg from "@/assets/logo-larifa.png";
 import { useFavorites } from "@/contexts/FavoritesContext";
 
 const TopBar = () => (
