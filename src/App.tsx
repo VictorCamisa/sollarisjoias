@@ -43,6 +43,7 @@ const App = () => (
             <CartDrawer />
             <StyleAssistant />
             <BrowserRouter>
+              <ScrollToTop />
               <Routes>
                 {/* Storefront */}
                 <Route element={<StoreLayout />}>
