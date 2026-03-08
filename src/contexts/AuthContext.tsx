@@ -20,54 +20,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const checkAdmin = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
 
-    if (error) {
+      if (error) {
+        setIsAdmin(false);
+        return false;
+      }
+
+      const isUserAdmin = !!data;
+      setIsAdmin(isUserAdmin);
+      return isUserAdmin;
+    } catch {
       setIsAdmin(false);
       return false;
     }
-
-    const isUserAdmin = !!data;
-    setIsAdmin(isUserAdmin);
-    return isUserAdmin;
   };
 
   useEffect(() => {
+    const hardTimeout = window.setTimeout(() => {
+      setLoading(false);
+    }, 4000);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
         if (session?.user) {
-          await checkAdmin(session.user.id);
+          void checkAdmin(session.user.id);
         } else {
           setIsAdmin(false);
         }
+
         setLoading(false);
       }
     );
 
     const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
 
-      if (session?.user) {
-        await checkAdmin(session.user.id);
-      } else {
-        setIsAdmin(false);
+        if (session?.user) {
+          void checkAdmin(session.user.id);
+        } else {
+          setIsAdmin(false);
+        }
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
-    initSession();
+    void initSession();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      window.clearTimeout(hardTimeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
