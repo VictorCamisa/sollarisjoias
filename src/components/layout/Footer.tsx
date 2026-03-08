@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import NewsletterForm from "@/components/store/NewsletterForm";
 import { Instagram } from "lucide-react";
+import logoImg from "@/assets/logo-larifa.png";
 
 const Footer = () => {
   return (
