@@ -52,6 +52,9 @@ const App = () => (
                   <Route path="/busca" element={<SearchPage />} />
                   <Route path="/sobre" element={<About />} />
                   <Route path="/favoritos" element={<Favorites />} />
+                  <Route path="/conta/login" element={<AccountLogin />} />
+                  <Route path="/conta/cadastro" element={<AccountRegister />} />
+                  <Route path="/conta" element={<Account />} />
                 </Route>
 
                 {/* Admin */}
