@@ -12,11 +12,13 @@ const AdminSettings = () => {
   const { data: settings, isLoading } = useSettings();
   const [whatsapp, setWhatsapp] = useState("");
   const [storeName, setStoreName] = useState("");
+  const [pixDiscount, setPixDiscount] = useState("5");
 
   useEffect(() => {
     if (settings) {
       setWhatsapp(settings.whatsapp_number);
       setStoreName(settings.store_name);
+      setPixDiscount(String(settings.pix_discount_percent ?? 5));
     }
   }, [settings]);
 
@@ -25,7 +27,11 @@ const AdminSettings = () => {
       if (!settings) return;
       const { error } = await supabase
         .from("settings")
-        .update({ whatsapp_number: whatsapp, store_name: storeName })
+        .update({
+          whatsapp_number: whatsapp,
+          store_name: storeName,
+          pix_discount_percent: parseFloat(pixDiscount) || 5,
+        })
         .eq("id", settings.id);
       if (error) throw error;
     },
@@ -51,6 +57,11 @@ const AdminSettings = () => {
           <Label className="text-xs">Número do WhatsApp (com DDI)</Label>
           <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} className="rounded-xl mt-1" placeholder="5511999999999" />
           <p className="text-[11px] text-muted-foreground mt-1">Formato: 55 + DDD + número, sem espaços</p>
+        </div>
+        <div>
+          <Label className="text-xs">Desconto PIX (%)</Label>
+          <Input type="number" step="0.5" min="0" max="50" value={pixDiscount} onChange={(e) => setPixDiscount(e.target.value)} className="rounded-xl mt-1" />
+          <p className="text-[11px] text-muted-foreground mt-1">Percentual de desconto para pagamento via PIX</p>
         </div>
         <Button onClick={() => mutation.mutate()} className="rounded-xl" disabled={mutation.isPending}>
           {mutation.isPending ? "Salvando..." : "Salvar Configurações"}
