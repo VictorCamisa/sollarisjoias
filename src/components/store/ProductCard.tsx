@@ -20,72 +20,65 @@ const ProductCard = ({ id, name, price, originalPrice, image, category, index = 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.08, ease: "easeOut" }}
+      transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
     >
-      <Link
-        to={`/produto/${id}`}
-        className="group block relative"
-      >
-        {/* Image area */}
-        <div
-          className="aspect-[3/4] rounded-xl overflow-hidden mb-3 relative bg-gradient-to-br from-larifa-nude-light to-larifa-nude"
-          style={{
-            boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
-            transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-          }}
-        >
+      <Link to={`/produto/${id}`} className="group block">
+        {/* Image */}
+        <div className="aspect-[3/4] overflow-hidden mb-3 relative bg-secondary">
           {image ? (
             <img
               src={image}
               alt={name}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-larifa-nude-light to-larifa-nude group-hover:scale-105 transition-transform duration-500" />
+            <div className="w-full h-full bg-secondary" />
           )}
 
-          {/* Badges */}
+          {/* Badge */}
           {badge && (
-            <span
-              className={cn(
-                "absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.05em] font-sans text-primary-foreground",
-                badge === "Novo" ? "bg-primary" : badge === "Esgotado" ? "bg-muted-foreground" : "bg-accent"
-              )}
-            >
+            <span className={cn(
+              "absolute top-3 left-3 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
+              badge === "Novo" ? "bg-foreground text-background" : 
+              badge === "Esgotado" ? "bg-muted-foreground text-background" : 
+              "bg-foreground text-background"
+            )}>
               {badge}
             </span>
           )}
 
           {hasDiscount && !badge && (
-            <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.05em] font-sans bg-accent text-accent-foreground">
+            <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide bg-foreground text-background">
               -{discountPercent}%
             </span>
           )}
 
-          <div className="absolute top-3 right-3">
-            <FavoriteButton productId={id} className="bg-card/80 backdrop-blur-sm" />
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <FavoriteButton productId={id} className="bg-card/90 backdrop-blur-sm" />
           </div>
         </div>
 
         {/* Info */}
-        {category && (
-          <p className="text-[11px] tracking-[0.10em] uppercase font-sans font-semibold text-accent mb-1">
-            {category}
-          </p>
-        )}
-        <p className="font-serif text-[15px] font-medium text-foreground">{name}</p>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          {hasDiscount && (
-            <span className="text-xs font-sans text-muted-foreground line-through">
-              R$ {originalPrice.toFixed(2).replace(".", ",")}
-            </span>
+        <div className="space-y-1">
+          {category && (
+            <p className="text-[10px] tracking-[0.1em] uppercase text-muted-foreground">
+              {category}
+            </p>
           )}
-          <span className="text-lg font-sans font-bold text-primary">
-            R$ {price.toFixed(2).replace(".", ",")}
-          </span>
+          <p className="font-serif text-[15px] text-foreground leading-snug">{name}</p>
+          <div className="flex items-baseline gap-2">
+            {hasDiscount && (
+              <span className="text-xs text-muted-foreground line-through">
+                R$ {originalPrice.toFixed(2).replace(".", ",")}
+              </span>
+            )}
+            <span className="text-sm font-medium text-foreground">
+              R$ {price.toFixed(2).replace(".", ",")}
+            </span>
+          </div>
         </div>
       </Link>
     </motion.div>
@@ -98,10 +91,10 @@ function cn(...classes: (string | false | undefined)[]) {
 
 export const ProductCardSkeleton = () => (
   <div>
-    <Skeleton className="aspect-[3/4] rounded-xl mb-3" />
-    <Skeleton className="h-3 w-16 mb-2" />
-    <Skeleton className="h-4 w-32 mb-1" />
-    <Skeleton className="h-5 w-20" />
+    <Skeleton className="aspect-[3/4] mb-3" />
+    <Skeleton className="h-2.5 w-14 mb-2" />
+    <Skeleton className="h-4 w-28 mb-1.5" />
+    <Skeleton className="h-3.5 w-20" />
   </div>
 );
 
