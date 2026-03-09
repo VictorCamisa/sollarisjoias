@@ -140,18 +140,24 @@ async function executeTool(name: string, args: any, orderState: any): Promise<{ 
     case "search_products": {
       let query = supabase.from("products").select(PRODUCT_FIELDS).eq("stock_status", true);
       
+      if (args.category) {
+        // First find category ID, then filter
+        const { data: cats } = await supabase.from("categories").select("id").ilike("name", `%${args.category}%`);
+        const catIds = (cats || []).map((c: any) => c.id);
+        if (catIds.length > 0) {
+          query = query.in("category_id", catIds);
+        }
+      }
       if (args.query) {
-        // Search in name, description, tags_seo, and material
         query = query.or(`name.ilike.%${args.query}%,description.ilike.%${args.query}%,tags_seo.ilike.%${args.query}%`);
       }
-      if (args.category) query = query.ilike("categories.name", `%${args.category}%`);
       if (args.max_price) query = query.lte("price", args.max_price);
       if (args.banho) query = query.ilike("banho", `%${args.banho}%`);
       if (args.pedra) query = query.ilike("pedra", `%${args.pedra}%`);
       if (args.color) query = query.contains("colors", [args.color]);
       if (args.size) query = query.contains("sizes", [args.size]);
       
-      const { data } = await query.order("is_featured", { ascending: false }).limit(4);
+      const { data } = await query.order("is_featured", { ascending: false }).limit(2);
 
       const products = (data || []).map((p: any) => ({
         id: p.id,
@@ -372,7 +378,9 @@ Com nome + WhatsApp + itens confirmados: collect_customer_info → submit_order
 ## REGRAS IMPORTANTES
 - NUNCA invente produtos. SEMPRE busque com search_products
 - NUNCA diga que vende roupas, sapatos ou qualquer coisa que não seja semijoia
-- Máximo 2 sugestões por vez
+- Máximo 2 sugestões por vez — NUNCA mostre mais que 2 produtos de uma vez
+- Quando falar "encontrei X opções", o número X DEVE corresponder EXATAMENTE ao número de produtos que você vai mostrar
+- Se a busca retornar 2 produtos, diga "encontrei 2 opções". Se retornar 1, diga "encontrei 1 opção"
 - SEMPRE colete nome no início e WhatsApp no final
 - Use o nome da cliente sempre que possível
 - Responda SEMPRE em português brasileiro
