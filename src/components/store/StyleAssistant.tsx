@@ -253,6 +253,7 @@ const StyleAssistant = () => {
   const [messages, setMessages] = useState<RichMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
   const [orderState, setOrderState] = useState<OrderState>({ items: [], customer: {} });
   const [pendingOrder, setPendingOrder] = useState<{
     order_id: string;
