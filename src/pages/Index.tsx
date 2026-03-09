@@ -422,9 +422,9 @@ const NewsletterSection = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center justify-center gap-3 mb-5">
-              <div className="w-8 h-[1px] bg-accent/40" />
-              <Diamond className="h-2.5 w-2.5 text-accent/50" />
-              <div className="w-8 h-[1px] bg-accent/40" />
+              <div className="w-8 h-[1px] bg-accent/50" />
+              <Diamond className="h-2.5 w-2.5 text-accent/70" />
+              <div className="w-8 h-[1px] bg-accent/50" />
             </div>
             <h2 className="text-[28px] sm:text-[34px] font-serif text-primary-foreground mb-3">
               Fique por dentro
