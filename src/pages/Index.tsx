@@ -15,53 +15,71 @@ import bannerConjuntos from "@/assets/banners/banner-conjuntos.jpg";
 import bannerBrincos from "@/assets/banners/banner-brincos.jpg";
 import bannerPromocional from "@/assets/banners/banner-promocional.jpg";
 
-/* ─────────────────────────────────────────────────────────────────
-   HERO - Editorial Refinado
-───────────────────────────────────────────────────────────────── */
+// Category images
+import catAneis from "@/assets/categories/aneis.jpg";
+import catBrincos from "@/assets/categories/brincos.jpg";
+import catColares from "@/assets/categories/colares.jpg";
+import catConjuntos from "@/assets/categories/conjuntos.jpg";
+import catPiercings from "@/assets/categories/piercings.jpg";
+import catPulseiras from "@/assets/categories/pulseiras.jpg";
+
+const categoryImages: Record<string, string> = {
+  aneis: catAneis,
+  brincos: catBrincos,
+  colares: catColares,
+  conjuntos: catConjuntos,
+  piercings: catPiercings,
+  pulseiras: catPulseiras,
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════════ */
 const HeroSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
   return (
-    <section ref={ref} className="relative h-[85vh] min-h-[500px] max-h-[700px] overflow-hidden">
-      {/* Background Image */}
+    <section ref={ref} className="relative h-[90vh] min-h-[550px] max-h-[800px] overflow-hidden">
       <div className="absolute inset-0">
         <img
           src={bannerHero}
           alt="Larifa — Semijoias Premium"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 
-      {/* Content */}
-      <div className="absolute inset-0 flex items-end">
-        <div className="container mx-auto px-6 pb-16 md:pb-20">
+      <div className="absolute inset-0 flex items-center">
+        <div className="container mx-auto px-8 md:px-12">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-xl"
+            transition={{ duration: 0.9, delay: 0.3 }}
+            className="max-w-lg"
           >
-            <p className="text-caption text-white/70 mb-4">Nova Coleção</p>
-            <h1 className="text-display md:text-display-lg font-serif text-white mb-6">
-              Semijoias que<br />
-              <em className="font-light">contam histórias</em>
-            </h1>
-            <p className="text-white/70 text-base font-light mb-8 max-w-md leading-relaxed">
-              Peças atemporais com banho de ouro 18k, feitas para 
-              acompanhar você em cada momento especial.
+            <p className="text-[12px] tracking-[0.2em] uppercase font-medium text-white/80 mb-5">
+              Nova Coleção
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <h1 className="text-[44px] md:text-[60px] lg:text-[68px] font-serif text-white leading-[1.05] mb-6">
+              Semijoias que<br />
+              <em className="font-light italic">contam histórias</em>
+            </h1>
+            <p className="text-white/70 text-[16px] font-light mb-10 max-w-sm leading-relaxed">
+              Peças atemporais com banho de ouro 18k, 
+              feitas para cada momento especial.
+            </p>
+            <div className="flex gap-4">
               <Link to="/produtos">
-                <Button className="h-11 px-8 text-[13px] tracking-wide font-medium bg-white text-foreground hover:bg-white/90 transition-all">
+                <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-white text-foreground hover:bg-white/90 rounded-none transition-all">
                   Ver Coleção
                 </Button>
               </Link>
               <Link to="/novidades">
                 <Button 
                   variant="outline" 
-                  className="h-11 px-8 text-[13px] tracking-wide font-medium border-white/40 text-white bg-transparent hover:bg-white/10"
+                  className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium border-white/50 text-white bg-transparent hover:bg-white/10 rounded-none"
                 >
                   Novidades
                 </Button>
@@ -74,55 +92,65 @@ const HeroSection = () => {
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   TRUST BAR - Minimalista
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   TRUST BAR
+═══════════════════════════════════════════════════════════════ */
 const TrustBar = () => (
-  <section className="bg-card border-b border-border">
-    <div className="container mx-auto px-6 py-4">
-      <div className="flex items-center justify-center gap-8 md:gap-16 flex-wrap text-muted-foreground">
-        {["Frete grátis +R$199", "Garantia 6 meses", "Banho 18k", "3x sem juros"].map((item) => (
-          <span key={item} className="text-[11px] tracking-wide font-medium uppercase">
+  <div className="border-b border-border/50 bg-background">
+    <div className="container mx-auto px-8 md:px-12 py-5">
+      <div className="flex items-center justify-between gap-4 flex-wrap text-muted-foreground">
+        {["Frete grátis acima de R$199", "Garantia de 6 meses", "Banho de ouro 18k", "Até 3x sem juros"].map((item) => (
+          <span key={item} className="text-[11px] tracking-[0.1em] uppercase font-medium">
             {item}
           </span>
         ))}
       </div>
     </div>
-  </section>
+  </div>
 );
 
-/* ─────────────────────────────────────────────────────────────────
-   CATEGORIES - Grid Limpo
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   CATEGORIES WITH IMAGES
+═══════════════════════════════════════════════════════════════ */
 const CategoryGrid = ({ categories }: { categories: { id: string; name: string; slug: string }[] }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <section ref={ref} className="py-16 md:py-20">
-      <div className="container mx-auto px-6">
+    <section ref={ref} className="py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-8 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="text-center mb-10"
+          className="text-center mb-14"
         >
-          <h2 className="text-display-sm font-serif text-foreground">Categorias</h2>
+          <p className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-3">Explore</p>
+          <h2 className="text-[36px] md:text-[42px] font-serif text-foreground">Categorias</h2>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
           {categories.map((cat, i) => (
             <motion.div
               key={cat.id}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
+              transition={{ duration: 0.4, delay: i * 0.06 }}
             >
               <Link
                 to={`/produtos?categoria=${cat.slug}`}
-                className="inline-block px-6 py-3 border border-border text-sm font-medium text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all duration-300"
+                className="group block"
               >
-                {cat.name}
+                <div className="aspect-[3/4] overflow-hidden mb-3">
+                  <img
+                    src={categoryImages[cat.slug] || catAneis}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <p className="text-center text-[13px] tracking-wide font-medium text-foreground group-hover:text-muted-foreground transition-colors">
+                  {cat.name}
+                </p>
               </Link>
             </motion.div>
           ))}
@@ -132,34 +160,34 @@ const CategoryGrid = ({ categories }: { categories: { id: string; name: string; 
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   FEATURED PRODUCTS - Grid Premium
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   FEATURED PRODUCTS
+═══════════════════════════════════════════════════════════════ */
 const FeaturedProducts = ({ products, loading }: { products: any[] | undefined; loading: boolean }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-16 md:py-20 bg-card">
-      <div className="container mx-auto px-6">
+    <section ref={ref} className="py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-8 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-10"
+          className="flex flex-col md:flex-row md:items-end justify-between mb-12"
         >
           <div>
-            <p className="text-caption text-muted-foreground mb-2">Curadoria</p>
-            <h2 className="text-display-sm font-serif text-foreground">Mais Vendidos</h2>
+            <p className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-3">Curadoria</p>
+            <h2 className="text-[36px] md:text-[42px] font-serif text-foreground">Mais Vendidos</h2>
           </div>
           <Link to="/produtos" className="mt-4 md:mt-0">
-            <span className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors inline-flex items-center gap-2">
+            <span className="text-[13px] font-medium text-foreground inline-flex items-center gap-2 hover:gap-3 transition-all">
               Ver todos <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
           {loading
             ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : products && products.length > 0
@@ -186,22 +214,21 @@ const FeaturedProducts = ({ products, loading }: { products: any[] | undefined; 
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   LAYERING EDITORIAL - Split Elegante
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   LAYERING EDITORIAL
+═══════════════════════════════════════════════════════════════ */
 const LayeringSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="bg-[#1a2332]">
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        {/* Image */}
+    <section ref={ref}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
         <motion.div
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}
-          className="aspect-[4/5] lg:aspect-auto overflow-hidden"
+          className="overflow-hidden"
         >
           <img 
             src={bannerLayering} 
@@ -210,23 +237,22 @@ const LayeringSection = () => {
           />
         </motion.div>
         
-        {/* Content */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={inView ? { opacity: 1, x: 0 } : {}}
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex items-center justify-center p-10 md:p-16 lg:p-20"
+          className="flex items-center justify-center p-12 md:p-20 bg-foreground"
         >
           <div className="max-w-sm">
-            <p className="text-caption text-white/50 mb-4">Tendência</p>
-            <h2 className="text-display-sm md:text-display font-serif text-white mb-5">
+            <p className="text-[11px] tracking-[0.2em] uppercase text-background/40 mb-5">Tendência</p>
+            <h2 className="text-[36px] md:text-[48px] font-serif text-background leading-[1.1] mb-6">
               A Arte do<br />Layering
             </h2>
-            <p className="text-white/60 text-base font-light leading-relaxed mb-8">
-              Combine colares de diferentes comprimentos para criar composições únicas e sofisticadas.
+            <p className="text-background/50 text-[15px] font-light leading-relaxed mb-10">
+              Combine colares de diferentes comprimentos e texturas para composições sofisticadas e únicas.
             </p>
             <Link to="/produtos?categoria=colares">
-              <Button className="h-11 px-8 text-[13px] tracking-wide font-medium bg-white text-[#1a2332] hover:bg-white/90">
+              <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-background text-foreground hover:bg-background/90 rounded-none">
                 Ver Colares
               </Button>
             </Link>
@@ -237,32 +263,22 @@ const LayeringSection = () => {
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   EDITORIAL GRID - 2 Cards
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   EDITORIAL 2-COL
+═══════════════════════════════════════════════════════════════ */
 const EditorialGrid = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
   const cards = [
-    {
-      image: bannerConjuntos,
-      title: "Conjuntos",
-      subtitle: "Harmonia perfeita",
-      link: "/produtos",
-    },
-    {
-      image: bannerPromocional,
-      title: "Presentes",
-      subtitle: "Para momentos especiais",
-      link: "/produtos?categoria=pulseiras",
-    },
+    { image: bannerConjuntos, title: "Conjuntos", subtitle: "Harmonia perfeita", link: "/produtos?categoria=conjuntos" },
+    { image: bannerPromocional, title: "Presentes", subtitle: "Para momentos especiais", link: "/produtos?categoria=pulseiras" },
   ];
 
   return (
-    <section ref={ref} className="py-16 md:py-20">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    <section ref={ref} className="bg-background">
+      <div className="container mx-auto px-8 md:px-12 py-20 md:py-28">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7">
           {cards.map((card, i) => (
             <motion.div
               key={card.title}
@@ -276,11 +292,11 @@ const EditorialGrid = () => {
                   alt={card.title} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
-                <div className="absolute inset-0 flex items-end p-6 md:p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+                <div className="absolute inset-0 flex items-end p-8 md:p-10">
                   <div>
-                    <p className="text-white/70 text-xs tracking-wide uppercase mb-1">{card.subtitle}</p>
-                    <h3 className="font-serif text-2xl text-white">{card.title}</h3>
+                    <p className="text-white/60 text-[11px] tracking-[0.15em] uppercase mb-2">{card.subtitle}</p>
+                    <h3 className="font-serif text-[28px] text-white">{card.title}</h3>
                   </div>
                 </div>
               </Link>
@@ -292,35 +308,35 @@ const EditorialGrid = () => {
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   EARRINGS BANNER - Wide Strip
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   EARRINGS BANNER
+═══════════════════════════════════════════════════════════════ */
 const EarringsBanner = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <section ref={ref} className="bg-secondary">
+    <section ref={ref} className="bg-background">
       <motion.div
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.6 }}
       >
-        <Link to="/produtos?categoria=brincos" className="group block">
-          <div className="container mx-auto px-6 py-8">
-            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-              <div className="flex-shrink-0 text-center md:text-left">
-                <p className="text-caption text-muted-foreground mb-1">Coleção</p>
-                <h2 className="text-display-sm font-serif text-foreground">Brincos</h2>
+        <Link to="/produtos?categoria=brincos" className="group block relative overflow-hidden">
+          <div className="container mx-auto px-8 md:px-12 pb-20">
+            <div className="relative overflow-hidden">
+              <img 
+                src={bannerBrincos} 
+                alt="Coleção de Brincos" 
+                className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-[11px] tracking-[0.2em] uppercase text-white/60 mb-2">Coleção Completa</p>
+                  <h2 className="text-[36px] md:text-[48px] font-serif text-white">Brincos</h2>
+                </div>
               </div>
-              <div className="flex-1 overflow-hidden rounded-sm">
-                <img 
-                  src={bannerBrincos} 
-                  alt="Coleção de Brincos" 
-                  className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                />
-              </div>
-              <ArrowRight className="h-5 w-5 text-foreground group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </Link>
@@ -329,32 +345,32 @@ const EarringsBanner = () => {
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   LARI CTA - Assistente
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   LARI CTA
+═══════════════════════════════════════════════════════════════ */
 const LariSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-16 md:py-20 bg-card border-y border-border">
-      <div className="container mx-auto px-6 text-center max-w-md">
+    <section ref={ref} className="py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-8 md:px-12 text-center max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
         >
-          <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto mb-6">
+          <div className="w-14 h-14 rounded-full border border-border flex items-center justify-center mx-auto mb-8">
             <Sparkles className="h-5 w-5 text-foreground" />
           </div>
-          <h2 className="text-display-sm font-serif text-foreground mb-4">
+          <h2 className="text-[36px] font-serif text-foreground mb-4">
             Precisa de ajuda?
           </h2>
-          <p className="text-muted-foreground text-base font-light leading-relaxed mb-8">
-            A Lari, nossa assistente virtual, ajuda você a encontrar a peça perfeita.
+          <p className="text-muted-foreground text-[15px] font-light leading-relaxed mb-10">
+            A Lari, nossa assistente virtual, encontra a peça perfeita pra você.
           </p>
           <Button
-            className="h-11 px-8 text-[13px] tracking-wide font-medium"
+            className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium rounded-none"
             onClick={() => {
               const btn = document.querySelector('[data-style-assistant-trigger]') as HTMLButtonElement;
               btn?.click();
@@ -368,25 +384,25 @@ const LariSection = () => {
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   NEWSLETTER - Refinada
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   NEWSLETTER
+═══════════════════════════════════════════════════════════════ */
 const NewsletterSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-16 md:py-20 bg-foreground">
-      <div className="container mx-auto px-6 text-center max-w-md">
+    <section ref={ref} className="py-20 md:py-28 bg-foreground">
+      <div className="container mx-auto px-8 md:px-12 text-center max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-display-sm font-serif text-background mb-3">
+          <h2 className="text-[36px] font-serif text-background mb-3">
             Fique por dentro
           </h2>
-          <p className="text-background/60 text-sm font-light mb-8">
+          <p className="text-background/50 text-[15px] font-light mb-10">
             Cadastre-se e ganhe 10% OFF na primeira compra.
           </p>
           <NewsletterForm />
@@ -396,9 +412,9 @@ const NewsletterSection = () => {
   );
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   MAIN PAGE
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   PAGE
+═══════════════════════════════════════════════════════════════ */
 const Index = () => {
   const { data: featured, isLoading: loadingFeatured } = useProducts(undefined, true);
   const { data: categories } = useCategories();
