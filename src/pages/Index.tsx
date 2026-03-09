@@ -344,8 +344,8 @@ const EarringsBanner = () => {
           >
             <div className="max-w-sm text-center lg:text-left">
               <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
-                <div className="w-6 h-[1px] bg-accent/50" />
-                <p className="text-[10px] tracking-[0.2em] uppercase text-accent/70 font-semibold">Coleção Completa</p>
+                <div className="w-6 h-[1px] bg-accent/70" />
+                <p className="text-[10px] tracking-[0.2em] uppercase text-accent font-semibold">Coleção Completa</p>
               </div>
               <h2 className="text-[30px] sm:text-[38px] md:text-[48px] font-serif text-primary-foreground leading-[1.08] mb-4 sm:mb-5">
                 Brincos
