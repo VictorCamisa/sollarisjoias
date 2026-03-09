@@ -253,8 +253,8 @@ const LayeringSection = () => {
           >
             <div className="max-w-sm text-center lg:text-left">
               <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
-                <div className="w-6 h-[1px] bg-accent/50" />
-                <p className="text-[10px] tracking-[0.2em] uppercase text-accent/70 font-semibold">Tendência</p>
+                <div className="w-6 h-[1px] bg-accent/70" />
+                <p className="text-[10px] tracking-[0.2em] uppercase text-accent font-semibold">Tendência</p>
               </div>
               <h2 className="text-[28px] sm:text-[36px] md:text-[48px] font-serif text-primary-foreground leading-[1.08] mb-4 sm:mb-5">
                 A Arte do<br />
