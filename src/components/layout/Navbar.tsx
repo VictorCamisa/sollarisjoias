@@ -162,25 +162,25 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <nav className="md:hidden bg-primary border-t border-primary-foreground/10 px-6 py-5 space-y-1">
-          <Link to="/" className="block text-primary-foreground py-2.5 text-[14px] font-medium">Início</Link>
+        <nav className="md:hidden bg-primary/95 backdrop-blur-md border-t border-foreground/10 px-6 py-5 space-y-1">
+          <Link to="/" className="block text-foreground py-2.5 text-[14px] font-medium">Início</Link>
 
           <div>
             <button
               onClick={() => setMobileCatOpen(!mobileCatOpen)}
-              className="flex items-center justify-between w-full text-primary-foreground py-2.5 text-[14px] font-medium"
+              className="flex items-center justify-between w-full text-foreground py-2.5 text-[14px] font-medium"
             >
               Coleção
               <ChevronDown className={cn("h-4 w-4 transition-transform", mobileCatOpen && "rotate-180")} />
             </button>
             {mobileCatOpen && (
               <div className="pl-4 pb-2 space-y-1">
-                <Link to="/produtos" className="block text-primary-foreground/60 py-2 text-[14px]">Ver Tudo</Link>
+                <Link to="/produtos" className="block text-foreground/60 py-2 text-[14px]">Ver Tudo</Link>
                 {categories?.map((cat) => (
                   <Link
                     key={cat.id}
                     to={`/produtos?categoria=${cat.slug}`}
-                    className="block text-primary-foreground/60 py-2 text-[14px]"
+                    className="block text-foreground/60 py-2 text-[14px]"
                   >
                     {cat.name}
                   </Link>
@@ -189,12 +189,12 @@ const Navbar = () => {
             )}
           </div>
 
-          <Link to="/novidades" className="block text-primary-foreground py-2.5 text-[14px] font-medium">Novidades</Link>
-          <Link to="/sobre" className="block text-primary-foreground py-2.5 text-[14px] font-medium">Sobre</Link>
+          <Link to="/novidades" className="block text-foreground py-2.5 text-[14px] font-medium">Novidades</Link>
+          <Link to="/sobre" className="block text-foreground py-2.5 text-[14px] font-medium">Sobre</Link>
 
-          <div className="border-t border-primary-foreground/10 mt-3 pt-3 space-y-1">
-            <Link to="/busca" className="block text-primary-foreground/60 py-2.5 text-[14px]">Buscar</Link>
-            <Link to="/conta" className="block text-primary-foreground/60 py-2.5 text-[14px]">Minha Conta</Link>
+          <div className="border-t border-foreground/10 mt-3 pt-3 space-y-1">
+            <Link to="/busca" className="block text-foreground/60 py-2.5 text-[14px]">Buscar</Link>
+            <Link to="/conta" className="block text-foreground/60 py-2.5 text-[14px]">Minha Conta</Link>
           </div>
         </nav>
       )}
