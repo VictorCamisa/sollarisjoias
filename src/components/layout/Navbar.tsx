@@ -52,7 +52,7 @@ const Navbar = () => {
       {/* Main bar */}
       <div className="container mx-auto px-6">
         {/* Top row: Logo centered, mobile menu left, icons right */}
-        <div className="flex items-center justify-between h-[72px] md:h-[80px]">
+        <div className="flex items-center justify-between h-[80px] md:h-[90px] relative">
           {/* Mobile menu toggle */}
           <button 
             onClick={() => setMobileOpen(!mobileOpen)} 
@@ -63,7 +63,7 @@ const Navbar = () => {
 
           {/* Logo - left on desktop, center on mobile */}
           <Link to="/" className="md:mr-auto">
-            <img src={logoImg} alt="Larifa" className="h-10 md:h-12 w-auto" />
+            <img src={logoImg} alt="Larifa" className="h-12 md:h-[52px] w-auto" />
           </Link>
 
           {/* Desktop nav - center */}
