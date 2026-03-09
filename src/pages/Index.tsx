@@ -350,7 +350,7 @@ const EarringsBanner = () => {
               <h2 className="text-[30px] sm:text-[38px] md:text-[48px] font-serif text-primary-foreground leading-[1.08] mb-4 sm:mb-5">
                 Brincos
               </h2>
-              <p className="text-primary-foreground/40 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
+              <p className="text-primary-foreground/55 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
                 Argolas, gotas e studs — peças que emolduram seu rosto com elegância.
               </p>
               <Link to="/produtos?categoria=brincos">
