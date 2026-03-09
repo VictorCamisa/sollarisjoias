@@ -1,16 +1,11 @@
 import { Link } from "react-router-dom";
 import { Instagram } from "lucide-react";
 import logoImg from "@/assets/logo-larifa.png";
-import { BotanicalPattern, CornerLeaves } from "@/components/store/BotanicalElements";
 
 const Footer = () => {
   return (
-    <footer className="bg-primary text-primary-foreground relative overflow-hidden">
-      {/* Botanical background */}
-      <BotanicalPattern opacity={0.04} className="text-primary-foreground" />
-      <CornerLeaves position="top-right" opacity={0.06} className="text-primary-foreground" />
-
-      <div className="container mx-auto px-6 py-14 relative z-10">
+    <footer className="bg-primary text-primary-foreground">
+      <div className="container mx-auto px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Logo + tagline */}
           <div className="md:col-span-1">
