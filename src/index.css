@@ -41,9 +41,9 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders: Warm, visible but soft */
-    --border: 35 15% 88%;
-    --input: 35 15% 88%;
+    /* Borders: Subtle warm lines */
+    --border: 30 6% 22%;
+    --input: 30 6% 22%;
     --ring: 36 55% 48%;
 
     --radius: 0.25rem;
