@@ -372,7 +372,7 @@ const StyleAssistant = () => {
                   </div>
                   <p className="font-serif text-lg font-semibold text-foreground mb-1">Oii! Eu sou a Lari 💕</p>
                   <p className="text-xs text-muted-foreground font-sans max-w-[260px] leading-relaxed mb-6">
-                    Sua estilista pessoal da LARIFA! Eu te ajudo a encontrar peças perfeitas e monto seu pedido completo.
+                    Sua consultora de semijoias da LARIFA! Te ajudo a encontrar a peça perfeita e monto seu pedido completo.
                   </p>
                   <div className="w-full space-y-2">
                     {SUGGESTIONS.map((s, i) => (
