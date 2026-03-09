@@ -384,7 +384,7 @@ const StyleAssistant = () => {
             className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[400px] h-[100dvh] sm:h-[620px] sm:max-h-[calc(100vh-3rem)] bg-card sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-border/50"
           >
             {/* Header */}
-            <div className="relative px-4 pt-4 pb-3 bg-foreground text-primary-foreground shrink-0">
+            <div className="relative px-4 pt-4 pb-3 bg-primary text-primary-foreground shrink-0">
               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "20px 20px" }} />
               
               <div className="relative flex items-center justify-between">
