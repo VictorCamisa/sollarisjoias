@@ -364,11 +364,10 @@ const StyleAssistant = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             onClick={() => setOpen(true)}
             data-style-assistant-trigger
-            className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-foreground text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
           >
             <MessageCircle className="h-6 w-6" />
-            {/* Pulse ring */}
-            <span className="absolute inset-0 rounded-full bg-foreground/20 animate-ping" />
+            <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -384,7 +383,7 @@ const StyleAssistant = () => {
             className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[400px] h-[100dvh] sm:h-[620px] sm:max-h-[calc(100vh-3rem)] bg-card sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-border/50"
           >
             {/* Header */}
-            <div className="relative px-4 pt-4 pb-3 bg-foreground text-primary-foreground shrink-0">
+            <div className="relative px-4 pt-4 pb-3 bg-primary text-primary-foreground shrink-0">
               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "20px 20px" }} />
               
               <div className="relative flex items-center justify-between">
@@ -471,8 +470,8 @@ const StyleAssistant = () => {
                       <div
                         className={`rounded-2xl px-4 py-2.5 text-sm font-sans leading-relaxed ${
                           m.role === "user"
-                            ? "bg-foreground text-primary-foreground rounded-br-md"
-                            : "bg-secondary/80 text-foreground rounded-bl-md"
+                            ? "bg-accent text-accent-foreground rounded-br-md"
+                            : "bg-secondary/80 text-card-foreground rounded-bl-md"
                         }`}
                       >
                         {m.role === "assistant" ? (
@@ -573,7 +572,7 @@ const StyleAssistant = () => {
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="h-10 w-10 rounded-xl bg-foreground text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-30 hover:opacity-90 active:scale-95 transition-all"
+                  className="h-10 w-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center shrink-0 disabled:opacity-30 hover:opacity-90 active:scale-95 transition-all"
                 >
                   <Send className="h-4 w-4" />
                 </button>
