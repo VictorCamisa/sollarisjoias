@@ -49,9 +49,11 @@ const Navbar = () => {
           : "bg-card"
       )}
     >
-      <div className="container mx-auto flex items-center justify-between px-6 h-16">
-        {/* Left: Menu button (mobile) + Nav (desktop) */}
-        <div className="flex items-center gap-6 flex-1">
+      {/* Main bar */}
+      <div className="container mx-auto px-6">
+        {/* Top row: Logo centered, mobile menu left, icons right */}
+        <div className="flex items-center justify-between h-[70px]">
+          {/* Mobile menu toggle */}
           <button 
             onClick={() => setMobileOpen(!mobileOpen)} 
             className="md:hidden text-foreground"
@@ -59,19 +61,21 @@ const Navbar = () => {
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <nav className="hidden md:flex items-center gap-7 text-[13px] tracking-wide font-medium">
-            <Link 
-              to="/" 
-              className="text-foreground/70 hover:text-foreground transition-colors"
-            >
+          {/* Logo - left on desktop, center on mobile */}
+          <Link to="/" className="md:mr-auto">
+            <img src={logoImg} alt="Larifa" className="h-7 md:h-8 w-auto" />
+          </Link>
+
+          {/* Desktop nav - center */}
+          <nav className="hidden md:flex items-center gap-7 text-[13px] tracking-wide font-medium absolute left-1/2 -translate-x-1/2">
+            <Link to="/" className="text-foreground/60 hover:text-foreground transition-colors">
               Início
             </Link>
             
-            {/* Coleção dropdown */}
             <div ref={catRef} className="relative">
               <button
                 onClick={() => setCatOpen(!catOpen)}
-                className="flex items-center gap-1.5 text-foreground/70 hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-foreground/60 hover:text-foreground transition-colors"
               >
                 Coleção 
                 <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", catOpen && "rotate-180")} />
@@ -97,71 +101,58 @@ const Navbar = () => {
               )}
             </div>
 
-            <Link 
-              to="/novidades" 
-              className="text-foreground/70 hover:text-foreground transition-colors"
-            >
+            <Link to="/novidades" className="text-foreground/60 hover:text-foreground transition-colors">
               Novidades
             </Link>
-            <Link 
-              to="/sobre" 
-              className="text-foreground/70 hover:text-foreground transition-colors"
-            >
+            <Link to="/sobre" className="text-foreground/60 hover:text-foreground transition-colors">
               Sobre
             </Link>
           </nav>
-        </div>
 
-        {/* Center: Logo */}
-        <Link to="/" className="flex-shrink-0">
-          <img src={logoImg} alt="Larifa" className="h-10 md:h-14 w-auto" />
-        </Link>
-
-        {/* Right: Icons */}
-        <div className="flex items-center gap-5 flex-1 justify-end">
-          <Link 
-            to="/busca" 
-            className="hidden md:block text-foreground/60 hover:text-foreground transition-colors"
-          >
-            <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
-          </Link>
-          <Link 
-            to="/conta" 
-            className="hidden md:block text-foreground/60 hover:text-foreground transition-colors"
-          >
-            <User className="h-[18px] w-[18px]" strokeWidth={1.5} />
-          </Link>
-          <Link 
-            to="/favoritos" 
-            className="relative text-foreground/60 hover:text-foreground transition-colors"
-          >
-            <Heart className="h-[18px] w-[18px]" strokeWidth={1.5} />
-            {favCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-foreground text-background text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                {favCount}
-              </span>
-            )}
-          </Link>
-          <button 
-            onClick={() => setOpen(true)} 
-            className="relative text-foreground/60 hover:text-foreground transition-colors"
-          >
-            <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.5} />
-            {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-foreground text-background text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
-          </button>
+          {/* Right: Icons */}
+          <div className="flex items-center gap-5">
+            <Link 
+              to="/busca" 
+              className="hidden md:block text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            </Link>
+            <Link 
+              to="/conta" 
+              className="hidden md:block text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <User className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            </Link>
+            <Link 
+              to="/favoritos" 
+              className="relative text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <Heart className="h-[18px] w-[18px]" strokeWidth={1.5} />
+              {favCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-foreground text-background text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                  {favCount}
+                </span>
+              )}
+            </Link>
+            <button 
+              onClick={() => setOpen(true)} 
+              className="relative text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.5} />
+              {totalItems > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-foreground text-background text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
         <nav className="md:hidden bg-card border-t border-border px-6 py-5 space-y-1">
-          <Link to="/" className="block text-foreground py-2.5 text-[14px] font-medium">
-            Início
-          </Link>
+          <Link to="/" className="block text-foreground py-2.5 text-[14px] font-medium">Início</Link>
           
           <div>
             <button
@@ -173,9 +164,7 @@ const Navbar = () => {
             </button>
             {mobileCatOpen && (
               <div className="pl-4 pb-2 space-y-1">
-                <Link to="/produtos" className="block text-muted-foreground py-2 text-[14px]">
-                  Ver Tudo
-                </Link>
+                <Link to="/produtos" className="block text-muted-foreground py-2 text-[14px]">Ver Tudo</Link>
                 {categories?.map((cat) => (
                   <Link
                     key={cat.id}
@@ -189,20 +178,12 @@ const Navbar = () => {
             )}
           </div>
 
-          <Link to="/novidades" className="block text-foreground py-2.5 text-[14px] font-medium">
-            Novidades
-          </Link>
-          <Link to="/sobre" className="block text-foreground py-2.5 text-[14px] font-medium">
-            Sobre
-          </Link>
+          <Link to="/novidades" className="block text-foreground py-2.5 text-[14px] font-medium">Novidades</Link>
+          <Link to="/sobre" className="block text-foreground py-2.5 text-[14px] font-medium">Sobre</Link>
 
           <div className="border-t border-border mt-3 pt-3 space-y-1">
-            <Link to="/busca" className="block text-muted-foreground py-2.5 text-[14px]">
-              Buscar
-            </Link>
-            <Link to="/conta" className="block text-muted-foreground py-2.5 text-[14px]">
-              Minha Conta
-            </Link>
+            <Link to="/busca" className="block text-muted-foreground py-2.5 text-[14px]">Buscar</Link>
+            <Link to="/conta" className="block text-muted-foreground py-2.5 text-[14px]">Minha Conta</Link>
           </div>
         </nav>
       )}
