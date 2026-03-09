@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const NewsletterForm = () => {
   const [email, setEmail] = useState("");
@@ -24,24 +24,29 @@ const NewsletterForm = () => {
         toast.error("Erro ao cadastrar. Tente novamente.");
       }
     } else {
-      toast.success("Inscrito com sucesso! 🎉");
+      toast.success("Inscrito com sucesso!");
       setEmail("");
     }
     setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 max-w-sm">
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-sm mx-auto">
       <input
         type="email"
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Seu melhor email"
-        className="flex-1 bg-secondary rounded-xl px-3 py-2 text-sm outline-none border border-border focus:border-accent transition-colors placeholder:text-muted-foreground"
+        placeholder="Seu email"
+        className="flex-1 bg-background/10 border border-background/20 px-4 py-2.5 text-sm text-background placeholder:text-background/40 outline-none focus:border-background/40 transition-colors rounded-sm"
       />
-      <Button type="submit" size="icon" className="rounded-xl h-9 w-9 shrink-0" disabled={loading}>
-        <Send className="h-4 w-4" />
+      <Button 
+        type="submit" 
+        size="icon" 
+        className="h-10 w-10 shrink-0 bg-background text-foreground hover:bg-background/90 rounded-sm" 
+        disabled={loading}
+      >
+        <ArrowRight className="h-4 w-4" />
       </Button>
     </form>
   );
