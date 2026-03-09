@@ -48,11 +48,11 @@ const Navbar = () => {
   }, []);
 
   const linkColor = scrolled
-    ? "text-foreground/70 hover:text-accent"
-    : "text-white/80 hover:text-accent";
+    ? "text-foreground/80 hover:text-accent"
+    : "text-white/85 hover:text-accent";
   const iconColor = scrolled
-    ? "text-foreground/50 hover:text-accent"
-    : "text-white/60 hover:text-white";
+    ? "text-foreground/60 hover:text-accent"
+    : "text-white/70 hover:text-accent";
 
   return (
     <header

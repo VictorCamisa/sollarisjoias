@@ -30,7 +30,7 @@ const categoryImages: Record<string, string> = {
 const GoldDivider = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center justify-center gap-3 ${className}`}>
     <div className="gold-line flex-1 max-w-[80px]" />
-    <Diamond className="h-2.5 w-2.5 text-accent/40" />
+    <Diamond className="h-2.5 w-2.5 text-accent/60" />
     <div className="gold-line flex-1 max-w-[80px]" />
   </div>
 );
@@ -61,13 +61,13 @@ const HeroSection = () => {
             >
               <div className="flex items-center gap-2 mb-4 sm:mb-5">
                 <div className="w-8 h-[1px] bg-accent/60" />
-                <p className="text-[11px] sm:text-[12px] tracking-[0.25em] uppercase font-medium text-accent/90">
+                <p className="text-[11px] sm:text-[12px] tracking-[0.25em] uppercase font-medium text-accent">
                   Nova Coleção
                 </p>
               </div>
               <h1 className="text-[34px] sm:text-[46px] md:text-[60px] lg:text-[70px] font-serif text-white leading-[1.04] mb-4 sm:mb-6">
                 Semijoias que<br />
-                <em className="font-light italic text-accent/90">contam histórias</em>
+                <em className="font-light italic text-accent">contam histórias</em>
               </h1>
               <p className="text-white/50 text-[13px] sm:text-[15px] font-light mb-7 sm:mb-9 max-w-[340px] leading-relaxed">
                 Peças atemporais com banho de ouro 18k,
@@ -104,7 +104,7 @@ const TrustBar = () => (
   <div className="relative z-10 -mt-8 sm:-mt-6 pb-2">
     <div className="container mx-auto px-4 sm:px-8 md:px-12">
       <div className="bg-card border border-border/60 py-4 sm:py-5 px-4 sm:px-8 shadow-sm">
-        <div className="flex items-center justify-between gap-4 sm:gap-6 overflow-x-auto text-foreground/60">
+        <div className="flex items-center justify-between gap-4 sm:gap-6 overflow-x-auto text-foreground/70">
           {[
             { icon: "✦", text: "Frete grátis acima de R$199" },
             { icon: "✦", text: "Garantia de 6 meses" },
@@ -253,14 +253,14 @@ const LayeringSection = () => {
           >
             <div className="max-w-sm text-center lg:text-left">
               <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
-                <div className="w-6 h-[1px] bg-accent/50" />
-                <p className="text-[10px] tracking-[0.2em] uppercase text-accent/70 font-semibold">Tendência</p>
+                <div className="w-6 h-[1px] bg-accent/70" />
+                <p className="text-[10px] tracking-[0.2em] uppercase text-accent font-semibold">Tendência</p>
               </div>
               <h2 className="text-[28px] sm:text-[36px] md:text-[48px] font-serif text-primary-foreground leading-[1.08] mb-4 sm:mb-5">
                 A Arte do<br />
                 <em className="italic font-light">Layering</em>
               </h2>
-              <p className="text-primary-foreground/40 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
+              <p className="text-primary-foreground/55 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
                 Combine colares de diferentes comprimentos e texturas para composições sofisticadas e únicas.
               </p>
               <Link to="/produtos?categoria=colares">
@@ -306,7 +306,7 @@ const EditorialGrid = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[hsl(30,15%,8%,0.60)] via-[hsl(30,15%,8%,0.10)] to-transparent" />
                 <div className="absolute inset-0 flex items-end p-5 sm:p-7 md:p-9">
                   <div>
-                    <p className="text-accent/80 text-[9px] sm:text-[10px] tracking-[0.15em] uppercase mb-1 font-semibold">{card.subtitle}</p>
+                    <p className="text-accent text-[9px] sm:text-[10px] tracking-[0.15em] uppercase mb-1 font-semibold">{card.subtitle}</p>
                     <h3 className="font-serif text-[22px] sm:text-[28px] text-white">{card.title}</h3>
                   </div>
                 </div>
@@ -344,13 +344,13 @@ const EarringsBanner = () => {
           >
             <div className="max-w-sm text-center lg:text-left">
               <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
-                <div className="w-6 h-[1px] bg-accent/50" />
-                <p className="text-[10px] tracking-[0.2em] uppercase text-accent/70 font-semibold">Coleção Completa</p>
+                <div className="w-6 h-[1px] bg-accent/70" />
+                <p className="text-[10px] tracking-[0.2em] uppercase text-accent font-semibold">Coleção Completa</p>
               </div>
               <h2 className="text-[30px] sm:text-[38px] md:text-[48px] font-serif text-primary-foreground leading-[1.08] mb-4 sm:mb-5">
                 Brincos
               </h2>
-              <p className="text-primary-foreground/40 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
+              <p className="text-primary-foreground/55 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
                 Argolas, gotas e studs — peças que emolduram seu rosto com elegância.
               </p>
               <Link to="/produtos?categoria=brincos">
@@ -382,8 +382,8 @@ const LariSection = () => {
           transition={{ duration: 0.5 }}
         >
           <GoldDivider className="mb-6" />
-          <div className="w-12 h-12 sm:w-14 sm:h-14 border border-accent/30 flex items-center justify-center mx-auto mb-5 sm:mb-6">
-            <Sparkles className="h-5 w-5 text-accent/70" />
+          <div className="w-12 h-12 sm:w-14 sm:h-14 border border-accent/50 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <Sparkles className="h-5 w-5 text-accent" />
           </div>
           <h2 className="text-[28px] sm:text-[34px] font-serif text-foreground mb-3">
             Precisa de ajuda?
@@ -422,14 +422,14 @@ const NewsletterSection = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center justify-center gap-3 mb-5">
-              <div className="w-8 h-[1px] bg-accent/40" />
-              <Diamond className="h-2.5 w-2.5 text-accent/50" />
-              <div className="w-8 h-[1px] bg-accent/40" />
+              <div className="w-8 h-[1px] bg-accent/50" />
+              <Diamond className="h-2.5 w-2.5 text-accent/70" />
+              <div className="w-8 h-[1px] bg-accent/50" />
             </div>
             <h2 className="text-[28px] sm:text-[34px] font-serif text-primary-foreground mb-3">
               Fique por dentro
             </h2>
-            <p className="text-primary-foreground/40 text-[13px] sm:text-[14px] font-light mb-7 sm:mb-9">
+            <p className="text-primary-foreground/55 text-[13px] sm:text-[14px] font-light mb-7 sm:mb-9">
               Cadastre-se e ganhe 10% OFF na primeira compra.
             </p>
             <NewsletterForm />
