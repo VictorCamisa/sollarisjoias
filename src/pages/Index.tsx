@@ -429,7 +429,7 @@ const NewsletterSection = () => {
             <h2 className="text-[28px] sm:text-[34px] font-serif text-primary-foreground mb-3">
               Fique por dentro
             </h2>
-            <p className="text-primary-foreground/40 text-[13px] sm:text-[14px] font-light mb-7 sm:mb-9">
+            <p className="text-primary-foreground/55 text-[13px] sm:text-[14px] font-light mb-7 sm:mb-9">
               Cadastre-se e ganhe 10% OFF na primeira compra.
             </p>
             <NewsletterForm />
