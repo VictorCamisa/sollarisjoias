@@ -140,18 +140,24 @@ async function executeTool(name: string, args: any, orderState: any): Promise<{ 
     case "search_products": {
       let query = supabase.from("products").select(PRODUCT_FIELDS).eq("stock_status", true);
       
+      if (args.category) {
+        // First find category ID, then filter
+        const { data: cats } = await supabase.from("categories").select("id").ilike("name", `%${args.category}%`);
+        const catIds = (cats || []).map((c: any) => c.id);
+        if (catIds.length > 0) {
+          query = query.in("category_id", catIds);
+        }
+      }
       if (args.query) {
-        // Search in name, description, tags_seo, and material
         query = query.or(`name.ilike.%${args.query}%,description.ilike.%${args.query}%,tags_seo.ilike.%${args.query}%`);
       }
-      if (args.category) query = query.ilike("categories.name", `%${args.category}%`);
       if (args.max_price) query = query.lte("price", args.max_price);
       if (args.banho) query = query.ilike("banho", `%${args.banho}%`);
       if (args.pedra) query = query.ilike("pedra", `%${args.pedra}%`);
       if (args.color) query = query.contains("colors", [args.color]);
       if (args.size) query = query.contains("sizes", [args.size]);
       
-      const { data } = await query.order("is_featured", { ascending: false }).limit(4);
+      const { data } = await query.order("is_featured", { ascending: false }).limit(2);
 
       const products = (data || []).map((p: any) => ({
         id: p.id,
