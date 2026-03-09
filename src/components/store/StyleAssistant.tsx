@@ -690,8 +690,12 @@ const StyleAssistant = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => {
-                        setPendingOrder(null);
+                        setShowParticles(true);
                         toast.success("Pedido confirmado! Finalize pelo WhatsApp 💕");
+                        setTimeout(() => {
+                          setPendingOrder(null);
+                          setShowParticles(false);
+                        }, 2000);
                       }}
                     >
                       <Check className="h-4 w-4" />
