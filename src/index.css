@@ -26,9 +26,9 @@
     --popover: 40 25% 99%;
     --popover-foreground: 30 15% 15%;
 
-    /* Secondary: Warm sand */
-    --secondary: 35 18% 91%;
-    --secondary-foreground: 30 15% 15%;
+    /* Secondary: Warm sand — slightly deeper */
+    --secondary: 34 16% 88%;
+    --secondary-foreground: 28 18% 13%;
 
     /* Muted */
     --muted: 35 12% 93%;
