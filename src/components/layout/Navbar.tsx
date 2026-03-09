@@ -124,34 +124,34 @@ const Navbar = () => {
           <div className="flex items-center gap-5">
             <Link
               to="/busca"
-              className="hidden md:block text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+              className="hidden md:block text-foreground/50 hover:text-accent transition-colors"
             >
               <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </Link>
             <Link
               to="/conta"
-              className="hidden md:block text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+              className="hidden md:block text-foreground/50 hover:text-accent transition-colors"
             >
               <User className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </Link>
             <Link
               to="/favoritos"
-              className="relative text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+              className="relative text-foreground/50 hover:text-accent transition-colors"
             >
               <Heart className="h-[18px] w-[18px]" strokeWidth={1.5} />
               {favCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-primary-foreground text-primary text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 bg-accent text-accent-foreground text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
                   {favCount}
                 </span>
               )}
             </Link>
             <button
               onClick={() => setOpen(true)}
-              className="relative text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+              className="relative text-foreground/50 hover:text-accent transition-colors"
             >
               <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.5} />
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-primary-foreground text-primary text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 bg-accent text-accent-foreground text-[9px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
