@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,12 +19,22 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState(0);
 
+  // Auto-rotate images
+  const images = product?.images || [];
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setSelectedImage((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   if (isLoading) {
     return (
-      <div className="pt-24 pb-16 container mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-10">
-          <Skeleton className="aspect-[3/4] rounded-2xl" />
-          <div className="space-y-4 pt-8">
+      <div className="pt-20 sm:pt-24 pb-16 container mx-auto px-4 sm:px-6">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-10">
+          <Skeleton className="aspect-[3/4]" />
+          <div className="space-y-4 pt-4 sm:pt-8">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-6 w-28" />
@@ -37,7 +47,7 @@ const ProductDetail = () => {
 
   if (!product) {
     return (
-      <div className="pt-24 pb-16 container mx-auto px-6 text-center">
+      <div className="pt-20 sm:pt-24 pb-16 container mx-auto px-4 sm:px-6 text-center">
         <p className="text-muted-foreground">Produto não encontrado.</p>
         <Link to="/produtos" className="text-sm underline mt-4 inline-block">
           Voltar à coleção
@@ -46,7 +56,6 @@ const ProductDetail = () => {
     );
   }
 
-  const images = product.images || [];
   const sizes = product.sizes || [];
   const colors = product.colors || [];
 
@@ -74,46 +83,53 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="pt-24 pb-16">
+    <div className="pt-20 sm:pt-24 pb-16">
       <SEOHead
         title={`${product.name} — LARIFA`}
         description={product.description || `${product.name} por R$ ${product.price.toFixed(2).replace(".", ",")}`}
         image={images[0]}
       />
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-4 sm:px-6">
         <Link
           to="/produtos"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition mb-8"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition mb-6 sm:mb-8"
         >
           <ChevronLeft className="h-4 w-4" /> Voltar
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-10">
           {/* Gallery */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="aspect-[3/4] rounded-2xl bg-secondary overflow-hidden mb-3">
-              {images[selectedImage] ? (
-                <img
-                  src={images[selectedImage]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
-              )}
+            <div className="aspect-[3/4] bg-secondary overflow-hidden mb-3 relative">
+              <AnimatePresence mode="wait">
+                {images[selectedImage] ? (
+                  <motion.img
+                    key={selectedImage}
+                    src={images[selectedImage]}
+                    alt={product.name}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full h-full object-cover absolute inset-0"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
+                )}
+              </AnimatePresence>
             </div>
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto pb-1">
                 {images.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition ${
-                      selectedImage === i ? "border-foreground" : "border-transparent"
+                    className={`w-14 h-18 sm:w-16 sm:h-20 overflow-hidden flex-shrink-0 border-2 transition ${
+                      selectedImage === i ? "border-accent" : "border-transparent"
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
@@ -128,29 +144,29 @@ const ProductDetail = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="pt-4"
+            className="pt-2 sm:pt-4"
           >
             {(product.categories as any)?.name && (
               <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-2 font-sans">
                 {(product.categories as any).name}
               </p>
             )}
-            <h1 className="text-3xl md:text-4xl font-serif font-semibold mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold mb-3">
               {product.name}
             </h1>
-            <p className="text-2xl font-semibold mb-6">
+            <p className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
               R$ {product.price.toFixed(2).replace(".", ",")}
             </p>
 
             {product.description && (
-              <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
                 {product.description}
               </p>
             )}
 
             {/* Sizes */}
             {sizes.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-5 sm:mb-6">
                 <p className="text-xs tracking-widest uppercase text-muted-foreground mb-3 font-sans font-medium">
                   Tamanho
                 </p>
@@ -159,10 +175,10 @@ const ProductDetail = () => {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`h-10 min-w-[40px] px-3 rounded-lg border text-sm font-medium transition ${
+                      className={`h-10 min-w-[40px] px-3 border text-sm font-medium transition ${
                         selectedSize === size
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border hover:border-foreground"
+                          ? "border-accent bg-accent text-accent-foreground"
+                          : "border-border hover:border-accent"
                       }`}
                     >
                       {size}
@@ -174,7 +190,7 @@ const ProductDetail = () => {
 
             {/* Colors */}
             {colors.length > 0 && (
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 <p className="text-xs tracking-widest uppercase text-muted-foreground mb-3 font-sans font-medium">
                   Cor
                 </p>
@@ -183,10 +199,10 @@ const ProductDetail = () => {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`h-10 px-4 rounded-lg border text-sm font-medium transition ${
+                      className={`h-10 px-4 border text-sm font-medium transition ${
                         selectedColor === color
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border hover:border-foreground"
+                          ? "border-accent bg-accent text-accent-foreground"
+                          : "border-border hover:border-accent"
                       }`}
                     >
                       {color}
@@ -199,7 +215,7 @@ const ProductDetail = () => {
             <div className="flex gap-2">
               <Button
                 onClick={handleAddToCart}
-                className="flex-1 rounded-xl h-12 text-sm font-semibold tracking-wide"
+                className="flex-1 h-12 text-sm font-semibold tracking-wide rounded-none"
                 disabled={!product.stock_status}
               >
                 {product.stock_status ? "Adicionar ao Carrinho" : "Esgotado"}

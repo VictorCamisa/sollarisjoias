@@ -30,6 +30,16 @@ const Navbar = () => {
     setMobileCatOpen(false);
   }, [location]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (catRef.current && !catRef.current.contains(e.target as Node)) {
@@ -52,12 +62,12 @@ const Navbar = () => {
       className={cn(
         "sticky top-0 z-50 transition-all duration-700",
         scrolled
-          ? "bg-background/80 backdrop-blur-xl shadow-sm"
+          ? "bg-background/95 backdrop-blur-xl shadow-sm"
           : "bg-primary"
       )}
     >
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-[80px] md:h-[90px]">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-[64px] sm:h-[80px] md:h-[90px]">
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -66,19 +76,19 @@ const Navbar = () => {
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          {/* Logo — left, large */}
+          {/* Logo */}
           <Link to="/" className="md:mr-auto">
             <img
               src={logoImg}
               alt="Larifa"
               className={cn(
-                "h-14 md:h-20 w-auto transition-all duration-500",
+                "h-10 sm:h-14 md:h-20 w-auto transition-all duration-500",
                 !scrolled && "brightness-0 invert"
               )}
             />
           </Link>
 
-          {/* Desktop nav — center via absolute */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <Link
               to="/"
@@ -131,7 +141,7 @@ const Navbar = () => {
           </nav>
 
           {/* Right: Icons */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4 sm:gap-5">
             <Link
               to="/busca"
               className={cn("hidden md:block transition-colors", iconColor)}
@@ -170,27 +180,27 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — fullscreen overlay */}
       {mobileOpen && (
-        <nav className="md:hidden bg-primary/95 backdrop-blur-md border-t border-foreground/10 px-6 py-5 space-y-1">
-          <Link to="/" className="block text-foreground py-2.5 text-[14px] font-medium">Início</Link>
+        <nav className="md:hidden fixed inset-0 top-[64px] bg-primary z-40 px-5 py-6 space-y-1 overflow-y-auto">
+          <Link to="/" className="block text-primary-foreground py-3 text-[15px] font-medium">Início</Link>
 
           <div>
             <button
               onClick={() => setMobileCatOpen(!mobileCatOpen)}
-              className="flex items-center justify-between w-full text-foreground py-2.5 text-[14px] font-medium"
+              className="flex items-center justify-between w-full text-primary-foreground py-3 text-[15px] font-medium"
             >
               Coleção
-              <ChevronDown className={cn("h-4 w-4 transition-transform", mobileCatOpen && "rotate-180")} />
+              <ChevronDown className={cn("h-4 w-4 text-primary-foreground/60 transition-transform", mobileCatOpen && "rotate-180")} />
             </button>
             {mobileCatOpen && (
               <div className="pl-4 pb-2 space-y-1">
-                <Link to="/produtos" className="block text-foreground/60 py-2 text-[14px]">Ver Tudo</Link>
+                <Link to="/produtos" className="block text-primary-foreground/60 py-2.5 text-[14px]">Ver Tudo</Link>
                 {categories?.map((cat) => (
                   <Link
                     key={cat.id}
                     to={`/produtos?categoria=${cat.slug}`}
-                    className="block text-foreground/60 py-2 text-[14px]"
+                    className="block text-primary-foreground/60 py-2.5 text-[14px]"
                   >
                     {cat.name}
                   </Link>
@@ -199,12 +209,12 @@ const Navbar = () => {
             )}
           </div>
 
-          <Link to="/novidades" className="block text-foreground py-2.5 text-[14px] font-medium">Novidades</Link>
-          <Link to="/sobre" className="block text-foreground py-2.5 text-[14px] font-medium">Sobre</Link>
+          <Link to="/novidades" className="block text-primary-foreground py-3 text-[15px] font-medium">Novidades</Link>
+          <Link to="/sobre" className="block text-primary-foreground py-3 text-[15px] font-medium">Sobre</Link>
 
-          <div className="border-t border-foreground/10 mt-3 pt-3 space-y-1">
-            <Link to="/busca" className="block text-foreground/60 py-2.5 text-[14px]">Buscar</Link>
-            <Link to="/conta" className="block text-foreground/60 py-2.5 text-[14px]">Minha Conta</Link>
+          <div className="border-t border-primary-foreground/10 mt-4 pt-4 space-y-1">
+            <Link to="/busca" className="block text-primary-foreground/60 py-2.5 text-[14px]">Buscar</Link>
+            <Link to="/conta" className="block text-primary-foreground/60 py-2.5 text-[14px]">Minha Conta</Link>
           </div>
         </nav>
       )}
