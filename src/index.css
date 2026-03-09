@@ -34,9 +34,9 @@
     --muted: 30 6% 18%;
     --muted-foreground: 35 12% 60%;
 
-    /* Accent: Vibrant gold — high contrast on dark */
-    --accent: 38 72% 58%;
-    --accent-foreground: 30 10% 8%;
+    /* Accent: Brilliant gold — maximum contrast on dark */
+    --accent: 40 85% 62%;
+    --accent-foreground: 30 10% 6%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
