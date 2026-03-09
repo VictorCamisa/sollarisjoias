@@ -11,55 +11,58 @@
        Inspiração: Mejuri, Ana Luisa, Missoma, Stone & Strand
     ═══════════════════════════════════════════════════════════════ */
 
-    /* Primary: Navy Elegante - mais escuro e sofisticado */
-    --primary: 220 35% 18%;
+    /* Primary: Teal Profundo da marca Larifa */
+    --primary: 172 55% 16%;
     --primary-foreground: 40 20% 96%;
 
-    /* Background: Papel Fino - tom mais neutro e premium */
+    /* Background: Papel Fino - tom neutro e premium */
     --background: 40 20% 97%;
-    --foreground: 220 20% 12%;
+    --foreground: 172 30% 10%;
 
     /* Card: Branco Puro */
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 12%;
+    --card-foreground: 172 30% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 12%;
+    --popover-foreground: 172 30% 10%;
 
-    /* Secondary: Cinza Pedra */
-    --secondary: 30 8% 92%;
-    --secondary-foreground: 220 20% 12%;
+    /* Secondary: Cinza Pedra com leve teal */
+    --secondary: 168 6% 92%;
+    --secondary-foreground: 172 30% 10%;
 
     /* Muted: Cinza Suave */
-    --muted: 30 6% 94%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 168 5% 94%;
+    --muted-foreground: 172 10% 42%;
 
-    /* Accent: Champagne Dourado - mais sutil e elegante */
-    --accent: 38 35% 55%;
-    --accent-foreground: 220 20% 12%;
+    /* Accent: Champagne Dourado - contraste quente com teal */
+    --accent: 38 40% 55%;
+    --accent-foreground: 172 30% 10%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     /* Border: Muito Sutil */
-    --border: 30 10% 90%;
-    --input: 30 10% 90%;
-    --ring: 220 35% 18%;
+    --border: 168 8% 90%;
+    --input: 168 8% 90%;
+    --ring: 172 55% 16%;
 
     --radius: 0.375rem;
 
-    /* Brand-specific tokens - Refinados */
+    /* Brand-specific tokens */
+    --larifa-teal: 172 55% 16%;
+    --larifa-teal-deep: 172 60% 10%;
+    --larifa-teal-light: 172 40% 25%;
+    --larifa-teal-glow: 172 35% 35%;
     --larifa-navy: 220 35% 18%;
     --larifa-navy-deep: 220 40% 12%;
-    --larifa-navy-light: 220 30% 28%;
-    --larifa-champagne: 38 35% 55%;
+    --larifa-champagne: 38 40% 55%;
     --larifa-champagne-soft: 38 30% 70%;
     --larifa-champagne-pale: 38 25% 85%;
-    --larifa-stone: 30 8% 92%;
+    --larifa-stone: 168 6% 92%;
     --larifa-paper: 40 20% 97%;
     --larifa-paper-warm: 35 15% 95%;
-    --larifa-ink: 220 20% 12%;
-    --larifa-ink-soft: 220 10% 45%;
+    --larifa-ink: 172 30% 10%;
+    --larifa-ink-soft: 172 10% 42%;
 
     /* Sidebar (admin) */
     --sidebar-background: 0 0% 100%;
