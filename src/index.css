@@ -15,20 +15,20 @@
     --primary: 172 45% 18%;
     --primary-foreground: 42 30% 95%;
 
-    /* Background: Warm ivory with depth */
-    --background: 40 30% 96%;
-    --foreground: 30 15% 15%;
+    /* Background: Warm cream — richer, slightly deeper */
+    --background: 38 22% 93%;
+    --foreground: 28 18% 13%;
 
-    /* Card: Soft white */
-    --card: 40 25% 99%;
-    --card-foreground: 30 15% 15%;
+    /* Card: Warm off-white */
+    --card: 38 20% 97%;
+    --card-foreground: 28 18% 13%;
 
     --popover: 40 25% 99%;
     --popover-foreground: 30 15% 15%;
 
-    /* Secondary: Warm sand */
-    --secondary: 35 18% 91%;
-    --secondary-foreground: 30 15% 15%;
+    /* Secondary: Warm sand — slightly deeper */
+    --secondary: 34 16% 88%;
+    --secondary-foreground: 28 18% 13%;
 
     /* Muted */
     --muted: 35 12% 93%;
