@@ -265,6 +265,13 @@ const StyleAssistant = () => {
         setOrderState((prev) => ({ ...prev, items: evt.data.items, customer: evt.data.customer || prev.customer }));
       } else if (evt.type === "order_submitted") {
         pendingEventsRef.current.orderSubmitted = evt.data;
+        // Show confirmation modal instead of immediately completing
+        setPendingOrder({
+          order_id: evt.data.order_id,
+          whatsapp_url: evt.data.whatsapp_url,
+          total: evt.data.total,
+          items: [...orderState.items],
+        });
         setOrderState({ items: [], customer: {} });
       } else if (evt.type === "order_state") {
         setOrderState(evt.data);
