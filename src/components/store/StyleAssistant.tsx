@@ -547,74 +547,115 @@ const StyleAssistant = () => {
       </AnimatePresence>
       {/* Order Confirmation Modal */}
       <Dialog open={!!pendingOrder} onOpenChange={(open) => { if (!open) setPendingOrder(null); }}>
-        <DialogContent className="sm:max-w-md bg-card border-border/60">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 font-serif text-lg">
-              <ShoppingBag className="h-5 w-5 text-accent" />
-              Confirmar Pedido
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground font-sans text-sm">
-              Revise seu pedido antes de finalizar
-            </DialogDescription>
-          </DialogHeader>
-
-          {pendingOrder && (
-            <div className="space-y-3 my-2">
-              {pendingOrder.items.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-secondary/50 border border-border/40">
-                  {item.image && (
-                    <img src={item.image} alt={item.name} className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-sans font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-muted-foreground font-sans mt-0.5">
-                      {item.size && `Tam: ${item.size}`}{item.size && item.color && " · "}{item.color && `Cor: ${item.color}`}
-                      {item.quantity > 1 && ` · Qtd: ${item.quantity}`}
-                    </p>
-                  </div>
-                  <span className="text-sm font-sans font-bold text-accent shrink-0">
-                    R$ {(item.price * item.quantity).toFixed(2).replace(".", ",")}
-                  </span>
-                </div>
-              ))}
-
-              <div className="flex justify-between items-center pt-3 border-t border-border/50">
-                <span className="font-serif text-base font-semibold text-foreground">Total</span>
-                <span className="font-serif text-xl font-bold text-accent">
-                  R$ {pendingOrder.total.toFixed(2).replace(".", ",")}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
-            <Button
-              variant="outline"
-              onClick={() => setPendingOrder(null)}
-              className="w-full sm:w-auto border-border/60 font-sans"
-            >
-              Voltar ao chat
-            </Button>
-            {pendingOrder?.whatsapp_url && (
-              <Button
-                asChild
-                className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-sans gap-2"
-              >
-                <a
-                  href={pendingOrder.whatsapp_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    setPendingOrder(null);
-                    toast.success("Pedido confirmado! Finalize pelo WhatsApp 💕");
-                  }}
+        <DialogContent className="sm:max-w-md bg-card border-border/60 overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 350, damping: 28 }}
+          >
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 font-serif text-lg">
+                <motion.div
+                  initial={{ rotate: -15, scale: 0 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.15 }}
                 >
-                  <Check className="h-4 w-4" />
-                  Confirmar e ir pro WhatsApp
-                </a>
-              </Button>
+                  <ShoppingBag className="h-5 w-5 text-accent" />
+                </motion.div>
+                Confirmar Pedido
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground font-sans text-sm">
+                Revise seu pedido antes de finalizar
+              </DialogDescription>
+            </DialogHeader>
+
+            {pendingOrder && (
+              <div className="space-y-3 my-2">
+                {pendingOrder.items.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + i * 0.08, type: "spring", stiffness: 300, damping: 24 }}
+                    className="flex items-center gap-3 p-2.5 rounded-xl bg-secondary/50 border border-border/40"
+                  >
+                    {item.image && (
+                      <motion.img
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3 + i * 0.08 }}
+                        src={item.image}
+                        alt={item.name}
+                        className="w-14 h-14 rounded-lg object-cover shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-sans font-semibold text-foreground truncate">{item.name}</p>
+                      <p className="text-xs text-muted-foreground font-sans mt-0.5">
+                        {item.size && `Tam: ${item.size}`}{item.size && item.color && " · "}{item.color && `Cor: ${item.color}`}
+                        {item.quantity > 1 && ` · Qtd: ${item.quantity}`}
+                      </p>
+                    </div>
+                    <span className="text-sm font-sans font-bold text-accent shrink-0">
+                      R$ {(item.price * item.quantity).toFixed(2).replace(".", ",")}
+                    </span>
+                  </motion.div>
+                ))}
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 + pendingOrder.items.length * 0.08 }}
+                  className="flex justify-between items-center pt-3 border-t border-border/50"
+                >
+                  <span className="font-serif text-base font-semibold text-foreground">Total</span>
+                  <motion.span
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.45 + pendingOrder.items.length * 0.08, type: "spring", stiffness: 300 }}
+                    className="font-serif text-xl font-bold text-accent"
+                  >
+                    R$ {pendingOrder.total.toFixed(2).replace(".", ",")}
+                  </motion.span>
+                </motion.div>
+              </div>
             )}
-          </DialogFooter>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPendingOrder(null)}
+                  className="w-full sm:w-auto border-border/60 font-sans"
+                >
+                  Voltar ao chat
+                </Button>
+                {pendingOrder?.whatsapp_url && (
+                  <Button
+                    asChild
+                    className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-sans gap-2"
+                  >
+                    <a
+                      href={pendingOrder.whatsapp_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        setPendingOrder(null);
+                        toast.success("Pedido confirmado! Finalize pelo WhatsApp 💕");
+                      }}
+                    >
+                      <Check className="h-4 w-4" />
+                      Confirmar e ir pro WhatsApp
+                    </a>
+                  </Button>
+                )}
+              </DialogFooter>
+            </motion.div>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </>
