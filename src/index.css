@@ -15,24 +15,24 @@
     --primary: 172 45% 18%;
     --primary-foreground: 42 30% 95%;
 
-    /* Background: Warm cream — richer, slightly deeper */
-    --background: 38 22% 93%;
-    --foreground: 28 18% 13%;
+    /* Background: Deep warm charcoal */
+    --background: 30 8% 12%;
+    --foreground: 38 20% 90%;
 
-    /* Card: Warm off-white */
-    --card: 38 20% 97%;
-    --card-foreground: 28 18% 13%;
+    /* Card: Slightly lighter dark */
+    --card: 30 8% 16%;
+    --card-foreground: 38 20% 90%;
 
-    --popover: 40 25% 99%;
-    --popover-foreground: 30 15% 15%;
+    --popover: 30 8% 14%;
+    --popover-foreground: 38 18% 88%;
 
-    /* Secondary: Warm sand — slightly deeper */
-    --secondary: 34 16% 88%;
-    --secondary-foreground: 28 18% 13%;
+    /* Secondary: Dark warm tone */
+    --secondary: 30 6% 20%;
+    --secondary-foreground: 38 20% 90%;
 
     /* Muted */
-    --muted: 35 12% 93%;
-    --muted-foreground: 30 8% 48%;
+    --muted: 30 6% 18%;
+    --muted-foreground: 35 10% 55%;
 
     /* Accent: Warm gold */
     --accent: 36 55% 48%;
