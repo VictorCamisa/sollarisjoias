@@ -1,9 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, ShoppingBag, ExternalLink, MessageCircle, ChevronDown } from "lucide-react";
+import { X, Send, Sparkles, ShoppingBag, ExternalLink, MessageCircle, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
