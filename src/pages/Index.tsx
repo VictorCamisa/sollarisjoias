@@ -61,7 +61,7 @@ const HeroSection = () => {
             >
               <div className="flex items-center gap-2 mb-4 sm:mb-5">
                 <div className="w-8 h-[1px] bg-accent/60" />
-                <p className="text-[11px] sm:text-[12px] tracking-[0.25em] uppercase font-medium text-accent/90">
+                <p className="text-[11px] sm:text-[12px] tracking-[0.25em] uppercase font-medium text-accent">
                   Nova Coleção
                 </p>
               </div>
