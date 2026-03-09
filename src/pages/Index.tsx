@@ -315,29 +315,40 @@ const EarringsBanner = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "-12%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden h-[50vh] min-h-[350px]">
-      <motion.div className="absolute inset-0 will-change-transform" style={{ y: bgY }}>
-        <img src={bannerBrincos} alt="Coleção de Brincos" className="w-full h-[130%] object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(172,55%,8%,0.45)] via-[hsl(172,40%,12%,0.15)] to-[hsl(172,55%,8%,0.45)]" />
-      </motion.div>
-      <div className="absolute inset-0 flex items-center justify-center z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={inView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center"
-        >
-          <p className="text-[11px] tracking-[0.25em] uppercase text-white/55 mb-3">Coleção Completa</p>
-          <h2 className="text-[40px] md:text-[56px] font-serif text-white mb-6">Brincos</h2>
-          <Link to="/produtos?categoria=brincos">
-            <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-white/90 text-foreground hover:bg-white rounded-none backdrop-blur-sm transition-all">
-              Explorar
-            </Button>
-          </Link>
-        </motion.div>
+    <section ref={ref}>
+      <div className="bg-primary relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[450px]">
+          {/* Parallax image */}
+          <motion.div className="overflow-hidden relative min-h-[300px] lg:min-h-full" style={{ y: bgY }}>
+            <img src={bannerBrincos} alt="Coleção de Brincos" className="w-full h-[120%] object-cover" />
+          </motion.div>
+
+          {/* Content */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="flex items-center justify-center p-12 md:p-20"
+          >
+            <div className="max-w-sm text-center lg:text-left">
+              <p className="text-[11px] tracking-[0.25em] uppercase text-primary-foreground/40 mb-5">Coleção Completa</p>
+              <h2 className="text-[40px] md:text-[52px] font-serif text-primary-foreground leading-[1.08] mb-6">
+                Brincos
+              </h2>
+              <p className="text-primary-foreground/45 text-[15px] font-light leading-relaxed mb-10">
+                Argolas, gotas e studs — peças que emolduram seu rosto com elegância.
+              </p>
+              <Link to="/produtos?categoria=brincos">
+                <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-primary-foreground text-primary hover:bg-primary-foreground/90 rounded-none">
+                  Explorar
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
