@@ -382,8 +382,8 @@ const LariSection = () => {
           transition={{ duration: 0.5 }}
         >
           <GoldDivider className="mb-6" />
-          <div className="w-12 h-12 sm:w-14 sm:h-14 border border-accent/30 flex items-center justify-center mx-auto mb-5 sm:mb-6">
-            <Sparkles className="h-5 w-5 text-accent/70" />
+          <div className="w-12 h-12 sm:w-14 sm:h-14 border border-accent/50 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <Sparkles className="h-5 w-5 text-accent" />
           </div>
           <h2 className="text-[28px] sm:text-[34px] font-serif text-foreground mb-3">
             Precisa de ajuda?
