@@ -16,8 +16,8 @@
     --primary-foreground: 42 30% 95%;
 
     /* Background: Deep warm charcoal */
-    --background: 30 8% 12%;
-    --foreground: 38 20% 90%;
+    --background: 30 8% 11%;
+    --foreground: 40 22% 92%;
 
     /* Card: Slightly lighter dark */
     --card: 30 8% 16%;
@@ -32,11 +32,11 @@
 
     /* Muted */
     --muted: 30 6% 18%;
-    --muted-foreground: 35 12% 60%;
+    --muted-foreground: 38 14% 65%;
 
-    /* Accent: Vibrant gold — high contrast on dark */
-    --accent: 38 72% 58%;
-    --accent-foreground: 30 10% 8%;
+    /* Accent: Brilliant gold — maximum contrast on dark */
+    --accent: 40 85% 62%;
+    --accent-foreground: 30 10% 6%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -44,7 +44,7 @@
     /* Borders: Subtle warm lines */
     --border: 30 6% 22%;
     --input: 30 6% 22%;
-    --ring: 38 72% 58%;
+    --ring: 40 85% 62%;
 
     --radius: 0.25rem;
 
@@ -53,9 +53,9 @@
     --larifa-teal-deep: 172 50% 12%;
     --larifa-teal-light: 172 35% 28%;
     --larifa-teal-muted: 172 20% 35%;
-    --larifa-gold: 38 72% 58%;
-    --larifa-gold-light: 38 60% 68%;
-    --larifa-gold-pale: 38 40% 78%;
+    --larifa-gold: 40 85% 62%;
+    --larifa-gold-light: 40 70% 72%;
+    --larifa-gold-pale: 40 50% 80%;
     --larifa-ivory: 40 30% 96%;
     --larifa-cream: 38 25% 93%;
     --larifa-warm-white: 40 25% 99%;
