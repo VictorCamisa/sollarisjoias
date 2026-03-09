@@ -8,9 +8,12 @@ import NewsletterForm from "@/components/store/NewsletterForm";
 import { useProducts, useCategories } from "@/hooks/useStore";
 import SEOHead from "@/components/seo/SEOHead";
 
-import heroImage from "@/assets/hero-editorial.jpg";
-import lookbook1 from "@/assets/lookbook-1.jpg";
-import lookbook2 from "@/assets/lookbook-2.jpg";
+// Banners
+import bannerHero from "@/assets/banners/banner-hero.jpg";
+import bannerLayering from "@/assets/banners/banner-layering.jpg";
+import bannerConjuntos from "@/assets/banners/banner-conjuntos.jpg";
+import bannerBrincos from "@/assets/banners/banner-brincos.jpg";
+import bannerPromocional from "@/assets/banners/banner-promocional.jpg";
 
 /* ─── Hero ─── */
 const HeroSection = () => {
@@ -23,7 +26,7 @@ const HeroSection = () => {
     <section ref={ref} className="relative h-[500px] md:h-[600px] overflow-hidden">
       <motion.div className="absolute inset-0" style={{ y }}>
         <img
-          src={heroImage}
+          src={bannerHero}
           alt="Larifa — Semijoias Premium"
           className="w-full h-[115%] object-cover object-center"
         />
@@ -175,6 +178,52 @@ const BestSellers = ({ products, loading }: { products: any[] | undefined; loadi
   );
 };
 
+/* ─── Layering Banner (Full Width) ─── */
+const LayeringBanner = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section ref={ref} className="relative">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={inView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.8 }}
+        className="grid grid-cols-1 md:grid-cols-2"
+      >
+        {/* Image */}
+        <div className="aspect-square overflow-hidden">
+          <img 
+            src={bannerLayering} 
+            alt="Layering de Colares" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Content */}
+        <div className="bg-[#0F3460] flex items-center justify-center p-8 md:p-12">
+          <div className="text-center max-w-md">
+            <p className="text-[11px] tracking-[0.15em] uppercase font-sans font-semibold text-accent mb-4">
+              Tendência
+            </p>
+            <h2 className="text-[32px] md:text-[40px] font-serif font-normal text-white mb-4 leading-tight">
+              A Arte do Layering
+            </h2>
+            <p className="text-white/70 font-sans text-base leading-relaxed mb-8">
+              Combine colares de diferentes comprimentos e estilos para criar um visual único e sofisticado.
+            </p>
+            <Link to="/produtos?categoria=colares">
+              <Button className="h-12 px-8 rounded-lg text-[13px] tracking-[0.06em] uppercase font-sans font-semibold bg-accent text-accent-foreground hover:bg-larifa-gold-light">
+                Ver Colares
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+};
+
 /* ─── Editorial Banners (2 columns) ─── */
 const EditorialBanners = () => {
   const ref = useRef(null);
@@ -182,18 +231,21 @@ const EditorialBanners = () => {
 
   return (
     <section ref={ref} className="grid grid-cols-1 md:grid-cols-2 min-h-[300px]">
-      {/* Banner 1: Collection */}
+      {/* Banner: Conjuntos */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.8 }}
         className="relative overflow-hidden group"
       >
-        <img src={lookbook1} alt="Coleção Larifa" className="w-full h-full object-cover min-h-[300px] group-hover:scale-105 transition-transform duration-700" />
-        <div className="absolute inset-0 bg-foreground/40 group-hover:bg-foreground/50 transition-colors" />
+        <img src={bannerConjuntos} alt="Conjuntos Larifa" className="w-full h-full object-cover min-h-[300px] group-hover:scale-105 transition-transform duration-700" />
+        <div className="absolute inset-0 bg-foreground/30 group-hover:bg-foreground/40 transition-colors" />
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="text-center">
-            <h3 className="font-serif text-2xl md:text-3xl text-white mb-4">Nova Coleção</h3>
+            <h3 className="font-serif text-2xl md:text-3xl text-white mb-4">Conjuntos</h3>
+            <p className="text-white/80 text-sm font-sans mb-4 max-w-xs mx-auto">
+              Brinco + colar em harmonia perfeita
+            </p>
             <Link to="/produtos">
               <Button className="rounded-lg h-10 px-6 text-[12px] tracking-[0.06em] uppercase font-sans font-semibold bg-accent text-accent-foreground hover:bg-larifa-gold-light">
                 Explorar
@@ -203,25 +255,65 @@ const EditorialBanners = () => {
         </div>
       </motion.div>
 
-      {/* Banner 2: Gift */}
+      {/* Banner: Promocional */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.8, delay: 0.2 }}
         className="relative overflow-hidden group"
       >
-        <img src={lookbook2} alt="Presentes Larifa" className="w-full h-full object-cover min-h-[300px] group-hover:scale-105 transition-transform duration-700" />
-        <div className="absolute inset-0 bg-foreground/40 group-hover:bg-foreground/50 transition-colors" />
+        <img src={bannerPromocional} alt="Presentes Especiais" className="w-full h-full object-cover min-h-[300px] group-hover:scale-105 transition-transform duration-700" />
+        <div className="absolute inset-0 bg-foreground/30 group-hover:bg-foreground/40 transition-colors" />
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="text-center">
             <h3 className="font-serif text-2xl md:text-3xl text-white mb-4">Presentes Especiais</h3>
-            <Link to="/produtos">
+            <p className="text-white/80 text-sm font-sans mb-4 max-w-xs mx-auto">
+              Para momentos inesquecíveis
+            </p>
+            <Link to="/produtos?categoria=pulseiras">
               <Button className="rounded-lg h-10 px-6 text-[12px] tracking-[0.06em] uppercase font-sans font-semibold bg-primary text-primary-foreground hover:bg-larifa-blue-dark">
-                Ver Sugestões
+                Ver Pulseiras
               </Button>
             </Link>
           </div>
         </div>
+      </motion.div>
+    </section>
+  );
+};
+
+/* ─── Earrings Banner (Full Width Thin) ─── */
+const EarringsBanner = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+
+  return (
+    <section ref={ref} className="relative overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+      >
+        <Link to="/produtos?categoria=brincos" className="block group">
+          <div className="relative">
+            <img 
+              src={bannerBrincos} 
+              alt="Coleção de Brincos" 
+              className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-foreground/50 via-transparent to-foreground/50 group-hover:from-foreground/40 group-hover:to-foreground/40 transition-colors" />
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="text-center">
+                <p className="text-[11px] tracking-[0.15em] uppercase font-sans font-semibold text-accent mb-2">
+                  Coleção Completa
+                </p>
+                <h2 className="text-[28px] md:text-[36px] font-serif font-normal text-white">
+                  Brincos
+                </h2>
+              </div>
+            </div>
+          </div>
+        </Link>
       </motion.div>
     </section>
   );
@@ -300,7 +392,9 @@ const Index = () => {
       <TrustBar />
       {categories && categories.length > 0 && <CategoryGrid categories={categories} />}
       <BestSellers products={featured} loading={loadingFeatured} />
+      <LayeringBanner />
       <EditorialBanners />
+      <EarringsBanner />
       <LariSection />
       <NewsletterSection />
     </>
