@@ -211,6 +211,12 @@ const StyleAssistant = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderState, setOrderState] = useState<OrderState>({ items: [], customer: {} });
+  const [pendingOrder, setPendingOrder] = useState<{
+    order_id: string;
+    whatsapp_url: string | null;
+    total: number;
+    items: OrderItem[];
+  } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const pendingEventsRef = useRef<{ products: Product[]; orderSubmitted?: any }>({ products: [] });
