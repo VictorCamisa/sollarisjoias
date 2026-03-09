@@ -306,7 +306,7 @@ const EditorialGrid = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[hsl(30,15%,8%,0.60)] via-[hsl(30,15%,8%,0.10)] to-transparent" />
                 <div className="absolute inset-0 flex items-end p-5 sm:p-7 md:p-9">
                   <div>
-                    <p className="text-accent/80 text-[9px] sm:text-[10px] tracking-[0.15em] uppercase mb-1 font-semibold">{card.subtitle}</p>
+                    <p className="text-accent text-[9px] sm:text-[10px] tracking-[0.15em] uppercase mb-1 font-semibold">{card.subtitle}</p>
                     <h3 className="font-serif text-[22px] sm:text-[28px] text-white">{card.title}</h3>
                   </div>
                 </div>
