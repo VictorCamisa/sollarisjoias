@@ -131,9 +131,9 @@ async function streamChat({
 }
 
 const SUGGESTIONS = [
-  "Oi Lari! Quero ajuda pra escolher um look 💃",
-  "Tô procurando algo pra um evento especial ✨",
-  "Me mostra o que tem de novidade 🛍️",
+  "Oi Lari! Quero ajuda pra escolher uma semijoia 💎",
+  "Tô procurando algo pra presentear ✨",
+  "Me mostra as peças mais vendidas 🛍️",
 ];
 
 /* ─── Product card ─── */
@@ -330,7 +330,7 @@ const StyleAssistant = () => {
                   </div>
                   <div>
                     <h3 className="font-serif text-base font-semibold leading-tight">Lari</h3>
-                    <p className="text-xs text-primary-foreground/60 font-sans mt-0.5">Estilista pessoal LARIFA</p>
+                    <p className="text-xs text-primary-foreground/60 font-sans mt-0.5">Consultora de semijoias LARIFA</p>
                   </div>
                 </div>
                 <button 
@@ -372,7 +372,7 @@ const StyleAssistant = () => {
                   </div>
                   <p className="font-serif text-lg font-semibold text-foreground mb-1">Oii! Eu sou a Lari 💕</p>
                   <p className="text-xs text-muted-foreground font-sans max-w-[260px] leading-relaxed mb-6">
-                    Sua estilista pessoal da LARIFA! Eu te ajudo a encontrar peças perfeitas e monto seu pedido completo.
+                    Sua consultora de semijoias da LARIFA! Te ajudo a encontrar a peça perfeita e monto seu pedido completo.
                   </p>
                   <div className="w-full space-y-2">
                     {SUGGESTIONS.map((s, i) => (

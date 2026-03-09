@@ -10,21 +10,22 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Tool definitions for the AI agent
 const tools = [
   {
     type: "function",
     function: {
       name: "search_products",
-      description: "Busca produtos no catálogo da LARIFA por nome, categoria, cor, tamanho ou preço. Use para encontrar peças que combinem com o pedido da cliente.",
+      description: "Busca semijoias no catálogo da LARIFA por nome, categoria, material, banho, pedra ou preço. Use para encontrar peças que combinem com o que a cliente procura.",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Texto de busca (nome, tipo de peça, ocasião)" },
-          category: { type: "string", description: "Nome da categoria (ex: Vestidos, Blusas, Calças)" },
+          query: { type: "string", description: "Texto de busca livre (nome da peça, tipo, ocasião, estilo)" },
+          category: { type: "string", description: "Categoria (ex: Anéis, Colares, Brincos, Pulseiras, Conjuntos)" },
           max_price: { type: "number", description: "Preço máximo em reais" },
+          banho: { type: "string", description: "Tipo de banho (ex: Ouro 18k, Ródio, Ouro Rosé)" },
+          pedra: { type: "string", description: "Tipo de pedra (ex: Zircônia, Cristal, Pérola)" },
           color: { type: "string", description: "Cor desejada" },
-          size: { type: "string", description: "Tamanho desejado (PP, P, M, G, GG)" },
+          size: { type: "string", description: "Tamanho desejado" },
         },
         required: [],
         additionalProperties: false,
@@ -35,7 +36,7 @@ const tools = [
     type: "function",
     function: {
       name: "show_product",
-      description: "Mostra um produto específico com foto para a cliente. Use após sugerir um produto para que ela veja a imagem.",
+      description: "Mostra uma semijoia específica com foto e detalhes completos para a cliente.",
       parameters: {
         type: "object",
         properties: {
@@ -50,16 +51,16 @@ const tools = [
     type: "function",
     function: {
       name: "add_to_order",
-      description: "Adiciona um produto ao pedido da cliente. Use quando ela confirmar que quer um item.",
+      description: "Adiciona uma semijoia ao pedido da cliente. Use quando ela confirmar que quer o item.",
       parameters: {
         type: "object",
         properties: {
           product_id: { type: "string", description: "ID do produto" },
-          size: { type: "string", description: "Tamanho escolhido" },
-          color: { type: "string", description: "Cor escolhida" },
+          size: { type: "string", description: "Tamanho escolhido (se aplicável, senão 'Único')" },
+          color: { type: "string", description: "Cor/variação escolhida (se aplicável, senão a cor principal)" },
           quantity: { type: "number", description: "Quantidade (default 1)" },
         },
-        required: ["product_id", "size", "color"],
+        required: ["product_id"],
         additionalProperties: false,
       },
     },
@@ -83,7 +84,7 @@ const tools = [
     type: "function",
     function: {
       name: "view_order",
-      description: "Mostra o resumo do pedido atual da cliente com todos os itens, tamanhos, cores e total.",
+      description: "Mostra o resumo do pedido atual com todos os itens e total.",
       parameters: { type: "object", properties: {}, required: [], additionalProperties: false },
     },
   },
@@ -91,7 +92,7 @@ const tools = [
     type: "function",
     function: {
       name: "collect_customer_info",
-      description: "Coleta ou atualiza as informações da cliente (nome, telefone, email). Use quando tiver essas informações.",
+      description: "Coleta ou atualiza informações da cliente (nome, telefone, email).",
       parameters: {
         type: "object",
         properties: {
@@ -108,55 +109,82 @@ const tools = [
     type: "function",
     function: {
       name: "submit_order",
-      description: "Finaliza o pedido: salva no banco de dados e gera o link do WhatsApp para a vendedora entrar em contato. Só use quando o pedido tiver itens E os dados da cliente (pelo menos nome e telefone).",
+      description: "Finaliza o pedido: salva no banco de dados e gera link do WhatsApp. Só use quando tiver itens + nome + telefone confirmados.",
       parameters: { type: "object", properties: {}, required: [], additionalProperties: false },
     },
   },
 ];
 
-// Execute tool calls
+const PRODUCT_FIELDS = "id, name, price, original_price, description, sizes, colors, images, banho, pedra, material, internal_notes, foto_frontal, foto_lateral, foto_lifestyle, foto_detalhe, categories(name)";
+
+function getProductImage(p: any): string | null {
+  return p.foto_frontal || p.foto_lifestyle || p.images?.[0] || p.foto_lateral || p.foto_detalhe || null;
+}
+
+function formatProductForAI(p: any): string {
+  const parts = [`${p.name} (R$${p.price.toFixed(2)}, ID: ${p.id})`];
+  if (p.banho) parts.push(`Banho: ${p.banho}`);
+  if (p.pedra) parts.push(`Pedra: ${p.pedra}`);
+  if (p.material) parts.push(`Material: ${p.material}`);
+  if (p.sizes?.length) parts.push(`Tamanhos: ${p.sizes.join(", ")}`);
+  if (p.colors?.length) parts.push(`Cores: ${p.colors.join(", ")}`);
+  if (p.description) parts.push(`Descrição: ${p.description.substring(0, 150)}`);
+  if (p.internal_notes) parts.push(`Dica de venda: ${p.internal_notes}`);
+  return parts.join(" | ");
+}
+
 async function executeTool(name: string, args: any, orderState: any): Promise<{ result: any; events: any[] }> {
   const events: any[] = [];
 
   switch (name) {
     case "search_products": {
-      let query = supabase.from("products").select("id, name, price, description, sizes, colors, images, categories(name)").eq("stock_status", true);
-      if (args.query) query = query.ilike("name", `%${args.query}%`);
+      let query = supabase.from("products").select(PRODUCT_FIELDS).eq("stock_status", true);
+      
+      if (args.query) {
+        // Search in name, description, tags_seo, and material
+        query = query.or(`name.ilike.%${args.query}%,description.ilike.%${args.query}%,tags_seo.ilike.%${args.query}%`);
+      }
       if (args.category) query = query.ilike("categories.name", `%${args.category}%`);
       if (args.max_price) query = query.lte("price", args.max_price);
+      if (args.banho) query = query.ilike("banho", `%${args.banho}%`);
+      if (args.pedra) query = query.ilike("pedra", `%${args.pedra}%`);
       if (args.color) query = query.contains("colors", [args.color]);
       if (args.size) query = query.contains("sizes", [args.size]);
-      const { data } = await query.limit(3);
       
+      const { data } = await query.order("is_featured", { ascending: false }).limit(4);
+
       const products = (data || []).map((p: any) => ({
         id: p.id,
         name: p.name,
         price: p.price,
-        description: p.description?.substring(0, 100),
+        description: p.description?.substring(0, 120),
         sizes: p.sizes,
         colors: p.colors,
-        image: p.images?.[0] || null,
+        image: getProductImage(p),
         category: p.categories?.name,
       }));
-      
+
       if (products.length > 0) {
         events.push({ type: "products", data: products });
       }
-      
-      return { result: products.length > 0 
-        ? `Encontrei ${products.length} produto(s): ${products.map((p: any) => `${p.name} (R$${p.price.toFixed(2)}, ID: ${p.id})`).join(", ")}` 
-        : "Nenhum produto encontrado com esses critérios.", events };
+
+      return {
+        result: products.length > 0
+          ? `Encontrei ${products.length} peça(s):\n${(data || []).map((p: any) => formatProductForAI(p)).join("\n")}`
+          : "Nenhuma peça encontrada com esses critérios. Tente buscar de outra forma ou sugira algo diferente à cliente.",
+        events,
+      };
     }
 
     case "show_product": {
       const { data: product } = await supabase
         .from("products")
-        .select("id, name, price, description, sizes, colors, images, categories(name)")
+        .select(PRODUCT_FIELDS)
         .eq("id", args.product_id)
         .single();
-      
+
       if (!product) return { result: "Produto não encontrado.", events };
-      
+
       const p = {
         id: product.id,
         name: product.name,
@@ -164,40 +192,42 @@ async function executeTool(name: string, args: any, orderState: any): Promise<{ 
         description: product.description,
         sizes: product.sizes,
         colors: product.colors,
-        image: product.images?.[0] || null,
+        image: getProductImage(product),
         category: (product as any).categories?.name,
       };
       events.push({ type: "products", data: [p] });
-      return { result: `Produto: ${p.name} — R$${p.price.toFixed(2)}. Tamanhos: ${(p.sizes || []).join(", ")}. Cores: ${(p.colors || []).join(", ")}.`, events };
+      return { result: formatProductForAI(product), events };
     }
 
     case "add_to_order": {
       const { data: product } = await supabase
         .from("products")
-        .select("id, name, price, images")
+        .select("id, name, price, images, foto_frontal, foto_lifestyle, sizes, colors")
         .eq("id", args.product_id)
         .single();
-      
+
       if (!product) return { result: "Produto não encontrado.", events };
-      
+
+      const size = args.size || (product.sizes?.length ? product.sizes[0] : "Único");
+      const color = args.color || (product.colors?.length ? product.colors[0] : "Padrão");
+
       const item = {
         product_id: product.id,
         name: product.name,
         price: product.price,
-        size: args.size,
-        color: args.color,
+        size,
+        color,
         quantity: args.quantity || 1,
-        image: product.images?.[0] || null,
+        image: (product as any).foto_frontal || (product as any).foto_lifestyle || product.images?.[0] || null,
       };
-      
-      // Remove existing same product if any
+
       orderState.items = (orderState.items || []).filter((i: any) => i.product_id !== product.id);
       orderState.items.push(item);
-      
+
       const total = orderState.items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
       events.push({ type: "order_update", data: { items: orderState.items, total, customer: orderState.customer } });
-      
-      return { result: `Adicionei "${product.name}" (Tam: ${args.size}, Cor: ${args.color}, Qtd: ${args.quantity || 1}) ao pedido. Total atual: R$${total.toFixed(2)}.`, events };
+
+      return { result: `Adicionei "${product.name}" (Tam: ${size}, Cor: ${color}, Qtd: ${args.quantity || 1}) ao pedido. Total atual: R$${total.toFixed(2)}.`, events };
     }
 
     case "remove_from_order": {
@@ -209,7 +239,7 @@ async function executeTool(name: string, args: any, orderState: any): Promise<{ 
 
     case "view_order": {
       const items = orderState.items || [];
-      if (items.length === 0) return { result: "O pedido está vazio. Vamos montar um look?", events };
+      if (items.length === 0) return { result: "O pedido está vazio. Vamos escolher umas peças lindas?", events };
       const total = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
       const summary = items.map((i: any) => `• ${i.name} — Tam: ${i.size}, Cor: ${i.color}, Qtd: ${i.quantity} — R$${(i.price * i.quantity).toFixed(2)}`).join("\n");
       events.push({ type: "order_update", data: { items, total, customer: orderState.customer } });
@@ -228,13 +258,12 @@ async function executeTool(name: string, args: any, orderState: any): Promise<{ 
     case "submit_order": {
       const items = orderState.items || [];
       const customer = orderState.customer || {};
-      
-      if (items.length === 0) return { result: "O pedido está vazio! Adicione pelo menos um item.", events };
+
+      if (items.length === 0) return { result: "O pedido está vazio! Adicione pelo menos uma peça.", events };
       if (!customer.name || !customer.phone) return { result: "Preciso do nome e WhatsApp da cliente para finalizar o pedido.", events };
-      
+
       const total = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
-      
-      // Save order to database
+
       const { data: order, error } = await supabase.from("orders").insert({
         customer_name: customer.name,
         customer_phone: customer.phone,
@@ -244,29 +273,26 @@ async function executeTool(name: string, args: any, orderState: any): Promise<{ 
         status: "pending",
         notes: "Pedido via Assistente Lari",
       }).select().single();
-      
+
       if (error) {
         console.error("Order insert error:", error);
         return { result: "Erro ao salvar o pedido. Tente novamente.", events };
       }
-      
-      // Get store WhatsApp number
+
       const { data: settings } = await supabase.from("settings").select("whatsapp_number").limit(1).single();
       const storePhone = settings?.whatsapp_number || "";
-      
-      // Generate WhatsApp message
+
       const lines = items.map((i: any) => `• ${i.name} — Tam: ${i.size}, Cor: ${i.color}, Qtd: ${i.quantity} — R$ ${(i.price * i.quantity).toFixed(2).replace(".", ",")}`);
-      const whatsappMsg = `Olá! Sou ${customer.name} e gostaria de finalizar meu pedido LARIFA 🛍️\n\n${lines.join("\n")}\n\n💰 *Total: R$ ${total.toFixed(2).replace(".", ",")}*\n\nPedido #${order.id.slice(0, 8)}`;
-      const whatsappUrl = storePhone 
+      const whatsappMsg = `Olá! Sou ${customer.name} e gostaria de finalizar meu pedido LARIFA 💎\n\n${lines.join("\n")}\n\n💰 *Total: R$ ${total.toFixed(2).replace(".", ",")}*\n\nPedido #${order.id.slice(0, 8)}`;
+      const whatsappUrl = storePhone
         ? `https://wa.me/${storePhone}?text=${encodeURIComponent(whatsappMsg)}`
         : null;
-      
+
       events.push({ type: "order_submitted", data: { order_id: order.id, whatsapp_url: whatsappUrl, total } });
-      // Clear order state
       orderState.items = [];
       orderState.customer = {};
-      
-      return { result: `Pedido #${order.id.slice(0, 8)} salvo com sucesso! Total: R$${total.toFixed(2)}. ${whatsappUrl ? "Link do WhatsApp gerado para a cliente finalizar com a vendedora." : "Pedido registrado, a equipe entrará em contato."}`, events };
+
+      return { result: `Pedido #${order.id.slice(0, 8)} salvo com sucesso! Total: R$${total.toFixed(2)}. ${whatsappUrl ? "Link do WhatsApp gerado." : "Pedido registrado, a equipe entrará em contato."}`, events };
     }
 
     default:
@@ -282,13 +308,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Mutable order state
     const orderState = {
       items: clientOrderState?.items || [],
       customer: clientOrderState?.customer || {},
     };
 
-    // Build system prompt with current order context
     const orderContext = orderState.items.length > 0
       ? `\n\nPedido atual da cliente:\n${orderState.items.map((i: any) => `• ${i.name} (Tam: ${i.size}, Cor: ${i.color}, Qtd: ${i.quantity}) — R$${(i.price * i.quantity).toFixed(2)}`).join("\n")}\nTotal: R$${orderState.items.reduce((s: number, i: any) => s + i.price * i.quantity, 0).toFixed(2)}`
       : "";
@@ -297,62 +321,69 @@ serve(async (req) => {
       ? `\nDados da cliente: Nome: ${orderState.customer.name}, WhatsApp: ${orderState.customer.phone || "não informado"}, Email: ${orderState.customer.email || "não informado"}`
       : "";
 
-    const systemPrompt = `Você é a Lari, estilista virtual e vendedora da LARIFA, uma loja de moda feminina premium.
+    const systemPrompt = `Você é a Lari, consultora de estilo e vendedora virtual da LARIFA — uma marca de SEMIJOIAS premium. 
+
+## SOBRE A LARIFA
+A LARIFA vende SEMIJOIAS: anéis, colares, brincos, pulseiras, correntes, pingentes e conjuntos. NÃO vendemos roupas, sapatos ou acessórios de moda em geral. Nossos produtos são semijoias com banhos nobres (ouro 18k, ródio, ouro rosé) e pedras (zircônia, cristal, pérola, etc).
 
 ## SUA PERSONALIDADE
-Você é EXTREMAMENTE simpática, carinhosa e acolhedora. Trate cada cliente como uma amiga querida. Use emojis com carinho (não exagere). Sempre elogie a cliente e faça ela se sentir especial.
+- Simpática, carinhosa e acolhedora — trate cada cliente como amiga
+- Especialista em semijoias: saiba falar sobre banhos, pedras, materiais
+- Use emojis com moderação (💎 ✨ 💕 🥰)
+- Elogie o gosto da cliente e faça ela se sentir especial
+- Respostas CURTAS: máximo 2-3 frases por mensagem
 
-## REGRA DE OURO - FLUXO OBRIGATÓRIO
-Siga SEMPRE este fluxo, passo a passo. NUNCA pule etapas:
+## CONHECIMENTO TÉCNICO
+Quando o campo "internal_notes" de um produto tiver dicas, USE-AS na venda! São informações estratégicas sobre como vender aquela peça.
+- Saiba explicar diferenças entre banhos (ouro 18k vs ródio)
+- Sugira combinações de peças (brinco + colar, anel + pulseira)
+- Saiba recomendar por ocasião: casual, festa, trabalho, presente
+
+## FLUXO DE ATENDIMENTO
 
 ### PASSO 1: BOAS-VINDAS + NOME
-Na PRIMEIRA mensagem, se apresente e pergunte o NOME da cliente. Não fale de produtos ainda.
-Exemplo: "Oii! 💕 Eu sou a Lari, sua estilista virtual da LARIFA! Que bom ter você aqui! Me conta, qual seu nome, linda?"
+Se apresente e pergunte o nome da cliente. Não fale de produtos ainda.
+"Oii! 💎 Eu sou a Lari, consultora de estilo da LARIFA! Me conta, qual seu nome, linda?"
 
-### PASSO 2: ENTENDER O QUE ELA QUER
-Depois de saber o nome, pergunte O QUE ela procura. Use o nome dela na conversa!
-Exemplo: "Que prazer, [nome]! 🥰 Me conta: o que você tá buscando hoje? É pra alguma ocasião especial?"
+### PASSO 2: ENTENDER O QUE ELA BUSCA
+Pergunte o que ela procura: ocasião, tipo de peça, para presente ou uso próprio, preferências de estilo.
+"Que prazer, [nome]! ✨ Me conta: tá buscando algo pra você ou pra presentear? Tem alguma peça em mente?"
 
-### PASSO 3: BUSCAR E MOSTRAR PRODUTOS (POUCOS!)
-- Use search_products para buscar
-- Mostre NO MÁXIMO 2 produtos por vez usando show_product
-- Descreva brevemente cada um e pergunte se ela gostou
-- Só sugira produtos que tenham a ver com o que ela PEDIU
-- NUNCA mostre mais de 2 opções de uma vez — é confuso!
+### PASSO 3: BUSCAR E MOSTRAR PEÇAS
+- Use search_products para buscar no catálogo real
+- Mostre NO MÁXIMO 2 peças por vez
+- Use as dicas de internal_notes para argumentar a venda
+- Pergunte se gostou antes de sugerir mais
+- NUNCA invente produtos — só mostre o que existe no banco
 
 ### PASSO 4: MONTAR O PEDIDO
-Quando ela escolher, PERGUNTE o tamanho e a cor ANTES de adicionar.
-Depois de adicionar, mostre o subtotal e pergunte se quer mais alguma coisa.
+Quando ela escolher, pergunte tamanho/cor SE houver variações.
+Adicione ao pedido e mostre o subtotal. Pergunte se quer mais.
+Sugira peças complementares: "Esse colar fica perfeito com o brinco X!"
 
 ### PASSO 5: FECHAR O PEDIDO
-Quando ela disser que está tudo:
-1. Use view_order para mostrar o RESUMO COMPLETO com todos os itens e o TOTAL
-2. Pergunte: "Tudo certinho, [nome]? 💕"
-3. Peça o WhatsApp dela: "Me passa seu WhatsApp que nossa vendedora vai finalizar com você por lá! 📱"
+1. Mostre o resumo completo com view_order
+2. Confirme: "Tudo certinho, [nome]? 💎"
+3. Peça o WhatsApp: "Me passa seu WhatsApp que nossa equipe finaliza por lá! 📱"
 
 ### PASSO 6: FINALIZAR
-Depois de ter nome + WhatsApp + itens confirmados:
-1. Use collect_customer_info com os dados
-2. Use submit_order para salvar
-3. Diga algo carinhoso tipo: "[nome], seu pedido tá registrado! 🎉 Nossa vendedora vai te chamar no WhatsApp pra finalizar, tá? Foi um prazer te atender! 💕"
+Com nome + WhatsApp + itens confirmados: collect_customer_info → submit_order
 
 ## REGRAS IMPORTANTES
-- NUNCA invente produtos. SEMPRE use search_products
-- SEMPRE mostre a foto com show_product antes de sugerir
-- Máximo 2 sugestões por vez. A cliente escolhe, não você
-- SEMPRE some e mostre o valor total antes de fechar
+- NUNCA invente produtos. SEMPRE busque com search_products
+- NUNCA diga que vende roupas, sapatos ou qualquer coisa que não seja semijoia
+- Máximo 2 sugestões por vez
 - SEMPRE colete nome no início e WhatsApp no final
-- Respostas CURTAS: máximo 2-3 frases por mensagem
+- Use o nome da cliente sempre que possível
 - Responda SEMPRE em português brasileiro
-- Use o NOME da cliente sempre que possível
+- Se a cliente perguntar algo fora do escopo (roupas, etc), diga gentilmente que a LARIFA é especializada em semijoias
 ${orderContext}${customerContext}`;
 
-    // Agentic loop: call AI, handle tool calls, repeat until text response
     let aiMessages: any[] = [
       { role: "system", content: systemPrompt },
       ...messages,
     ];
-    
+
     const allEvents: any[] = [];
     let maxIterations = 8;
 
@@ -375,7 +406,7 @@ ${orderContext}${customerContext}`;
 
       if (!response.ok) {
         const status = response.status;
-        if (status === 429) return new Response(JSON.stringify({ error: "Muitas requisições. Tente novamente em instantes." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (status === 429) return new Response(JSON.stringify({ error: "Muitas requisições." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         if (status === 402) return new Response(JSON.stringify({ error: "Créditos de IA esgotados." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         const t = await response.text();
         console.error("AI gateway error:", status, t);
@@ -388,7 +419,6 @@ ${orderContext}${customerContext}`;
 
       if (!message) break;
 
-      // If the AI wants to call tools
       if (message.tool_calls && message.tool_calls.length > 0) {
         aiMessages.push(message);
 
@@ -406,13 +436,12 @@ ${orderContext}${customerContext}`;
             content: JSON.stringify(result),
           });
         }
-        continue; // Loop back for AI to respond with text
+        continue;
       }
 
-      // AI returned a text response — we're done with the loop
       const textContent = message.content || "";
-      
-      // Now stream the final response for good UX
+
+      // Stream the final response
       const streamResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -429,18 +458,14 @@ ${orderContext}${customerContext}`;
         }),
       });
 
-      // Build a custom stream that prepends our events
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
         async start(controller) {
-          // Send structured events first
           for (const evt of allEvents) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify(evt)}\n\n`));
           }
-          // Send order state update
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "order_state", data: orderState })}\n\n`));
-          
-          // Then pipe the streamed text
+
           if (streamResponse.ok && streamResponse.body) {
             const reader = streamResponse.body.getReader();
             while (true) {
@@ -449,7 +474,6 @@ ${orderContext}${customerContext}`;
               controller.enqueue(value);
             }
           } else {
-            // Fallback: send the text as a single SSE event
             const fakeSSE = `data: ${JSON.stringify({ choices: [{ delta: { content: textContent } }] })}\n\ndata: [DONE]\n\n`;
             controller.enqueue(encoder.encode(fakeSSE));
           }
@@ -462,7 +486,6 @@ ${orderContext}${customerContext}`;
       });
     }
 
-    // Fallback if max iterations reached
     return new Response(JSON.stringify({ error: "A assistente não conseguiu completar a ação. Tente novamente." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
