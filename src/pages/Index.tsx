@@ -67,7 +67,7 @@ const HeroSection = () => {
               </div>
               <h1 className="text-[34px] sm:text-[46px] md:text-[60px] lg:text-[70px] font-serif text-white leading-[1.04] mb-4 sm:mb-6">
                 Semijoias que<br />
-                <em className="font-light italic text-accent/90">contam histórias</em>
+                <em className="font-light italic text-accent">contam histórias</em>
               </h1>
               <p className="text-white/50 text-[13px] sm:text-[15px] font-light mb-7 sm:mb-9 max-w-[340px] leading-relaxed">
                 Peças atemporais com banho de ouro 18k,
