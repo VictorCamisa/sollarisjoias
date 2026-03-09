@@ -104,7 +104,7 @@ const TrustBar = () => (
   <div className="relative z-10 -mt-8 sm:-mt-6 pb-2">
     <div className="container mx-auto px-4 sm:px-8 md:px-12">
       <div className="bg-card border border-border/60 py-4 sm:py-5 px-4 sm:px-8 shadow-sm">
-        <div className="flex items-center justify-between gap-4 sm:gap-6 overflow-x-auto text-foreground/60">
+        <div className="flex items-center justify-between gap-4 sm:gap-6 overflow-x-auto text-foreground/70">
           {[
             { icon: "✦", text: "Frete grátis acima de R$199" },
             { icon: "✦", text: "Garantia de 6 meses" },
