@@ -48,19 +48,19 @@
 
     --radius: 0.25rem;
 
-    /* Brand tokens */
+    /* Brand tokens — brighter gold family */
     --larifa-teal: 172 45% 18%;
     --larifa-teal-deep: 172 50% 12%;
     --larifa-teal-light: 172 35% 28%;
     --larifa-teal-muted: 172 20% 35%;
-    --larifa-gold: 36 55% 48%;
-    --larifa-gold-light: 38 45% 62%;
-    --larifa-gold-pale: 38 30% 80%;
+    --larifa-gold: 38 72% 58%;
+    --larifa-gold-light: 38 60% 68%;
+    --larifa-gold-pale: 38 40% 78%;
     --larifa-ivory: 40 30% 96%;
     --larifa-cream: 38 25% 93%;
     --larifa-warm-white: 40 25% 99%;
     --larifa-charcoal: 30 15% 15%;
-    --larifa-charcoal-soft: 30 8% 48%;
+    --larifa-charcoal-soft: 30 8% 55%;
 
     /* Sidebar (admin) */
     --sidebar-background: 40 25% 99%;
