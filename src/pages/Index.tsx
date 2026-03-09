@@ -7,7 +7,6 @@ import ProductCard, { ProductCardSkeleton } from "@/components/store/ProductCard
 import NewsletterForm from "@/components/store/NewsletterForm";
 import { useProducts, useCategories } from "@/hooks/useStore";
 import SEOHead from "@/components/seo/SEOHead";
-import { BotanicalDivider, CornerLeaves, BotanicalPattern } from "@/components/store/BotanicalElements";
 
 // Banners
 import bannerHero from "@/assets/banners/banner-hero.jpg";
@@ -34,7 +33,7 @@ const categoryImages: Record<string, string> = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   HERO — parallax + teal overlay + botanical corner
+   HERO — parallax + teal overlay
 ═══════════════════════════════════════════════════════════════ */
 const HeroSection = () => {
   const ref = useRef(null);
@@ -45,23 +44,12 @@ const HeroSection = () => {
 
   return (
     <section ref={ref} className="relative h-[92vh] min-h-[550px] max-h-[850px] overflow-hidden">
-      {/* Parallax BG */}
       <motion.div className="absolute inset-0 will-change-transform" style={{ y: bgY }}>
-        <img
-          src={bannerHero}
-          alt="Larifa — Semijoias Premium"
-          className="w-full h-[120%] object-cover"
-        />
-        {/* Teal-tinted overlay instead of pure black */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(172,55%,8%,0.65)] via-[hsl(172,40%,12%,0.25)] to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(172,55%,8%,0.50)] via-transparent to-[hsl(172,40%,12%,0.10)]" />
+        <img src={bannerHero} alt="Larifa — Semijoias Premium" className="w-full h-[120%] object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(172,55%,8%,0.60)] via-[hsl(172,40%,12%,0.20)] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(172,55%,8%,0.45)] via-transparent to-[hsl(172,40%,12%,0.08)]" />
       </motion.div>
 
-      {/* Botanical corner decoration */}
-      <CornerLeaves position="top-right" opacity={0.12} className="text-white" />
-      <CornerLeaves position="bottom-left" opacity={0.08} className="text-white" />
-
-      {/* Content */}
       <div className="absolute inset-0 flex items-center">
         <div className="container mx-auto px-8 md:px-12">
           <motion.div style={{ y: textY }} className="max-w-lg">
@@ -100,13 +88,6 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Organic bottom curve */}
-      <div className="absolute bottom-0 left-0 right-0 leading-[0]">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" className="w-full h-[40px] md:h-[60px] fill-background">
-          <path d="M0,30 C480,60 960,0 1440,30 L1440,60 L0,60 Z" />
-        </svg>
-      </div>
     </section>
   );
 };
@@ -115,9 +96,9 @@ const HeroSection = () => {
    TRUST BAR — floating overlap
 ═══════════════════════════════════════════════════════════════ */
 const TrustBar = () => (
-  <div className="relative z-10 -mt-4 mb-8">
+  <div className="relative z-10 -mt-6">
     <div className="container mx-auto px-8 md:px-12">
-      <div className="bg-card shadow-lg shadow-foreground/[0.03] rounded-2xl py-5 px-8">
+      <div className="bg-card shadow-lg shadow-foreground/[0.04] py-5 px-8">
         <div className="flex items-center justify-between gap-4 flex-wrap text-muted-foreground">
           {["Frete grátis acima de R$199", "Garantia de 6 meses", "Banho de ouro 18k", "Até 3x sem juros"].map((item) => (
             <span key={item} className="text-[11px] tracking-[0.1em] uppercase font-medium">
@@ -131,18 +112,15 @@ const TrustBar = () => (
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   CATEGORIES — staggered grid + overlapping labels
+   CATEGORIES — staggered grid
 ═══════════════════════════════════════════════════════════════ */
 const CategoryGrid = ({ categories }: { categories: { id: string; name: string; slug: string }[] }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <section ref={ref} className="relative pt-12 pb-0 bg-background overflow-hidden">
-      {/* Botanical corner */}
-      <CornerLeaves position="top-left" opacity={0.04} className="text-foreground" />
-
-      <div className="container mx-auto px-8 md:px-12 relative z-10">
+    <section ref={ref} className="pt-20 pb-20 md:pt-28 md:pb-28 bg-background">
+      <div className="container mx-auto px-8 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -163,15 +141,16 @@ const CategoryGrid = ({ categories }: { categories: { id: string; name: string; 
               className={`${i % 2 === 1 ? "lg:mt-8" : ""}`}
             >
               <Link to={`/produtos?categoria=${cat.slug}`} className="group block relative">
-                <div className="aspect-[3/4] overflow-hidden rounded-xl">
+                <div className="aspect-[3/4] overflow-hidden">
                   <img
                     src={categoryImages[cat.slug] || catAneis}
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 </div>
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-card px-5 py-2 rounded-full shadow-md">
+                {/* Overlapping label */}
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-card px-5 py-2 shadow-sm">
                   <p className="text-[12px] tracking-wide font-medium text-foreground whitespace-nowrap">
                     {cat.name}
                   </p>
@@ -181,22 +160,20 @@ const CategoryGrid = ({ categories }: { categories: { id: string; name: string; 
           ))}
         </div>
       </div>
-      <div className="h-16" />
     </section>
   );
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   FEATURED PRODUCTS — soft gradient bg
+   FEATURED PRODUCTS
 ═══════════════════════════════════════════════════════════════ */
 const FeaturedProducts = ({ products, loading }: { products: any[] | undefined; loading: boolean }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
+    <section ref={ref} className="relative py-20 md:py-28">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/30 to-background pointer-events-none" />
-      <CornerLeaves position="bottom-right" opacity={0.03} className="text-foreground" />
 
       <div className="relative container mx-auto px-8 md:px-12">
         <motion.div
@@ -244,7 +221,7 @@ const FeaturedProducts = ({ products, loading }: { products: any[] | undefined; 
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   LAYERING — teal bg with botanicals + parallax
+   LAYERING — teal bg + parallax
 ═══════════════════════════════════════════════════════════════ */
 const LayeringSection = () => {
   const ref = useRef(null);
@@ -253,21 +230,11 @@ const LayeringSection = () => {
   const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
 
   return (
-    <section ref={ref} className="relative">
-      <BotanicalDivider bgClass="fill-primary" leafOpacity={0.1} />
-
+    <section ref={ref}>
       <div className="bg-primary relative overflow-hidden">
-        {/* Botanical background pattern */}
-        <BotanicalPattern opacity={0.05} className="text-primary-foreground" />
-        <CornerLeaves position="top-right" opacity={0.08} className="text-primary-foreground" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[550px] relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[550px]">
           <motion.div className="overflow-hidden relative" style={{ y: imgY }}>
-            <img
-              src={bannerLayering}
-              alt="Layering de Colares"
-              className="w-full h-[115%] object-cover"
-            />
+            <img src={bannerLayering} alt="Layering de Colares" className="w-full h-[115%] object-cover" />
           </motion.div>
 
           <motion.div
@@ -293,14 +260,12 @@ const LayeringSection = () => {
           </motion.div>
         </div>
       </div>
-
-      <BotanicalDivider flip bgClass="fill-primary" leafOpacity={0.1} />
     </section>
   );
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   EDITORIAL 2-COL — asymmetric + rounded
+   EDITORIAL 2-COL — asymmetric
 ═══════════════════════════════════════════════════════════════ */
 const EditorialGrid = () => {
   const ref = useRef(null);
@@ -312,10 +277,8 @@ const EditorialGrid = () => {
   ];
 
   return (
-    <section ref={ref} className="bg-background py-20 md:py-28 relative overflow-hidden">
-      <CornerLeaves position="top-right" opacity={0.03} className="text-foreground" />
-
-      <div className="container mx-auto px-8 md:px-12 relative z-10">
+    <section ref={ref} className="bg-background py-20 md:py-28">
+      <div className="container mx-auto px-8 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
           {cards.map((card, i) => (
             <motion.div
@@ -325,15 +288,11 @@ const EditorialGrid = () => {
               transition={{ duration: 0.6, delay: i * 0.15 }}
               className={`${i === 1 ? "md:mt-12" : ""}`}
             >
-              <Link to={card.link} className="group block relative overflow-hidden rounded-2xl">
+              <Link to={card.link} className="group block relative overflow-hidden">
                 <div className="aspect-[4/3] overflow-hidden">
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  <img src={card.image} alt={card.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(172,55%,8%,0.55)] via-black/10 to-transparent rounded-2xl" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(172,55%,8%,0.50)] via-black/10 to-transparent" />
                 <div className="absolute inset-0 flex items-end p-8 md:p-10">
                   <div>
                     <p className="text-white/55 text-[11px] tracking-[0.15em] uppercase mb-2">{card.subtitle}</p>
@@ -350,7 +309,7 @@ const EditorialGrid = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   EARRINGS BANNER — parallax with botanical curves
+   EARRINGS BANNER — parallax
 ═══════════════════════════════════════════════════════════════ */
 const EarringsBanner = () => {
   const ref = useRef(null);
@@ -361,19 +320,10 @@ const EarringsBanner = () => {
   return (
     <section ref={ref} className="relative overflow-hidden h-[50vh] min-h-[350px]">
       <motion.div className="absolute inset-0 will-change-transform" style={{ y: bgY }}>
-        <img
-          src={bannerBrincos}
-          alt="Coleção de Brincos"
-          className="w-full h-[130%] object-cover"
-        />
+        <img src={bannerBrincos} alt="Coleção de Brincos" className="w-full h-[130%] object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[hsl(172,55%,8%,0.45)] via-[hsl(172,40%,12%,0.15)] to-[hsl(172,55%,8%,0.45)]" />
       </motion.div>
-
-      {/* Botanical corners on the banner */}
-      <CornerLeaves position="top-right" opacity={0.1} className="text-white" />
-      <CornerLeaves position="bottom-left" opacity={0.07} className="text-white" />
-
-      <div className="absolute inset-0 flex items-center justify-center relative z-10">
+      <div className="absolute inset-0 flex items-center justify-center z-10">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={inView ? { opacity: 1, scale: 1 } : {}}
@@ -383,48 +333,33 @@ const EarringsBanner = () => {
           <p className="text-[11px] tracking-[0.25em] uppercase text-white/55 mb-3">Coleção Completa</p>
           <h2 className="text-[40px] md:text-[56px] font-serif text-white mb-6">Brincos</h2>
           <Link to="/produtos?categoria=brincos">
-            <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-white/90 text-foreground hover:bg-white rounded-full backdrop-blur-sm transition-all">
+            <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-white/90 text-foreground hover:bg-white rounded-none backdrop-blur-sm transition-all">
               Explorar
             </Button>
           </Link>
         </motion.div>
-      </div>
-
-      {/* Organic curves */}
-      <div className="absolute top-0 left-0 right-0 leading-[0] rotate-180">
-        <svg viewBox="0 0 1440 50" preserveAspectRatio="none" className="w-full h-[35px] md:h-[50px] fill-background">
-          <path d="M0,25 C360,50 1080,0 1440,25 L1440,50 L0,50 Z" />
-        </svg>
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 leading-[0]">
-        <svg viewBox="0 0 1440 50" preserveAspectRatio="none" className="w-full h-[35px] md:h-[50px] fill-background">
-          <path d="M0,25 C480,0 960,50 1440,20 L1440,50 L0,50 Z" />
-        </svg>
       </div>
     </section>
   );
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   LARI CTA — floating card with botanical accent
+   LARI CTA
 ═══════════════════════════════════════════════════════════════ */
 const LariSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-20 md:py-28 bg-background relative overflow-hidden">
-      <CornerLeaves position="bottom-left" opacity={0.03} className="text-foreground" />
-
-      <div className="container mx-auto px-8 md:px-12 relative z-10">
+    <section ref={ref} className="py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-8 md:px-12 text-center max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="max-w-lg mx-auto text-center bg-card rounded-3xl p-12 md:p-16 shadow-xl shadow-foreground/[0.04]"
         >
-          <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-8">
-            <Sparkles className="h-6 w-6 text-foreground" />
+          <div className="w-14 h-14 border border-border flex items-center justify-center mx-auto mb-8">
+            <Sparkles className="h-5 w-5 text-foreground" />
           </div>
           <h2 className="text-[36px] font-serif text-foreground mb-4">
             Precisa de ajuda?
@@ -433,7 +368,7 @@ const LariSection = () => {
             A Lari, nossa assistente virtual, encontra a peça perfeita pra você.
           </p>
           <Button
-            className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium rounded-full"
+            className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium rounded-none"
             onClick={() => {
               const btn = document.querySelector('[data-style-assistant-trigger]') as HTMLButtonElement;
               btn?.click();
@@ -448,35 +383,28 @@ const LariSection = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   NEWSLETTER — teal bg with botanical pattern
+   NEWSLETTER — teal bg
 ═══════════════════════════════════════════════════════════════ */
 const NewsletterSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="relative">
-      <BotanicalDivider bgClass="fill-primary" leafOpacity={0.08} />
-      <div className="bg-primary relative overflow-hidden py-20 md:py-28">
-        {/* Botanical background texture */}
-        <BotanicalPattern opacity={0.05} className="text-primary-foreground" />
-        <CornerLeaves position="bottom-right" opacity={0.08} className="text-primary-foreground" />
-
-        <div className="container mx-auto px-8 md:px-12 text-center max-w-md relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-[36px] font-serif text-primary-foreground mb-3">
-              Fique por dentro
-            </h2>
-            <p className="text-primary-foreground/50 text-[15px] font-light mb-10">
-              Cadastre-se e ganhe 10% OFF na primeira compra.
-            </p>
-            <NewsletterForm />
-          </motion.div>
-        </div>
+    <section ref={ref} className="py-20 md:py-28 bg-primary">
+      <div className="container mx-auto px-8 md:px-12 text-center max-w-md">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-[36px] font-serif text-primary-foreground mb-3">
+            Fique por dentro
+          </h2>
+          <p className="text-primary-foreground/50 text-[15px] font-light mb-10">
+            Cadastre-se e ganhe 10% OFF na primeira compra.
+          </p>
+          <NewsletterForm />
+        </motion.div>
       </div>
     </section>
   );

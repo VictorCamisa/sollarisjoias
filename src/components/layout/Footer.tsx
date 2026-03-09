@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram } from "lucide-react";
 import logoImg from "@/assets/logo-larifa.png";
-import { BotanicalPattern, CornerLeaves } from "@/components/store/BotanicalElements";
 
 const Footer = () => {
   return (
