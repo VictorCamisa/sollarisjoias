@@ -20,7 +20,6 @@ const ProductCard = ({ id, name, price, originalPrice, image, images, category, 
   const hasDiscount = originalPrice && originalPrice > price;
   const discountPercent = hasDiscount ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
-  // Auto-rotate images
   const allImages = images && images.length > 1 ? images : image ? [image] : [];
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -29,20 +28,16 @@ const ProductCard = ({ id, name, price, originalPrice, image, images, category, 
     if (allImages.length <= 1 || isHovered) return;
     const interval = setInterval(() => {
       setCurrentIdx((prev) => (prev + 1) % allImages.length);
-    }, 3500 + index * 300); // stagger intervals
+    }, 3500 + index * 300);
     return () => clearInterval(interval);
   }, [allImages.length, isHovered, index]);
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
-    if (allImages.length > 1) {
-      setCurrentIdx((prev) => (prev + 1) % allImages.length);
-    }
+    if (allImages.length > 1) setCurrentIdx((prev) => (prev + 1) % allImages.length);
   }, [allImages.length]);
 
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-  }, []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
   const currentImage = allImages[currentIdx] || image;
 
@@ -58,8 +53,7 @@ const ProductCard = ({ id, name, price, originalPrice, image, images, category, 
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Image */}
-        <div className="aspect-[3/4] overflow-hidden mb-3 relative bg-secondary">
+        <div className="aspect-[3/4] overflow-hidden mb-2.5 sm:mb-3 relative bg-secondary border border-border/30">
           {currentImage ? (
             <img
               src={currentImage}
@@ -71,35 +65,34 @@ const ProductCard = ({ id, name, price, originalPrice, image, images, category, 
             <div className="w-full h-full bg-secondary" />
           )}
 
-          {/* Dots indicator */}
+          {/* Dots */}
           {allImages.length > 1 && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
               {allImages.map((_, i) => (
                 <span
                   key={i}
                   className={cn(
-                    "w-1.5 h-1.5 rounded-full transition-all duration-300",
-                    i === currentIdx ? "bg-foreground/80 w-3" : "bg-foreground/30"
+                    "h-1 rounded-full transition-all duration-300",
+                    i === currentIdx ? "bg-accent w-3" : "bg-white/50 w-1"
                   )}
                 />
               ))}
             </div>
           )}
 
-          {/* Badge */}
           {badge && (
             <span className={cn(
-              "absolute top-2 left-2 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide",
-              badge === "Novo" ? "bg-foreground text-background" : 
-              badge === "Esgotado" ? "bg-muted-foreground text-background" : 
-              "bg-foreground text-background"
+              "absolute top-2 left-2 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider",
+              badge === "Novo" ? "bg-accent text-accent-foreground" : 
+              badge === "Esgotado" ? "bg-muted-foreground text-card" : 
+              "bg-accent text-accent-foreground"
             )}>
               {badge}
             </span>
           )}
 
           {hasDiscount && !badge && (
-            <span className="absolute top-2 left-2 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide bg-foreground text-background">
+            <span className="absolute top-2 left-2 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground">
               -{discountPercent}%
             </span>
           )}
@@ -109,10 +102,9 @@ const ProductCard = ({ id, name, price, originalPrice, image, images, category, 
           </div>
         </div>
 
-        {/* Info */}
         <div className="space-y-0.5 sm:space-y-1">
           {category && (
-            <p className="text-[9px] sm:text-[10px] tracking-[0.1em] uppercase text-muted-foreground">
+            <p className="text-[9px] sm:text-[10px] tracking-[0.1em] uppercase text-accent/70 font-semibold">
               {category}
             </p>
           )}
@@ -123,7 +115,7 @@ const ProductCard = ({ id, name, price, originalPrice, image, images, category, 
                 R$ {originalPrice.toFixed(2).replace(".", ",")}
               </span>
             )}
-            <span className="text-xs sm:text-sm font-medium text-foreground">
+            <span className="text-xs sm:text-sm font-semibold text-foreground">
               R$ {price.toFixed(2).replace(".", ",")}
             </span>
           </div>

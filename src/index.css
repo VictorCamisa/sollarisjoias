@@ -7,110 +7,100 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-       LARIFA Premium Identity System — Dark Premium Tone
+       LARIFA Premium — Warm Ivory + Deep Teal + Gold
+       Inspired by Mejuri / Cartier / Net-a-Porter
     ═══════════════════════════════════════════════════════════════ */
 
-    /* Primary: Teal Profundo da marca Larifa */
-    --primary: 172 55% 16%;
-    --primary-foreground: 40 20% 96%;
+    /* Primary: Deep Teal */
+    --primary: 172 45% 18%;
+    --primary-foreground: 42 30% 95%;
 
-    /* Background: Tom escuro premium — quase preto quente */
-    --background: 30 8% 8%;
-    --foreground: 38 15% 88%;
+    /* Background: Warm ivory with depth */
+    --background: 40 30% 96%;
+    --foreground: 30 15% 15%;
 
-    /* Card: Superfície elevada */
-    --card: 30 6% 12%;
-    --card-foreground: 38 15% 88%;
+    /* Card: Soft white */
+    --card: 40 25% 99%;
+    --card-foreground: 30 15% 15%;
 
-    --popover: 30 6% 12%;
-    --popover-foreground: 38 15% 88%;
+    --popover: 40 25% 99%;
+    --popover-foreground: 30 15% 15%;
 
-    /* Secondary */
-    --secondary: 30 5% 15%;
-    --secondary-foreground: 38 15% 88%;
+    /* Secondary: Warm sand */
+    --secondary: 35 18% 91%;
+    --secondary-foreground: 30 15% 15%;
 
     /* Muted */
-    --muted: 30 4% 18%;
-    --muted-foreground: 30 8% 55%;
+    --muted: 35 12% 93%;
+    --muted-foreground: 30 8% 48%;
 
-    /* Accent: Champagne Dourado */
-    --accent: 38 40% 55%;
-    --accent-foreground: 30 8% 8%;
+    /* Accent: Warm gold */
+    --accent: 36 55% 48%;
+    --accent-foreground: 40 30% 98%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border: Sutil */
-    --border: 30 5% 18%;
-    --input: 30 5% 18%;
-    --ring: 172 55% 16%;
+    /* Borders: Warm, visible but soft */
+    --border: 35 15% 88%;
+    --input: 35 15% 88%;
+    --ring: 36 55% 48%;
 
-    --radius: 0.375rem;
+    --radius: 0.25rem;
 
-    /* Brand-specific tokens */
-    --larifa-teal: 172 55% 16%;
-    --larifa-teal-deep: 172 60% 10%;
-    --larifa-teal-light: 172 40% 25%;
-    --larifa-teal-glow: 172 35% 35%;
-    --larifa-navy: 220 35% 18%;
-    --larifa-navy-deep: 220 40% 12%;
-    --larifa-champagne: 38 40% 55%;
-    --larifa-champagne-soft: 38 30% 70%;
-    --larifa-champagne-pale: 38 25% 85%;
-    --larifa-stone: 30 5% 15%;
-    --larifa-paper: 30 8% 8%;
-    --larifa-paper-warm: 30 6% 10%;
-    --larifa-ink: 38 15% 88%;
-    --larifa-ink-soft: 30 8% 55%;
+    /* Brand tokens */
+    --larifa-teal: 172 45% 18%;
+    --larifa-teal-deep: 172 50% 12%;
+    --larifa-teal-light: 172 35% 28%;
+    --larifa-teal-muted: 172 20% 35%;
+    --larifa-gold: 36 55% 48%;
+    --larifa-gold-light: 38 45% 62%;
+    --larifa-gold-pale: 38 30% 80%;
+    --larifa-ivory: 40 30% 96%;
+    --larifa-cream: 38 25% 93%;
+    --larifa-warm-white: 40 25% 99%;
+    --larifa-charcoal: 30 15% 15%;
+    --larifa-charcoal-soft: 30 8% 48%;
 
     /* Sidebar (admin) */
-    --sidebar-background: 30 6% 10%;
-    --sidebar-foreground: 38 15% 88%;
-    --sidebar-primary: 172 55% 16%;
-    --sidebar-primary-foreground: 40 20% 96%;
-    --sidebar-accent: 30 5% 15%;
-    --sidebar-accent-foreground: 38 15% 88%;
-    --sidebar-border: 30 5% 18%;
-    --sidebar-ring: 172 55% 16%;
+    --sidebar-background: 40 25% 99%;
+    --sidebar-foreground: 30 15% 15%;
+    --sidebar-primary: 172 45% 18%;
+    --sidebar-primary-foreground: 42 30% 95%;
+    --sidebar-accent: 35 18% 91%;
+    --sidebar-accent-foreground: 30 15% 15%;
+    --sidebar-border: 35 15% 88%;
+    --sidebar-ring: 172 45% 18%;
   }
 
   .dark {
-    --background: 220 25% 4%;
-    --foreground: 40 15% 92%;
-
-    --card: 220 20% 7%;
-    --card-foreground: 40 15% 92%;
-
-    --popover: 220 20% 7%;
-    --popover-foreground: 40 15% 92%;
-
-    --primary: 220 30% 55%;
+    --background: 220 20% 7%;
+    --foreground: 40 15% 90%;
+    --card: 220 18% 10%;
+    --card-foreground: 40 15% 90%;
+    --popover: 220 18% 10%;
+    --popover-foreground: 40 15% 90%;
+    --primary: 172 35% 40%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 15% 12%;
-    --secondary-foreground: 40 15% 92%;
-
-    --muted: 220 12% 14%;
-    --muted-foreground: 220 8% 55%;
-
-    --accent: 38 45% 55%;
+    --secondary: 220 12% 14%;
+    --secondary-foreground: 40 15% 90%;
+    --muted: 220 10% 16%;
+    --muted-foreground: 220 8% 50%;
+    --accent: 36 50% 50%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 220 15% 15%;
-    --input: 220 15% 15%;
-    --ring: 220 30% 55%;
-
-    --sidebar-background: 220 25% 4%;
-    --sidebar-foreground: 40 15% 92%;
-    --sidebar-primary: 220 30% 55%;
+    --border: 220 12% 18%;
+    --input: 220 12% 18%;
+    --ring: 172 35% 40%;
+    --sidebar-background: 220 20% 7%;
+    --sidebar-foreground: 40 15% 90%;
+    --sidebar-primary: 172 35% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 40 15% 92%;
-    --sidebar-border: 220 15% 15%;
-    --sidebar-ring: 220 30% 55%;
+    --sidebar-accent: 220 12% 14%;
+    --sidebar-accent-foreground: 40 15% 90%;
+    --sidebar-border: 220 12% 18%;
+    --sidebar-ring: 172 35% 40%;
   }
 }
 
@@ -139,40 +129,30 @@
     letter-spacing: -0.02em;
   }
 
-  /* Selection */
   ::selection {
-    background: hsl(var(--larifa-champagne) / 0.3);
-    color: hsl(var(--larifa-champagne-pale));
+    background: hsl(var(--larifa-gold) / 0.25);
+    color: hsl(var(--larifa-charcoal));
   }
 }
 
 @layer utilities {
-  /* Smooth scrolling */
   .scroll-smooth {
     scroll-behavior: smooth;
   }
 
-  /* Premium text styles */
   .text-caption {
     @apply text-[11px] tracking-[0.12em] uppercase font-medium;
     letter-spacing: 0.12em;
   }
 
-  /* Subtle animations */
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
 
   @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .animate-fade-in {
@@ -183,28 +163,34 @@
     animation: slideUp 0.6s ease-out forwards;
   }
 
-  /* Hover lift */
   .hover-lift {
     @apply transition-transform duration-300;
   }
   .hover-lift:hover {
     transform: translateY(-2px);
   }
+
+  /* Subtle grain texture */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  /* Gold shimmer line */
+  .gold-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--larifa-gold) / 0.4), transparent);
+  }
 }
 
 /* Custom scrollbar */
 @media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
-  }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.3);
-  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--secondary)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--larifa-gold) / 0.3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--larifa-gold) / 0.5); }
 }
