@@ -7,43 +7,42 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-       LARIFA Premium Identity System
-       Inspiração: Mejuri, Ana Luisa, Missoma, Stone & Strand
+       LARIFA Premium Identity System — Dark Premium Tone
     ═══════════════════════════════════════════════════════════════ */
 
     /* Primary: Teal Profundo da marca Larifa */
     --primary: 172 55% 16%;
     --primary-foreground: 40 20% 96%;
 
-    /* Background: Papel Fino - tom neutro e premium */
-    --background: 40 20% 97%;
-    --foreground: 172 30% 10%;
+    /* Background: Tom escuro premium — quase preto quente */
+    --background: 30 8% 8%;
+    --foreground: 38 15% 88%;
 
-    /* Card: Branco Puro */
-    --card: 0 0% 100%;
-    --card-foreground: 172 30% 10%;
+    /* Card: Superfície elevada */
+    --card: 30 6% 12%;
+    --card-foreground: 38 15% 88%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 172 30% 10%;
+    --popover: 30 6% 12%;
+    --popover-foreground: 38 15% 88%;
 
-    /* Secondary: Cinza Pedra com leve teal */
-    --secondary: 168 6% 92%;
-    --secondary-foreground: 172 30% 10%;
+    /* Secondary */
+    --secondary: 30 5% 15%;
+    --secondary-foreground: 38 15% 88%;
 
-    /* Muted: Cinza Suave */
-    --muted: 168 5% 94%;
-    --muted-foreground: 172 10% 42%;
+    /* Muted */
+    --muted: 30 4% 18%;
+    --muted-foreground: 30 8% 55%;
 
-    /* Accent: Champagne Dourado - contraste quente com teal */
+    /* Accent: Champagne Dourado */
     --accent: 38 40% 55%;
-    --accent-foreground: 172 30% 10%;
+    --accent-foreground: 30 8% 8%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border: Muito Sutil */
-    --border: 168 8% 90%;
-    --input: 168 8% 90%;
+    /* Border: Sutil */
+    --border: 30 5% 18%;
+    --input: 30 5% 18%;
     --ring: 172 55% 16%;
 
     --radius: 0.375rem;
@@ -58,40 +57,40 @@
     --larifa-champagne: 38 40% 55%;
     --larifa-champagne-soft: 38 30% 70%;
     --larifa-champagne-pale: 38 25% 85%;
-    --larifa-stone: 168 6% 92%;
-    --larifa-paper: 40 20% 97%;
-    --larifa-paper-warm: 35 15% 95%;
-    --larifa-ink: 172 30% 10%;
-    --larifa-ink-soft: 172 10% 42%;
+    --larifa-stone: 30 5% 15%;
+    --larifa-paper: 30 8% 8%;
+    --larifa-paper-warm: 30 6% 10%;
+    --larifa-ink: 38 15% 88%;
+    --larifa-ink-soft: 30 8% 55%;
 
     /* Sidebar (admin) */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 20% 12%;
-    --sidebar-primary: 220 35% 18%;
+    --sidebar-background: 30 6% 10%;
+    --sidebar-foreground: 38 15% 88%;
+    --sidebar-primary: 172 55% 16%;
     --sidebar-primary-foreground: 40 20% 96%;
-    --sidebar-accent: 30 6% 94%;
-    --sidebar-accent-foreground: 220 20% 12%;
-    --sidebar-border: 30 10% 90%;
-    --sidebar-ring: 220 35% 18%;
+    --sidebar-accent: 30 5% 15%;
+    --sidebar-accent-foreground: 38 15% 88%;
+    --sidebar-border: 30 5% 18%;
+    --sidebar-ring: 172 55% 16%;
   }
 
   .dark {
-    --background: 220 25% 6%;
+    --background: 220 25% 4%;
     --foreground: 40 15% 92%;
 
-    --card: 220 20% 9%;
+    --card: 220 20% 7%;
     --card-foreground: 40 15% 92%;
 
-    --popover: 220 20% 9%;
+    --popover: 220 20% 7%;
     --popover-foreground: 40 15% 92%;
 
     --primary: 220 30% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 14%;
+    --secondary: 220 15% 12%;
     --secondary-foreground: 40 15% 92%;
 
-    --muted: 220 12% 16%;
+    --muted: 220 12% 14%;
     --muted-foreground: 220 8% 55%;
 
     --accent: 38 45% 55%;
@@ -100,17 +99,17 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
+    --border: 220 15% 15%;
+    --input: 220 15% 15%;
     --ring: 220 30% 55%;
 
-    --sidebar-background: 220 25% 6%;
+    --sidebar-background: 220 25% 4%;
     --sidebar-foreground: 40 15% 92%;
     --sidebar-primary: 220 30% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent: 220 15% 12%;
     --sidebar-accent-foreground: 40 15% 92%;
-    --sidebar-border: 220 15% 18%;
+    --sidebar-border: 220 15% 15%;
     --sidebar-ring: 220 30% 55%;
   }
 }
@@ -124,12 +123,14 @@
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "kern" 1, "liga" 1;
     letter-spacing: -0.01em;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -141,7 +142,7 @@
   /* Selection */
   ::selection {
     background: hsl(var(--larifa-champagne) / 0.3);
-    color: hsl(var(--larifa-navy));
+    color: hsl(var(--larifa-champagne-pale));
   }
 }
 

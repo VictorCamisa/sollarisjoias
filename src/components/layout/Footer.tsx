@@ -5,10 +5,10 @@ import logoImg from "@/assets/logo-larifa.png";
 const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="container mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
           {/* Logo + tagline */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 sm:col-span-2 md:col-span-1">
             <img src={logoImg} alt="Larifa" className="h-8 w-auto brightness-0 invert opacity-90" />
             <p className="text-primary-foreground/50 text-sm font-light leading-relaxed mt-4 max-w-[200px]">
               Semijoias premium com design exclusivo e qualidade de joalheria.
@@ -17,8 +17,8 @@ const Footer = () => {
 
           {/* Navigation */}
           <div>
-            <h4 className="text-caption text-primary-foreground/40 mb-5">Navegação</h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="text-caption text-primary-foreground/40 mb-4 sm:mb-5">Navegação</h4>
+            <ul className="space-y-2 sm:space-y-2.5 text-sm">
               <li><Link to="/" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">Início</Link></li>
               <li><Link to="/produtos" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">Coleção</Link></li>
               <li><Link to="/novidades" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">Novidades</Link></li>
@@ -28,8 +28,8 @@ const Footer = () => {
 
           {/* Help */}
           <div>
-            <h4 className="text-caption text-primary-foreground/40 mb-5">Ajuda</h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="text-caption text-primary-foreground/40 mb-4 sm:mb-5">Ajuda</h4>
+            <ul className="space-y-2 sm:space-y-2.5 text-sm">
               <li><Link to="/conta" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">Minha Conta</Link></li>
               <li><Link to="/favoritos" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">Favoritos</Link></li>
               <li><span className="text-primary-foreground/60">Atendimento via WhatsApp</span></li>
@@ -37,8 +37,8 @@ const Footer = () => {
           </div>
 
           {/* Social */}
-          <div>
-            <h4 className="text-caption text-primary-foreground/40 mb-5">Redes Sociais</h4>
+          <div className="col-span-2 sm:col-span-1">
+            <h4 className="text-caption text-primary-foreground/40 mb-4 sm:mb-5">Redes Sociais</h4>
             <a 
               href="https://instagram.com/larifasemijoias" 
               target="_blank" 
@@ -51,7 +51,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/10 mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="border-t border-primary-foreground/10 mt-8 sm:mt-10 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[11px] text-primary-foreground/30 tracking-wide">
             © {new Date().getFullYear()} Larifa. Todos os direitos reservados.
           </p>
