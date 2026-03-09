@@ -30,7 +30,7 @@ const categoryImages: Record<string, string> = {
 const GoldDivider = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center justify-center gap-3 ${className}`}>
     <div className="gold-line flex-1 max-w-[80px]" />
-    <Diamond className="h-2.5 w-2.5 text-accent/40" />
+    <Diamond className="h-2.5 w-2.5 text-accent/60" />
     <div className="gold-line flex-1 max-w-[80px]" />
   </div>
 );
