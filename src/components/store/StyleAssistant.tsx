@@ -590,8 +590,10 @@ const StyleAssistant = () => {
         )}
       </AnimatePresence>
       {/* Order Confirmation Modal */}
-      <Dialog open={!!pendingOrder} onOpenChange={(open) => { if (!open) setPendingOrder(null); }}>
-        <DialogContent className="sm:max-w-md bg-card border-border/60 overflow-hidden">
+      <Dialog open={!!pendingOrder} onOpenChange={(open) => { if (!open) { setPendingOrder(null); setShowParticles(false); } }}>
+        <DialogContent className="sm:max-w-md bg-card border-border/60 overflow-hidden relative">
+          {/* Gold particles celebration */}
+          <AnimatePresence>{showParticles && <GoldParticles />}</AnimatePresence>
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
