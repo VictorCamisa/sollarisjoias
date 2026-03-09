@@ -260,7 +260,7 @@ const LayeringSection = () => {
                 A Arte do<br />
                 <em className="italic font-light">Layering</em>
               </h2>
-              <p className="text-primary-foreground/40 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
+              <p className="text-primary-foreground/55 text-[13px] sm:text-[14px] font-light leading-relaxed mb-7 sm:mb-9">
                 Combine colares de diferentes comprimentos e texturas para composições sofisticadas e únicas.
               </p>
               <Link to="/produtos?categoria=colares">
