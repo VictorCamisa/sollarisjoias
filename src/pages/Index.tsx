@@ -7,6 +7,7 @@ import ProductCard, { ProductCardSkeleton } from "@/components/store/ProductCard
 import NewsletterForm from "@/components/store/NewsletterForm";
 import { useProducts, useCategories } from "@/hooks/useStore";
 import SEOHead from "@/components/seo/SEOHead";
+import { BotanicalDivider, CornerLeaves, BotanicalPattern } from "@/components/store/BotanicalElements";
 
 // Banners
 import bannerHero from "@/assets/banners/banner-hero.jpg";
@@ -33,18 +34,7 @@ const categoryImages: Record<string, string> = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   WAVE DIVIDER — organic shape between sections
-═══════════════════════════════════════════════════════════════ */
-const WaveDivider = ({ flip = false, colorClass = "fill-background" }: { flip?: boolean; colorClass?: string }) => (
-  <div className={`relative w-full overflow-hidden leading-[0] ${flip ? "rotate-180" : ""}`} style={{ marginTop: "-1px", marginBottom: "-1px" }}>
-    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className={`w-full h-[60px] md:h-[80px] ${colorClass}`}>
-      <path d="M0,40 C360,80 720,0 1080,50 C1260,65 1380,30 1440,40 L1440,80 L0,80 Z" />
-    </svg>
-  </div>
-);
-
-/* ═══════════════════════════════════════════════════════════════
-   HERO — with parallax background
+   HERO — parallax + teal overlay + botanical corner
 ═══════════════════════════════════════════════════════════════ */
 const HeroSection = () => {
   const ref = useRef(null);
@@ -62,17 +52,19 @@ const HeroSection = () => {
           alt="Larifa — Semijoias Premium"
           className="w-full h-[120%] object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
+        {/* Teal-tinted overlay instead of pure black */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(172,55%,8%,0.65)] via-[hsl(172,40%,12%,0.25)] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(172,55%,8%,0.50)] via-transparent to-[hsl(172,40%,12%,0.10)]" />
       </motion.div>
 
-      {/* Content with parallax */}
+      {/* Botanical corner decoration */}
+      <CornerLeaves position="top-right" opacity={0.12} className="text-white" />
+      <CornerLeaves position="bottom-left" opacity={0.08} className="text-white" />
+
+      {/* Content */}
       <div className="absolute inset-0 flex items-center">
         <div className="container mx-auto px-8 md:px-12">
-          <motion.div
-            style={{ y: textY }}
-            className="max-w-lg"
-          >
+          <motion.div style={{ y: textY }} className="max-w-lg">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -85,7 +77,7 @@ const HeroSection = () => {
                 Semijoias que<br />
                 <em className="font-light italic">contam histórias</em>
               </h1>
-              <p className="text-white/60 text-[16px] font-light mb-10 max-w-sm leading-relaxed">
+              <p className="text-white/55 text-[16px] font-light mb-10 max-w-sm leading-relaxed">
                 Peças atemporais com banho de ouro 18k,
                 feitas para cada momento especial.
               </p>
@@ -120,7 +112,7 @@ const HeroSection = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   TRUST BAR — floating, overlapping the hero
+   TRUST BAR — floating overlap
 ═══════════════════════════════════════════════════════════════ */
 const TrustBar = () => (
   <div className="relative z-10 -mt-4 mb-8">
@@ -139,15 +131,18 @@ const TrustBar = () => (
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   CATEGORIES WITH IMAGES — staggered grid with overlapping labels
+   CATEGORIES — staggered grid + overlapping labels
 ═══════════════════════════════════════════════════════════════ */
 const CategoryGrid = ({ categories }: { categories: { id: string; name: string; slug: string }[] }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <section ref={ref} className="pt-12 pb-0 bg-background relative">
-      <div className="container mx-auto px-8 md:px-12">
+    <section ref={ref} className="relative pt-12 pb-0 bg-background overflow-hidden">
+      {/* Botanical corner */}
+      <CornerLeaves position="top-left" opacity={0.04} className="text-foreground" />
+
+      <div className="container mx-auto px-8 md:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -158,7 +153,6 @@ const CategoryGrid = ({ categories }: { categories: { id: string; name: string; 
           <h2 className="text-[36px] md:text-[42px] font-serif text-foreground">Categorias</h2>
         </motion.div>
 
-        {/* Staggered grid — alternating vertical offsets */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 md:gap-6">
           {categories.map((cat, i) => (
             <motion.div
@@ -168,20 +162,15 @@ const CategoryGrid = ({ categories }: { categories: { id: string; name: string; 
               transition={{ duration: 0.5, delay: i * 0.07 }}
               className={`${i % 2 === 1 ? "lg:mt-8" : ""}`}
             >
-              <Link
-                to={`/produtos?categoria=${cat.slug}`}
-                className="group block relative"
-              >
+              <Link to={`/produtos?categoria=${cat.slug}`} className="group block relative">
                 <div className="aspect-[3/4] overflow-hidden rounded-xl">
                   <img
                     src={categoryImages[cat.slug] || catAneis}
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-xl" />
                 </div>
-                {/* Overlapping label */}
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-card px-5 py-2 rounded-full shadow-md">
                   <p className="text-[12px] tracking-wide font-medium text-foreground whitespace-nowrap">
                     {cat.name}
@@ -192,24 +181,22 @@ const CategoryGrid = ({ categories }: { categories: { id: string; name: string; 
           ))}
         </div>
       </div>
-
-      {/* Spacer for overlapping labels */}
       <div className="h-16" />
     </section>
   );
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   FEATURED PRODUCTS — with soft bg transition
+   FEATURED PRODUCTS — soft gradient bg
 ═══════════════════════════════════════════════════════════════ */
 const FeaturedProducts = ({ products, loading }: { products: any[] | undefined; loading: boolean }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="relative py-20 md:py-28">
-      {/* Soft radial gradient bg for depth */}
+    <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/30 to-background pointer-events-none" />
+      <CornerLeaves position="bottom-right" opacity={0.03} className="text-foreground" />
 
       <div className="relative container mx-auto px-8 md:px-12">
         <motion.div
@@ -257,7 +244,7 @@ const FeaturedProducts = ({ products, loading }: { products: any[] | undefined; 
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   LAYERING EDITORIAL — overlapping image + text with parallax
+   LAYERING — teal bg with botanicals + parallax
 ═══════════════════════════════════════════════════════════════ */
 const LayeringSection = () => {
   const ref = useRef(null);
@@ -267,12 +254,14 @@ const LayeringSection = () => {
 
   return (
     <section ref={ref} className="relative">
-      {/* Wave top */}
-      <WaveDivider colorClass="fill-foreground" />
+      <BotanicalDivider bgClass="fill-primary" leafOpacity={0.1} />
 
-      <div className="bg-foreground relative overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[550px]">
-          {/* Parallax image */}
+      <div className="bg-primary relative overflow-hidden">
+        {/* Botanical background pattern */}
+        <BotanicalPattern opacity={0.05} className="text-primary-foreground" />
+        <CornerLeaves position="top-right" opacity={0.08} className="text-primary-foreground" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[550px] relative z-10">
           <motion.div className="overflow-hidden relative" style={{ y: imgY }}>
             <img
               src={bannerLayering}
@@ -288,15 +277,15 @@ const LayeringSection = () => {
             className="flex items-center justify-center p-12 md:p-20"
           >
             <div className="max-w-sm">
-              <p className="text-[11px] tracking-[0.2em] uppercase text-background/40 mb-5">Tendência</p>
-              <h2 className="text-[36px] md:text-[52px] font-serif text-background leading-[1.08] mb-6">
+              <p className="text-[11px] tracking-[0.2em] uppercase text-primary-foreground/40 mb-5">Tendência</p>
+              <h2 className="text-[36px] md:text-[52px] font-serif text-primary-foreground leading-[1.08] mb-6">
                 A Arte do<br />Layering
               </h2>
-              <p className="text-background/45 text-[15px] font-light leading-relaxed mb-10">
+              <p className="text-primary-foreground/45 text-[15px] font-light leading-relaxed mb-10">
                 Combine colares de diferentes comprimentos e texturas para composições sofisticadas e únicas.
               </p>
               <Link to="/produtos?categoria=colares">
-                <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-background text-foreground hover:bg-background/90 rounded-none">
+                <Button className="h-12 px-10 text-[13px] tracking-[0.05em] uppercase font-medium bg-primary-foreground text-primary hover:bg-primary-foreground/90 rounded-none">
                   Ver Colares
                 </Button>
               </Link>
@@ -305,14 +294,13 @@ const LayeringSection = () => {
         </div>
       </div>
 
-      {/* Wave bottom */}
-      <WaveDivider flip colorClass="fill-foreground" />
+      <BotanicalDivider flip bgClass="fill-primary" leafOpacity={0.1} />
     </section>
   );
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   EDITORIAL 2-COL — overlapping cards
+   EDITORIAL 2-COL — asymmetric + rounded
 ═══════════════════════════════════════════════════════════════ */
 const EditorialGrid = () => {
   const ref = useRef(null);
@@ -324,8 +312,10 @@ const EditorialGrid = () => {
   ];
 
   return (
-    <section ref={ref} className="bg-background py-20 md:py-28">
-      <div className="container mx-auto px-8 md:px-12">
+    <section ref={ref} className="bg-background py-20 md:py-28 relative overflow-hidden">
+      <CornerLeaves position="top-right" opacity={0.03} className="text-foreground" />
+
+      <div className="container mx-auto px-8 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
           {cards.map((card, i) => (
             <motion.div
@@ -343,7 +333,7 @@ const EditorialGrid = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent rounded-2xl" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(172,55%,8%,0.55)] via-black/10 to-transparent rounded-2xl" />
                 <div className="absolute inset-0 flex items-end p-8 md:p-10">
                   <div>
                     <p className="text-white/55 text-[11px] tracking-[0.15em] uppercase mb-2">{card.subtitle}</p>
@@ -360,7 +350,7 @@ const EditorialGrid = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   EARRINGS BANNER — full-bleed with parallax
+   EARRINGS BANNER — parallax with botanical curves
 ═══════════════════════════════════════════════════════════════ */
 const EarringsBanner = () => {
   const ref = useRef(null);
@@ -376,9 +366,14 @@ const EarringsBanner = () => {
           alt="Coleção de Brincos"
           className="w-full h-[130%] object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/15 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(172,55%,8%,0.45)] via-[hsl(172,40%,12%,0.15)] to-[hsl(172,55%,8%,0.45)]" />
       </motion.div>
-      <div className="absolute inset-0 flex items-center justify-center">
+
+      {/* Botanical corners on the banner */}
+      <CornerLeaves position="top-right" opacity={0.1} className="text-white" />
+      <CornerLeaves position="bottom-left" opacity={0.07} className="text-white" />
+
+      <div className="absolute inset-0 flex items-center justify-center relative z-10">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={inView ? { opacity: 1, scale: 1 } : {}}
@@ -395,7 +390,7 @@ const EarringsBanner = () => {
         </motion.div>
       </div>
 
-      {/* Organic top & bottom curves */}
+      {/* Organic curves */}
       <div className="absolute top-0 left-0 right-0 leading-[0] rotate-180">
         <svg viewBox="0 0 1440 50" preserveAspectRatio="none" className="w-full h-[35px] md:h-[50px] fill-background">
           <path d="M0,25 C360,50 1080,0 1440,25 L1440,50 L0,50 Z" />
@@ -411,15 +406,17 @@ const EarringsBanner = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   LARI CTA — floating card style
+   LARI CTA — floating card with botanical accent
 ═══════════════════════════════════════════════════════════════ */
 const LariSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-20 md:py-28 bg-background">
-      <div className="container mx-auto px-8 md:px-12">
+    <section ref={ref} className="py-20 md:py-28 bg-background relative overflow-hidden">
+      <CornerLeaves position="bottom-left" opacity={0.03} className="text-foreground" />
+
+      <div className="container mx-auto px-8 md:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -451,7 +448,7 @@ const LariSection = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   NEWSLETTER — dark section with wave entries
+   NEWSLETTER — teal bg with botanical pattern
 ═══════════════════════════════════════════════════════════════ */
 const NewsletterSection = () => {
   const ref = useRef(null);
@@ -459,18 +456,22 @@ const NewsletterSection = () => {
 
   return (
     <section ref={ref} className="relative">
-      <WaveDivider colorClass="fill-foreground" />
-      <div className="bg-foreground py-20 md:py-28">
-        <div className="container mx-auto px-8 md:px-12 text-center max-w-md">
+      <BotanicalDivider bgClass="fill-primary" leafOpacity={0.08} />
+      <div className="bg-primary relative overflow-hidden py-20 md:py-28">
+        {/* Botanical background texture */}
+        <BotanicalPattern opacity={0.05} className="text-primary-foreground" />
+        <CornerLeaves position="bottom-right" opacity={0.08} className="text-primary-foreground" />
+
+        <div className="container mx-auto px-8 md:px-12 text-center max-w-md relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-[36px] font-serif text-background mb-3">
+            <h2 className="text-[36px] font-serif text-primary-foreground mb-3">
               Fique por dentro
             </h2>
-            <p className="text-background/50 text-[15px] font-light mb-10">
+            <p className="text-primary-foreground/50 text-[15px] font-light mb-10">
               Cadastre-se e ganhe 10% OFF na primeira compra.
             </p>
             <NewsletterForm />
