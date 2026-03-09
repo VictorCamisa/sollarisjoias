@@ -364,11 +364,10 @@ const StyleAssistant = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             onClick={() => setOpen(true)}
             data-style-assistant-trigger
-            className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-foreground text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
           >
             <MessageCircle className="h-6 w-6" />
-            {/* Pulse ring */}
-            <span className="absolute inset-0 rounded-full bg-foreground/20 animate-ping" />
+            <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
           </motion.button>
         )}
       </AnimatePresence>
