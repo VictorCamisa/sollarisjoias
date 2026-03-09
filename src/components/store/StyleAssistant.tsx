@@ -131,9 +131,9 @@ async function streamChat({
 }
 
 const SUGGESTIONS = [
-  "Oi Lari! Quero ajuda pra escolher um look 💃",
-  "Tô procurando algo pra um evento especial ✨",
-  "Me mostra o que tem de novidade 🛍️",
+  "Oi Lari! Quero ajuda pra escolher uma semijoia 💎",
+  "Tô procurando algo pra presentear ✨",
+  "Me mostra as peças mais vendidas 🛍️",
 ];
 
 /* ─── Product card ─── */
