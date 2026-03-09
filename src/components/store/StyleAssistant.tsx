@@ -572,7 +572,7 @@ const StyleAssistant = () => {
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="h-10 w-10 rounded-xl bg-foreground text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-30 hover:opacity-90 active:scale-95 transition-all"
+                  className="h-10 w-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center shrink-0 disabled:opacity-30 hover:opacity-90 active:scale-95 transition-all"
                 >
                   <Send className="h-4 w-4" />
                 </button>
