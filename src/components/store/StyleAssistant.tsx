@@ -330,7 +330,7 @@ const StyleAssistant = () => {
                   </div>
                   <div>
                     <h3 className="font-serif text-base font-semibold leading-tight">Lari</h3>
-                    <p className="text-xs text-primary-foreground/60 font-sans mt-0.5">Estilista pessoal LARIFA</p>
+                    <p className="text-xs text-primary-foreground/60 font-sans mt-0.5">Consultora de semijoias LARIFA</p>
                   </div>
                 </div>
                 <button 
