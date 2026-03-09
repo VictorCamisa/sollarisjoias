@@ -64,7 +64,7 @@ const Navbar = () => {
             <img
               src={logoImg}
               alt="Larifa"
-              className="h-14 md:h-20 w-auto brightness-0 invert opacity-95"
+              className="h-14 md:h-20 w-auto"
             />
           </Link>
 
