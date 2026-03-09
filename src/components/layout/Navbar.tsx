@@ -40,12 +40,19 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const linkColor = scrolled
+    ? "text-foreground/80 hover:text-accent"
+    : "text-primary-foreground/90 hover:text-primary-foreground";
+  const iconColor = scrolled
+    ? "text-foreground/50 hover:text-accent"
+    : "text-primary-foreground/60 hover:text-primary-foreground";
+
   return (
     <header
       className={cn(
         "sticky top-0 z-50 transition-all duration-700",
         scrolled
-          ? "bg-primary/30 backdrop-blur-md"
+          ? "bg-background/80 backdrop-blur-xl shadow-sm"
           : "bg-primary"
       )}
     >
@@ -54,7 +61,7 @@ const Navbar = () => {
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-foreground"
+            className={cn("md:hidden", scrolled ? "text-foreground" : "text-primary-foreground")}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -64,7 +71,10 @@ const Navbar = () => {
             <img
               src={logoImg}
               alt="Larifa"
-              className="h-14 md:h-20 w-auto"
+              className={cn(
+                "h-14 md:h-20 w-auto transition-all duration-500",
+                !scrolled && "brightness-0 invert"
+              )}
             />
           </Link>
 
@@ -72,7 +82,7 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <Link
               to="/"
-              className="text-[13px] tracking-[0.08em] uppercase font-medium text-foreground/80 hover:text-accent transition-colors"
+              className={cn("text-[13px] tracking-[0.08em] uppercase font-medium transition-colors", linkColor)}
             >
               Início
             </Link>
@@ -80,7 +90,7 @@ const Navbar = () => {
             <div ref={catRef} className="relative">
               <button
                 onClick={() => setCatOpen(!catOpen)}
-                className="flex items-center gap-1.5 text-[13px] tracking-[0.08em] uppercase font-medium text-foreground/80 hover:text-accent transition-colors"
+                className={cn("flex items-center gap-1.5 text-[13px] tracking-[0.08em] uppercase font-medium transition-colors", linkColor)}
               >
                 Coleção
                 <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", catOpen && "rotate-180")} />
@@ -108,13 +118,13 @@ const Navbar = () => {
 
             <Link
               to="/novidades"
-              className="text-[13px] tracking-[0.08em] uppercase font-medium text-foreground/80 hover:text-accent transition-colors"
+              className={cn("text-[13px] tracking-[0.08em] uppercase font-medium transition-colors", linkColor)}
             >
               Novidades
             </Link>
             <Link
               to="/sobre"
-              className="text-[13px] tracking-[0.08em] uppercase font-medium text-foreground/80 hover:text-accent transition-colors"
+              className={cn("text-[13px] tracking-[0.08em] uppercase font-medium transition-colors", linkColor)}
             >
               Sobre
             </Link>
@@ -124,19 +134,19 @@ const Navbar = () => {
           <div className="flex items-center gap-5">
             <Link
               to="/busca"
-              className="hidden md:block text-foreground/50 hover:text-accent transition-colors"
+              className={cn("hidden md:block transition-colors", iconColor)}
             >
               <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </Link>
             <Link
               to="/conta"
-              className="hidden md:block text-foreground/50 hover:text-accent transition-colors"
+              className={cn("hidden md:block transition-colors", iconColor)}
             >
               <User className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </Link>
             <Link
               to="/favoritos"
-              className="relative text-foreground/50 hover:text-accent transition-colors"
+              className={cn("relative transition-colors", iconColor)}
             >
               <Heart className="h-[18px] w-[18px]" strokeWidth={1.5} />
               {favCount > 0 && (
@@ -147,7 +157,7 @@ const Navbar = () => {
             </Link>
             <button
               onClick={() => setOpen(true)}
-              className="relative text-foreground/50 hover:text-accent transition-colors"
+              className={cn("relative transition-colors", iconColor)}
             >
               <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.5} />
               {totalItems > 0 && (
