@@ -12,15 +12,21 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1.5rem",
       screens: {
-        "2xl": "1280px",
+        "2xl": "1200px",
       },
     },
     extend: {
       fontFamily: {
         serif: ["Cormorant Garamond", "Georgia", "serif"],
-        sans: ["DM Sans", "system-ui", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+      },
+      fontSize: {
+        "2xs": ["0.625rem", { lineHeight: "1.4" }],
+        "display-lg": ["3.5rem", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
+        "display": ["2.75rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+        "display-sm": ["2rem", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,23 +73,32 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         larifa: {
-          blue: "hsl(var(--larifa-blue))",
-          "blue-dark": "hsl(var(--larifa-blue-dark))",
-          "blue-light": "hsl(var(--larifa-blue-light))",
-          gold: "hsl(var(--larifa-gold))",
-          "gold-light": "hsl(var(--larifa-gold-light))",
-          bg: "hsl(var(--larifa-bg))",
-          "bg-warm": "hsl(var(--larifa-bg-warm))",
-          nude: "hsl(var(--larifa-nude))",
-          "nude-light": "hsl(var(--larifa-nude-light))",
-          text: "hsl(var(--larifa-text))",
-          "text-light": "hsl(var(--larifa-text-light))",
+          navy: "hsl(var(--larifa-navy))",
+          "navy-deep": "hsl(var(--larifa-navy-deep))",
+          "navy-light": "hsl(var(--larifa-navy-light))",
+          champagne: "hsl(var(--larifa-champagne))",
+          "champagne-soft": "hsl(var(--larifa-champagne-soft))",
+          "champagne-pale": "hsl(var(--larifa-champagne-pale))",
+          stone: "hsl(var(--larifa-stone))",
+          paper: "hsl(var(--larifa-paper))",
+          "paper-warm": "hsl(var(--larifa-paper-warm))",
+          ink: "hsl(var(--larifa-ink))",
+          "ink-soft": "hsl(var(--larifa-ink-soft))",
         },
+      },
+      spacing: {
+        "18": "4.5rem",
+        "22": "5.5rem",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "soft": "0 2px 8px -2px rgba(0, 0, 0, 0.05)",
+        "subtle": "0 1px 3px 0 rgba(0, 0, 0, 0.04)",
+        "elevated": "0 8px 30px -10px rgba(0, 0, 0, 0.1)",
       },
       keyframes: {
         "accordion-down": {
