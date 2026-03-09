@@ -138,6 +138,49 @@ async function streamChat({
   onDone();
 }
 
+/* ─── Gold Particles ─── */
+const GoldParticles = () => {
+  const particles = Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    delay: Math.random() * 0.6,
+    duration: 1.5 + Math.random() * 1.5,
+    size: 3 + Math.random() * 5,
+    drift: (Math.random() - 0.5) * 60,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ opacity: 0, y: 0, x: p.x + "%", scale: 0 }}
+          animate={{
+            opacity: [0, 1, 1, 0],
+            y: [0, -120 - Math.random() * 80],
+            x: [p.x + "%", p.x + p.drift + "%"],
+            scale: [0, 1.2, 0.8, 0],
+            rotate: [0, 180 + Math.random() * 180],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            ease: "easeOut",
+          }}
+          className="absolute bottom-4"
+          style={{
+            width: p.size,
+            height: p.size,
+            borderRadius: p.size > 5 ? "2px" : "50%",
+            background: `linear-gradient(135deg, hsl(var(--accent)), hsl(40 90% 75%))`,
+            boxShadow: "0 0 6px hsl(var(--accent) / 0.5)",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const SUGGESTIONS = [
   "Oi Lari! Quero ajuda pra escolher uma semijoia 💎",
   "Tô procurando algo pra presentear ✨",
