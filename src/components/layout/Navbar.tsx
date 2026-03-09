@@ -114,7 +114,7 @@ const Navbar = () => {
 
         {/* Center: Logo */}
         <Link to="/" className="flex-shrink-0">
-          <img src={logoImg} alt="Larifa" className="h-8 md:h-9 w-auto" />
+          <img src={logoImg} alt="Larifa" className="h-10 md:h-14 w-auto" />
         </Link>
 
         {/* Right: Icons */}
