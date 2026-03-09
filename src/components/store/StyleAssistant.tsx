@@ -471,8 +471,8 @@ const StyleAssistant = () => {
                       <div
                         className={`rounded-2xl px-4 py-2.5 text-sm font-sans leading-relaxed ${
                           m.role === "user"
-                            ? "bg-foreground text-primary-foreground rounded-br-md"
-                            : "bg-secondary/80 text-foreground rounded-bl-md"
+                            ? "bg-accent text-accent-foreground rounded-br-md"
+                            : "bg-secondary/80 text-card-foreground rounded-bl-md"
                         }`}
                       >
                         {m.role === "assistant" ? (
