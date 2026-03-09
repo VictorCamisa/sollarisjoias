@@ -384,35 +384,31 @@ const StyleAssistant = () => {
             className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[400px] h-[100dvh] sm:h-[620px] sm:max-h-[calc(100vh-3rem)] bg-card sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-border/50"
           >
             {/* Header */}
-            <div className="relative px-5 pt-5 pb-4 bg-foreground text-primary-foreground">
-              {/* Subtle pattern */}
+            <div className="relative px-4 pt-4 pb-3 bg-foreground text-primary-foreground shrink-0">
               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "20px 20px" }} />
               
-              <div className="relative flex items-start justify-between">
+              <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-accent flex items-center justify-center shrink-0">
-                    <Sparkles className="h-5 w-5 text-accent-foreground" />
+                  <div className="h-9 w-9 rounded-full bg-accent flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-accent-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-serif text-base font-semibold leading-tight">Lari</h3>
-                    <p className="text-xs text-primary-foreground/60 font-sans mt-0.5">Consultora de semijoias LARIFA</p>
+                    <h3 className="font-serif text-sm font-semibold leading-tight">Lari</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-400" />
+                      </span>
+                      <span className="text-[10px] text-primary-foreground/50 font-sans">Online</span>
+                    </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setOpen(false)} 
-                  className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10 transition-colors"
+                  className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10 transition-colors"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
-              </div>
-
-              {/* Online indicator */}
-              <div className="relative flex items-center gap-1.5 mt-3">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-                </span>
-                <span className="text-[10px] text-primary-foreground/50 font-sans">Online agora</span>
               </div>
             </div>
 
