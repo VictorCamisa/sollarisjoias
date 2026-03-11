@@ -86,13 +86,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use service role for admin actions
-    const adminClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    const { action, userId, password, email } = await req.json();
+    const { userId, password: pwd, email: em } = body;
 
     if (action === "create" && email && password) {
       const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
