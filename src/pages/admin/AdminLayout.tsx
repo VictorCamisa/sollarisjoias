@@ -40,8 +40,8 @@ const AdminLayout = () => {
     <div className="min-h-screen flex bg-background">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex flex-col w-60 border-r border-border p-6">
-        <Link to="/" className="font-serif text-lg font-semibold mb-10">
-          Larifa<span className="text-accent">.</span>
+        <Link to="/" className="font-serif text-lg tracking-brand mb-10">
+          SOLLARIS
         </Link>
 
         <nav className="flex-1 space-y-1">
@@ -73,8 +73,8 @@ const AdminLayout = () => {
 
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="font-serif text-sm font-semibold">
-          Larifa<span className="text-accent">.</span>
+        <Link to="/" className="font-serif text-sm tracking-brand">
+          SOLLARIS
         </Link>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-lg hover:bg-secondary/50">
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

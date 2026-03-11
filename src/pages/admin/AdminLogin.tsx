@@ -52,8 +52,9 @@ const AdminLogin = () => {
         className="w-full max-w-sm"
       >
         <div className="text-center mb-8">
-          <h1 className="font-serif text-2xl tracking-[0.3em] font-semibold">LARIFA</h1>
-          <p className="text-muted-foreground text-sm mt-2">Painel Administrativo</p>
+          <h1 className="font-serif text-2xl tracking-brand-wide">SOLLARIS</h1>
+          <div className="gold-line w-12 mx-auto my-3" />
+          <p className="text-muted-foreground text-xs tracking-brand-ultra uppercase font-sans">Painel Administrativo</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

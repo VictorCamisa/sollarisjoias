@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,100 +7,65 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-       LARIFA Premium — Warm Ivory + Deep Teal + Gold
-       Inspired by Mejuri / Cartier / Net-a-Porter
+       SOLLARIS — Preto Obsidiana + Branco + Ouro Champagne
+       Identidade visual premium · Semijoias
     ═══════════════════════════════════════════════════════════════ */
 
-    /* Primary: Deep Teal */
-    --primary: 172 45% 18%;
-    --primary-foreground: 42 30% 95%;
+    /* Primary: Preto Obsidiana */
+    --primary: 234 18% 7%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Background: Deep warm charcoal */
-    --background: 30 8% 11%;
-    --foreground: 40 22% 92%;
+    /* Background: Preto Obsidiana #0F0F14 */
+    --background: 234 18% 7%;
+    --foreground: 0 0% 92%;
 
-    /* Card: Slightly lighter dark */
-    --card: 30 8% 16%;
-    --card-foreground: 38 20% 90%;
+    /* Card: Slightly lighter */
+    --card: 234 14% 11%;
+    --card-foreground: 0 0% 90%;
 
-    --popover: 30 8% 14%;
-    --popover-foreground: 38 18% 88%;
+    --popover: 234 14% 10%;
+    --popover-foreground: 0 0% 88%;
 
-    /* Secondary: Dark warm tone */
-    --secondary: 30 6% 20%;
-    --secondary-foreground: 38 20% 90%;
+    /* Secondary */
+    --secondary: 234 10% 15%;
+    --secondary-foreground: 0 0% 90%;
 
     /* Muted */
-    --muted: 30 6% 18%;
-    --muted-foreground: 38 14% 65%;
+    --muted: 234 8% 18%;
+    --muted-foreground: 234 6% 55%;
 
-    /* Accent: Brilliant gold — maximum contrast on dark */
-    --accent: 40 85% 62%;
-    --accent-foreground: 30 10% 6%;
+    /* Accent: Ouro Champagne #D1BF94 */
+    --accent: 39 41% 70%;
+    --accent-foreground: 234 18% 7%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders: Subtle warm lines */
-    --border: 30 6% 22%;
-    --input: 30 6% 22%;
-    --ring: 40 85% 62%;
+    /* Borders */
+    --border: 234 8% 18%;
+    --input: 234 8% 18%;
+    --ring: 39 41% 70%;
 
     --radius: 0.25rem;
 
-    /* Brand tokens — brighter gold family */
-    --larifa-teal: 172 45% 18%;
-    --larifa-teal-deep: 172 50% 12%;
-    --larifa-teal-light: 172 35% 28%;
-    --larifa-teal-muted: 172 20% 35%;
-    --larifa-gold: 40 85% 62%;
-    --larifa-gold-light: 40 70% 72%;
-    --larifa-gold-pale: 40 50% 80%;
-    --larifa-ivory: 40 30% 96%;
-    --larifa-cream: 38 25% 93%;
-    --larifa-warm-white: 40 25% 99%;
-    --larifa-charcoal: 30 15% 15%;
-    --larifa-charcoal-soft: 30 8% 55%;
+    /* Brand tokens — Sollaris */
+    --sollaris-obsidiana: 234 18% 7%;
+    --sollaris-obsidiana-light: 234 14% 12%;
+    --sollaris-champagne: 39 41% 70%;
+    --sollaris-champagne-light: 39 35% 80%;
+    --sollaris-champagne-pale: 39 25% 88%;
+    --sollaris-white: 0 0% 100%;
+    --sollaris-midnight: 228 50% 15%;
 
     /* Sidebar (admin) */
-    --sidebar-background: 40 25% 99%;
-    --sidebar-foreground: 30 15% 15%;
-    --sidebar-primary: 172 45% 18%;
-    --sidebar-primary-foreground: 42 30% 95%;
-    --sidebar-accent: 35 18% 91%;
-    --sidebar-accent-foreground: 30 15% 15%;
-    --sidebar-border: 35 15% 88%;
-    --sidebar-ring: 172 45% 18%;
-  }
-
-  .dark {
-    --background: 220 20% 7%;
-    --foreground: 40 15% 90%;
-    --card: 220 18% 10%;
-    --card-foreground: 40 15% 90%;
-    --popover: 220 18% 10%;
-    --popover-foreground: 40 15% 90%;
-    --primary: 172 35% 40%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 12% 14%;
-    --secondary-foreground: 40 15% 90%;
-    --muted: 220 10% 16%;
-    --muted-foreground: 220 8% 50%;
-    --accent: 36 50% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --ring: 172 35% 40%;
-    --sidebar-background: 220 20% 7%;
-    --sidebar-foreground: 40 15% 90%;
-    --sidebar-primary: 172 35% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 12% 14%;
-    --sidebar-accent-foreground: 40 15% 90%;
-    --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 172 35% 40%;
+    --sidebar-background: 234 18% 7%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 39 41% 70%;
+    --sidebar-primary-foreground: 234 18% 7%;
+    --sidebar-accent: 234 10% 14%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 234 8% 16%;
+    --sidebar-ring: 39 41% 70%;
   }
 }
 
@@ -119,23 +84,17 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "kern" 1, "liga" 1;
-    letter-spacing: -0.01em;
     overflow-x: hidden;
-    background-image:
-      radial-gradient(ellipse at 20% 0%, hsl(var(--larifa-gold) / 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 100%, hsl(var(--larifa-teal) / 0.03) 0%, transparent 50%),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'Gloock', Georgia, serif;
     font-weight: 400;
-    letter-spacing: -0.02em;
   }
 
   ::selection {
-    background: hsl(var(--larifa-gold) / 0.25);
-    color: hsl(var(--larifa-charcoal));
+    background: hsl(var(--sollaris-champagne) / 0.3);
+    color: hsl(var(--sollaris-obsidiana));
   }
 }
 
@@ -145,8 +104,8 @@
   }
 
   .text-caption {
-    @apply text-[11px] tracking-[0.12em] uppercase font-medium;
-    letter-spacing: 0.12em;
+    @apply text-[11px] uppercase font-medium;
+    letter-spacing: 0.15em;
   }
 
   @keyframes fadeIn {
@@ -174,27 +133,17 @@
     transform: translateY(-2px);
   }
 
-  /* Subtle grain texture */
-  .grain::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    opacity: 0.4;
-  }
-
-  /* Gold shimmer line */
+  /* Champagne accent line */
   .gold-line {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(var(--larifa-gold) / 0.4), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--sollaris-champagne) / 0.4), transparent);
   }
 }
 
 /* Custom scrollbar */
 @media (min-width: 768px) {
-  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: hsl(var(--secondary)); }
-  ::-webkit-scrollbar-thumb { background: hsl(var(--larifa-gold) / 0.3); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--larifa-gold) / 0.5); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--sollaris-champagne) / 0.25); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--sollaris-champagne) / 0.45); }
 }
