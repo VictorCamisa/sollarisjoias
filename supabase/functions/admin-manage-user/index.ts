@@ -12,11 +12,46 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const body = await req.json();
+    const { action } = body;
+
+    // Use service role for admin actions
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // Allow bootstrap create with service role key
+    if (action === "bootstrap_create") {
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const providedKey = req.headers.get("x-service-key");
+      if (providedKey !== serviceKey) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403, headers: corsHeaders,
+        });
+      }
+
+      const { email, password } = body;
+      const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
+        email, password, email_confirm: true,
+      });
+      if (createErr) throw createErr;
+
+      const { error: roleErr } = await adminClient
+        .from("user_roles")
+        .insert({ user_id: newUser.user.id, role: "admin" });
+      if (roleErr) throw roleErr;
+
+      return new Response(
+        JSON.stringify({ success: true, user_id: newUser.user.id }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: corsHeaders,
+        status: 401, headers: corsHeaders,
       });
     }
 
@@ -32,14 +67,12 @@ Deno.serve(async (req) => {
     );
     if (claimsErr || !claims?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: corsHeaders,
+        status: 401, headers: corsHeaders,
       });
     }
 
     const callerId = claims.claims.sub as string;
 
-    // Check admin role
     const { data: roleData } = await anonClient
       .from("user_roles")
       .select("role")
@@ -49,8 +82,7 @@ Deno.serve(async (req) => {
 
     if (!roleData) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: corsHeaders,
+        status: 403, headers: corsHeaders,
       });
     }
 
