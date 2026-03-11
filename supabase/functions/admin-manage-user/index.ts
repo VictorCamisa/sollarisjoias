@@ -60,7 +60,27 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { action, userId, password } = await req.json();
+    const { action, userId, password, email } = await req.json();
+
+    if (action === "create" && email && password) {
+      const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+      if (createErr) throw createErr;
+
+      // Assign admin role
+      const { error: roleErr } = await adminClient
+        .from("user_roles")
+        .insert({ user_id: newUser.user.id, role: "admin" });
+      if (roleErr) throw roleErr;
+
+      return new Response(
+        JSON.stringify({ success: true, user_id: newUser.user.id, message: "Usuário admin criado" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (action === "reset_password" && userId) {
       // Get user email first
