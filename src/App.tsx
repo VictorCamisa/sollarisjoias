@@ -2,8 +2,18 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
+
+// Store pages
+import StoreLayout from "@/components/store/StoreLayout";
+import HomePage from "@/pages/HomePage";
+import CollectionPage from "@/pages/CollectionPage";
+import ProductDetailPage from "@/pages/ProductDetailPage";
+import AboutPage from "@/pages/AboutPage";
+
+// Admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -21,24 +31,35 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/admin/login" replace />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="produtos" element={<AdminProducts />} />
-              <Route path="categorias" element={<AdminCategories />} />
-              <Route path="pedidos" element={<AdminOrders />} />
-              <Route path="newsletter" element={<AdminNewsletter />} />
-              <Route path="clientes" element={<AdminCustomers />} />
-              <Route path="configuracoes" element={<AdminSettings />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <CartProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Storefront */}
+              <Route element={<StoreLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/colecao" element={<CollectionPage />} />
+                <Route path="/produto/:id" element={<ProductDetailPage />} />
+                <Route path="/sobre" element={<AboutPage />} />
+              </Route>
+
+              {/* Admin */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="produtos" element={<AdminProducts />} />
+                <Route path="categorias" element={<AdminCategories />} />
+                <Route path="pedidos" element={<AdminOrders />} />
+                <Route path="newsletter" element={<AdminNewsletter />} />
+                <Route path="clientes" element={<AdminCustomers />} />
+                <Route path="configuracoes" element={<AdminSettings />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
