@@ -21,32 +21,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Allow bootstrap create with service role key
-    if (action === "bootstrap_create") {
-      const bootstrapSecret = "LARIFA_BOOTSTRAP_2026";
-      const providedKey = req.headers.get("x-service-key");
-      if (providedKey !== bootstrapSecret) {
-        return new Response(JSON.stringify({ error: "Forbidden" }), {
-          status: 403, headers: corsHeaders,
-        });
-      }
-
-      const { email, password } = body;
-      const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
-        email, password, email_confirm: true,
-      });
-      if (createErr) throw createErr;
-
-      const { error: roleErr } = await adminClient
-        .from("user_roles")
-        .insert({ user_id: newUser.user.id, role: "admin" });
-      if (roleErr) throw roleErr;
-
-      return new Response(
-        JSON.stringify({ success: true, user_id: newUser.user.id }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Bootstrap create removed after initial setup
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
