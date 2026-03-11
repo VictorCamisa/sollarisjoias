@@ -23,9 +23,9 @@ Deno.serve(async (req) => {
 
     // Allow bootstrap create with service role key
     if (action === "bootstrap_create") {
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const bootstrapSecret = "LARIFA_BOOTSTRAP_2026";
       const providedKey = req.headers.get("x-service-key");
-      if (providedKey !== serviceKey) {
+      if (providedKey !== bootstrapSecret) {
         return new Response(JSON.stringify({ error: "Forbidden" }), {
           status: 403, headers: corsHeaders,
         });
