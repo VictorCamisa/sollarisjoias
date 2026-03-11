@@ -119,10 +119,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      if (password) {
+      if (pwd) {
         // Direct password update
         const { error } = await adminClient.auth.admin.updateUserById(userId, {
-          password,
+          password: pwd,
         });
         if (error) throw error;
         return new Response(
