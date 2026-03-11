@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.98.0";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-service-key",
 };
 
 Deno.serve(async (req) => {
@@ -12,11 +12,21 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const body = await req.json();
+    const { action } = body;
+
+    // Use service role for admin actions
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // Bootstrap create removed after initial setup
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: corsHeaders,
+        status: 401, headers: corsHeaders,
       });
     }
 
@@ -32,14 +42,12 @@ Deno.serve(async (req) => {
     );
     if (claimsErr || !claims?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: corsHeaders,
+        status: 401, headers: corsHeaders,
       });
     }
 
     const callerId = claims.claims.sub as string;
 
-    // Check admin role
     const { data: roleData } = await anonClient
       .from("user_roles")
       .select("role")
@@ -49,18 +57,31 @@ Deno.serve(async (req) => {
 
     if (!roleData) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: corsHeaders,
+        status: 403, headers: corsHeaders,
       });
     }
 
-    // Use service role for admin actions
-    const adminClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const { userId, password: pwd, email: em } = body;
 
-    const { action, userId, password } = await req.json();
+    if (action === "create" && em && pwd) {
+      const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
+        email: em,
+        password: pwd,
+        email_confirm: true,
+      });
+      if (createErr) throw createErr;
+
+      // Assign admin role
+      const { error: roleErr } = await adminClient
+        .from("user_roles")
+        .insert({ user_id: newUser.user.id, role: "admin" });
+      if (roleErr) throw roleErr;
+
+      return new Response(
+        JSON.stringify({ success: true, user_id: newUser.user.id, message: "Usuário admin criado" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (action === "reset_password" && userId) {
       // Get user email first
@@ -73,10 +94,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      if (password) {
+      if (pwd) {
         // Direct password update
         const { error } = await adminClient.auth.admin.updateUserById(userId, {
-          password,
+          password: pwd,
         });
         if (error) throw error;
         return new Response(
