@@ -88,10 +88,10 @@ Deno.serve(async (req) => {
 
     const { userId, password: pwd, email: em } = body;
 
-    if (action === "create" && email && password) {
+    if (action === "create" && em && pwd) {
       const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
-        email,
-        password,
+        email: em,
+        password: pwd,
         email_confirm: true,
       });
       if (createErr) throw createErr;
