@@ -332,7 +332,7 @@ const ProductDetailPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* ─── Breadcrumb ─── */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-20 md:pt-24">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pt-18 sm:pt-20 md:pt-24">
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
