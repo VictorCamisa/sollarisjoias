@@ -650,7 +650,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       <section
         ref={brandRef}
-        className="relative py-32 px-6 overflow-hidden"
+        className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-transparent to-secondary/20" />
 
