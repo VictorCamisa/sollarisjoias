@@ -167,6 +167,21 @@ const HomePage = () => {
 
   const slide = heroSlides[currentSlide];
 
+  /* ── Parallax refs ─────────────────────────────────── */
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroOpacity = useTransform(heroScroll, [0, 0.7], [1, 0]);
+
+  const brandRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: brandScroll } = useScroll({
+    target: brandRef,
+    offset: ["start end", "end start"],
+  });
+  const brandY = useTransform(brandScroll, [0, 1], [60, -60]);
+
   /* ── Newsletter handler ────────────────────────────── */
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
