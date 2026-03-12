@@ -12,6 +12,7 @@ import HomePage from "@/pages/HomePage";
 import CollectionPage from "@/pages/CollectionPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
 import AboutPage from "@/pages/AboutPage";
+import LookbookPage from "@/pages/LookbookPage";
 
 // Admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
