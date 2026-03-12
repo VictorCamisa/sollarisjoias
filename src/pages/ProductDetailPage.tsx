@@ -84,7 +84,7 @@ const ProductDetailPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="aspect-[3/4] bg-secondary overflow-hidden"
+            className="aspect-[3/4] bg-secondary overflow-hidden relative"
           >
             {images[selectedImage] ? (
               <img
@@ -97,6 +97,11 @@ const ProductDetailPage = () => {
                 <span className="font-serif text-4xl text-muted-foreground/20 tracking-[0.1em]">S</span>
               </div>
             )}
+            <img
+              src={logoSollaris}
+              alt=""
+              className="absolute bottom-4 right-4 h-5 opacity-40"
+            />
           </motion.div>
 
           {images.length > 1 && (
