@@ -13,6 +13,7 @@ const AdminSettings = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [storeName, setStoreName] = useState("");
   const [pixDiscount, setPixDiscount] = useState("5");
+  const [monthlyGoal, setMonthlyGoal] = useState("15000");
 
   useEffect(() => {
     if (settings) {
