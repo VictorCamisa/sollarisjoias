@@ -184,7 +184,7 @@ const HomePage = () => {
   });
   const brandY = useTransform(brandScroll, [0, 1], [60, -60]);
 
-  /* ── Ring animation (whileInView) ─────────────────── */
+  /* ── Ring animation (whileInView approach) ────────── */
 
   /* ── Newsletter handler ────────────────────────────── */
   const handleSubscribe = async (e: React.FormEvent) => {
