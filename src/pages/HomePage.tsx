@@ -190,18 +190,18 @@ const HomePage = () => {
     target: ringRef,
     offset: ["start end", "end start"],
   });
-  const ringX = useTransform(ringScroll, [0.1, 0.5], [200, 0]);
-  const ringY = useTransform(ringScroll, [0.1, 0.5], [-120, 0]);
-  const ringRotate = useTransform(ringScroll, [0.1, 0.5], [25, 0]);
-  const ringScale = useTransform(ringScroll, [0.1, 0.4, 0.5], [1.4, 1, 0.85]);
-  const ringOpacity = useTransform(ringScroll, [0.1, 0.25, 0.48, 0.55], [0, 1, 1, 0]);
-  const phrase1Opacity = useTransform(ringScroll, [0.15, 0.25, 0.35, 0.42], [0, 1, 1, 0]);
-  const phrase2Opacity = useTransform(ringScroll, [0.28, 0.38, 0.48, 0.55], [0, 1, 1, 0]);
-  const phrase3Opacity = useTransform(ringScroll, [0.42, 0.52, 0.65, 0.72], [0, 1, 1, 0]);
-  const handOpacity = useTransform(ringScroll, [0.35, 0.55], [0, 1]);
-  const handScale = useTransform(ringScroll, [0.35, 0.55], [1.05, 1]);
-  const finalOpacity = useTransform(ringScroll, [0.6, 0.75], [0, 1]);
-  const finalY = useTransform(ringScroll, [0.6, 0.75], [40, 0]);
+  const ringX = useTransform(ringScroll, [0.15, 0.45], [200, 0]);
+  const ringY = useTransform(ringScroll, [0.15, 0.45], [-120, 0]);
+  const ringRotate = useTransform(ringScroll, [0.15, 0.45], [25, 0]);
+  const ringScale = useTransform(ringScroll, [0.15, 0.35, 0.45], [1.4, 1, 0.85]);
+  const ringOpacity = useTransform(ringScroll, [0.12, 0.2, 0.43, 0.48], [0, 1, 1, 0]);
+  const phrase1Opacity = useTransform(ringScroll, [0.15, 0.22, 0.3, 0.35], [0, 1, 1, 0]);
+  const phrase2Opacity = useTransform(ringScroll, [0.25, 0.32, 0.4, 0.45], [0, 1, 1, 0]);
+  const phrase3Opacity = useTransform(ringScroll, [0.35, 0.42, 0.5, 0.55], [0, 1, 1, 0]);
+  const handOpacity = useTransform(ringScroll, [0.3, 0.45], [0, 1]);
+  const handScale = useTransform(ringScroll, [0.3, 0.45], [1.05, 1]);
+  const finalOpacity = useTransform(ringScroll, [0.5, 0.6], [0, 1]);
+  const finalY = useTransform(ringScroll, [0.5, 0.6], [40, 0]);
 
   /* ── Newsletter handler ────────────────────────────── */
   const handleSubscribe = async (e: React.FormEvent) => {
