@@ -22,13 +22,28 @@ const CartDrawer = () => {
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
   const handleCheckout = () => {
-    if (!settings?.whatsapp_number || items.length === 0) return;
+    if (items.length === 0) return;
+
+    const whatsappNumber = "5512991895250";
 
     const lines = items.map(
-      (item) => `• ${item.name} (x${item.quantity}) — ${formatPrice(item.price * item.quantity)}`
+      (item, i) => `${i + 1}. ${item.name}\n   Qtd: ${item.quantity} | Unit: ${formatPrice(item.price)} | Subtotal: ${formatPrice(item.price * item.quantity)}`
     );
-    const message = `Olá! Gostaria de finalizar meu pedido:\n\n${lines.join("\n")}\n\nTotal: ${formatPrice(totalPrice)}`;
-    const url = `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+
+    const message = [
+      `🛍 *PEDIDO SOLLARIS*`,
+      `━━━━━━━━━━━━━━━━━━━`,
+      ``,
+      ...lines,
+      ``,
+      `━━━━━━━━━━━━━━━━━━━`,
+      `*Total: ${formatPrice(totalPrice)}*`,
+      `Itens: ${items.reduce((sum, item) => sum + item.quantity, 0)}`,
+      ``,
+      `📅 ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+    ].join("\n");
+
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
 
