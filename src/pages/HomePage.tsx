@@ -75,6 +75,50 @@ const GoldDivider = ({ className = "" }: { className?: string }) => (
   />
 );
 
+/* ── Hero slides data ───────────────────────────────── */
+const heroSlides = [
+  {
+    image: heroSlide1,
+    overline: "Semijoias Premium",
+    titleLine1: "Curadoria",
+    titleLine2: "com",
+    titleAccent: "intenção",
+    description: "Cada peça existe em nosso portfólio porque foi escolhida sob um rigoroso olhar editorial. Exclusividade sem excessos.",
+  },
+  {
+    image: heroSlide2,
+    overline: "Nova Coleção",
+    titleLine1: "Elegância",
+    titleLine2: "que",
+    titleAccent: "encanta",
+    description: "Colares e brincos desenhados para transformar qualquer momento em uma ocasião especial.",
+  },
+  {
+    image: heroSlide3,
+    overline: "Edição Limitada",
+    titleLine1: "Detalhes",
+    titleLine2: "que",
+    titleAccent: "brilham",
+    description: "Pulseiras e anéis com acabamento artesanal em ouro 18k. Peças únicas para mulheres únicas.",
+  },
+  {
+    image: heroSlide4,
+    overline: "Alta Joalheria",
+    titleLine1: "Presença",
+    titleLine2: "com",
+    titleAccent: "atitude",
+    description: "Brincos statement que definem seu estilo. Porque os detalhes dizem tudo sobre quem você é.",
+  },
+  {
+    image: heroSlide5,
+    overline: "Coleção Completa",
+    titleLine1: "Refinamento",
+    titleLine2: "sem",
+    titleAccent: "limites",
+    description: "Uma curadoria completa de semijoias com pedras naturais e banho de ouro 18k de alta durabilidade.",
+  },
+];
+
 /* ── Pillars data ──────────────────────────────────────── */
 const pillars = [
   {
