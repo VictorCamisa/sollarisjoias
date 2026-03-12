@@ -541,7 +541,7 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           EDITORIAL — Ring scroll animation
       ═══════════════════════════════════════════════════ */}
-      <section ref={ringRef} className="relative" style={{ height: "180vh" }}>
+      <div ref={ringRef} className="relative" style={{ height: "200vh" }}>
         <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-background">
 
           {/* Floating ring — arcs from top-right to center, stays visible */}
