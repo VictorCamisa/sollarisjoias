@@ -161,7 +161,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 5700);
+    const timer = setInterval(nextSlide, 12000);
     return () => clearInterval(timer);
   }, [nextSlide]);
 
