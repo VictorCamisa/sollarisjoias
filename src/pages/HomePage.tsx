@@ -602,7 +602,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       {newArrivals.length > 0 && (
         <section className="py-24">
-          <div className="max-w-[1200px] mx-auto px-6">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
             <motion.div
               className="text-center mb-14"
               variants={fadeUp}
