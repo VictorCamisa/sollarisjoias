@@ -23,6 +23,11 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
+import AdminTarefas from "./pages/admin/AdminTarefas";
+import AdminNotas from "./pages/admin/AdminNotas";
+import AdminFornecedores from "./pages/admin/AdminFornecedores";
+import AdminCupons from "./pages/admin/AdminCupons";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
