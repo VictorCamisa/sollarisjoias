@@ -30,8 +30,8 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
           </div>
         )}
-        <div className="absolute bottom-0 left-0 right-0 bg-foreground/85 border-t border-accent/40 px-3 py-4 flex justify-center">
-          <img src={logoSollaris} alt="Logo SOLLARIS" className="w-[92%] h-auto object-contain" />
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-foreground/88 border-y border-accent/60 px-2 py-6 flex justify-center">
+          <img src={logoSollaris} alt="Logo SOLLARIS" className="w-[98%] h-auto object-contain" />
         </div>
       </div>
 
