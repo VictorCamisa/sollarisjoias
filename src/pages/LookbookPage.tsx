@@ -488,7 +488,7 @@ const MasonryGrid = ({ products, phone }: { products: any[]; phone: string }) =>
   );
 };
 
-/* ─── Share button ─── */
+/* ─── Share button component ─── */
 const ShareButton = () => {
   const [copied, setCopied] = useState(false);
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/vitrine` : "";
