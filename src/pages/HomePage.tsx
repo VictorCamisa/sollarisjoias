@@ -712,7 +712,7 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           NEWSLETTER — Lead capture
       ═══════════════════════════════════════════════════ */}
-      <section className="py-24 px-6">
+      <section className="py-16 sm:py-24 px-4 sm:px-6">
         <motion.div
           className="max-w-xl mx-auto text-center"
           variants={fadeUp}
