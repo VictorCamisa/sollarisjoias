@@ -214,7 +214,7 @@ const HomePage = () => {
   const newArrivals = allProducts?.slice(0, 4) ?? [];
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden w-full">
       {/* ═══════════════════════════════════════════════════
           HERO — Full-screen parallax + editorial typography
       ═══════════════════════════════════════════════════ */}
