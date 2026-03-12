@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import logoSollaris from "@/assets/logo-sollaris-tight.png";
+import { ArrowRight } from "lucide-react";
 
 interface ProductCardProps {
   id: string;
@@ -14,54 +15,77 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
+  const hasDiscount = originalPrice && originalPrice > price;
+  const discountPercent = hasDiscount
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    : 0;
+
   return (
     <Link to={`/produto/${id}`} className="group block">
       {/* Image container */}
-      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative border border-transparent group-hover:border-accent/30 transition-all duration-500">
+      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative border border-transparent group-hover:border-accent/25 transition-all duration-700">
         {image ? (
           <img
             src={image}
             alt={name}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            className="w-full h-full object-cover transition-all duration-[900ms] ease-out group-hover:scale-110"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
+          <div className="w-full h-full flex items-center justify-center bg-secondary">
+            <span className="font-serif text-3xl text-muted-foreground/20 tracking-[0.1em]">S</span>
           </div>
         )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors duration-500" />
+        {/* Dark hover overlay */}
+        <div className="absolute inset-0 bg-background/0 group-hover:bg-background/30 transition-all duration-700" />
+
+        {/* Discount badge */}
+        {hasDiscount && (
+          <div className="absolute top-3 left-3 bg-accent text-accent-foreground font-sans text-[9px] tracking-[0.1em] uppercase px-2.5 py-1">
+            -{discountPercent}%
+          </div>
+        )}
 
         {/* Logo watermark */}
         <img
           src={logoSollaris}
           alt=""
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[55%] h-auto drop-shadow-md opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[50%] h-auto drop-shadow-md opacity-70 group-hover:opacity-0 transition-opacity duration-500"
         />
 
-        {/* Slide-up info overlay on hover */}
-        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out bg-gradient-to-t from-background/90 via-background/60 to-transparent">
-          <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-accent mb-1">
+        {/* Hover CTA overlay */}
+        <div className="absolute inset-x-0 bottom-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="flex items-center justify-center gap-2 font-sans text-[10px] tracking-[0.2em] uppercase text-accent">
             Ver detalhes
-          </p>
+            <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
+          </div>
+        </div>
+
+        {/* Corner accents on hover */}
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+          <div className="w-4 h-px bg-accent/60" />
+          <div className="w-px h-4 bg-accent/60 ml-auto" />
+        </div>
+        <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+          <div className="w-px h-4 bg-accent/60" />
+          <div className="w-4 h-px bg-accent/60" />
         </div>
       </div>
 
       {/* Info */}
       {category && (
-        <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1">
+        <p className="font-sans text-[9px] tracking-[0.25em] uppercase text-accent/70 mb-1.5">
           {category}
         </p>
       )}
-      <h3 className="font-sans text-sm text-foreground group-hover:text-accent transition-colors duration-300">
+      <h3 className="font-sans text-sm text-foreground group-hover:text-accent transition-colors duration-500 leading-snug">
         {name}
       </h3>
-      <div className="flex items-center gap-2 mt-1">
-        <span className="font-sans text-sm text-foreground">{formatPrice(price)}</span>
-        {originalPrice && originalPrice > price && (
-          <span className="font-sans text-xs text-muted-foreground line-through">
+      <div className="flex items-center gap-2.5 mt-1.5">
+        <span className="font-sans text-sm text-foreground font-medium">{formatPrice(price)}</span>
+        {hasDiscount && (
+          <span className="font-sans text-[11px] text-muted-foreground line-through">
             {formatPrice(originalPrice)}
           </span>
         )}
