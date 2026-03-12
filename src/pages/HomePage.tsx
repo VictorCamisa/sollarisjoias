@@ -240,7 +240,7 @@ const HomePage = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent z-[1]" />
 
         <motion.div
-          className="text-left max-w-3xl relative z-10"
+          className="text-left max-w-3xl relative z-10 w-full"
           style={{ opacity: heroOpacity }}
         >
           {/* Logo mark */}
