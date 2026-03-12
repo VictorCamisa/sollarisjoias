@@ -155,7 +155,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        className="relative flex items-center justify-center min-h-screen px-6 overflow-hidden"
+        className="relative flex items-end min-h-screen px-6 pb-24 md:pb-32 overflow-hidden"
       >
         {/* Parallax background */}
         <motion.div
@@ -166,12 +166,12 @@ const HomePage = () => {
             scale: heroScale,
           }}
         />
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
+        {/* Gradient overlays — heavier on bottom-left */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent" />
 
         <motion.div
-          className="text-center max-w-4xl mx-auto relative z-10"
+          className="text-left max-w-3xl relative z-10"
           style={{ opacity: heroOpacity }}
         >
           {/* Animated gold line */}
@@ -179,19 +179,19 @@ const HomePage = () => {
             initial={{ width: 0 }}
             animate={{ width: "5rem" }}
             transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] as const, delay: 0.3 }}
-            className="h-px bg-accent/70 mx-auto mb-10 overflow-hidden"
+            className="h-px bg-accent/70 mb-8 overflow-hidden"
           />
 
           <motion.p
             initial={{ opacity: 0, letterSpacing: "0.1em" }}
             animate={{ opacity: 1, letterSpacing: "0.4em" }}
             transition={{ duration: 1.5, delay: 0.5 }}
-            className="font-sans text-[10px] uppercase text-accent mb-10"
+            className="font-sans text-[10px] uppercase text-accent mb-8"
           >
             Semijoias Premium
           </motion.p>
 
-          <div className="overflow-hidden mb-10">
+          <div className="overflow-hidden mb-4">
             <motion.h1
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -217,7 +217,7 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1.3 }}
-            className="font-sans text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto mb-14"
+            className="font-sans text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mb-12"
           >
             Cada peça existe em nosso portfólio porque foi escolhida sob
             um rigoroso olhar editorial. Exclusividade sem excessos.
@@ -227,7 +227,7 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-start gap-4"
           >
             <Link
               to="/colecao"
