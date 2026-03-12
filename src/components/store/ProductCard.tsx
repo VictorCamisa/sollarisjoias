@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoSollaris from "@/assets/logo-sollaris.png";
 
 interface ProductCardProps {
   id: string;

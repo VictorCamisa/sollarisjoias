@@ -4,6 +4,7 @@ import { useCart } from "@/contexts/CartContext";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import logoSollaris from "@/assets/logo-sollaris.png";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
