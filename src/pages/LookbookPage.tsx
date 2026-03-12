@@ -527,7 +527,7 @@ const LookbookPage = () => {
         <HeroSpread product={heroProduct} phone={phone} />
       )}
 
-      {/* ─── Brand statement + filters ─── */}
+      {/* ─── Brand statement + share + filters ─── */}
       <section className="py-20 md:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 text-center">
           <Reveal>
@@ -541,10 +541,15 @@ const LookbookPage = () => {
             </h2>
           </Reveal>
           <Reveal delay={0.2}>
-            <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed mb-10">
+            <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6">
               Cada joia desta seleção foi escolhida com intenção. 
               Encontrou algo que combina com você? É só clicar.
             </p>
+          </Reveal>
+
+          {/* Share button */}
+          <Reveal delay={0.25}>
+            <ShareButton />
           </Reveal>
 
           {/* Category filters */}
