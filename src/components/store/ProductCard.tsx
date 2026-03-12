@@ -30,9 +30,7 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
           </div>
         )}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-foreground/88 border-y border-accent/60 px-2 py-6 flex justify-center">
-          <img src={logoSollaris} alt="Logo SOLLARIS" className="w-[98%] h-auto object-contain" />
-        </div>
+        <img src={logoSollaris} alt="" className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[60%] h-auto drop-shadow-md" />
       </div>
 
       {/* Info */}
