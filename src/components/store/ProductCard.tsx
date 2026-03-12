@@ -30,11 +30,13 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
           </div>
         )}
-        <img
-          src={logoSollaris}
-          alt=""
-          className="absolute bottom-3 right-3 h-3 opacity-50"
-        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent pt-8 pb-3 flex justify-center">
+          <img
+            src={logoSollaris}
+            alt=""
+            className="h-4"
+          />
+        </div>
       </div>
 
       {/* Info */}
