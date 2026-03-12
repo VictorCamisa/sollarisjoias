@@ -521,72 +521,69 @@ const HomePage = () => {
       <GoldDivider />
 
       {/* ═══════════════════════════════════════════════════
-          EDITORIAL — Ring scroll animation
+          EDITORIAL — Ring showcase
       ═══════════════════════════════════════════════════ */}
-      <div ref={ringRef} className="relative" style={{ height: "200vh" }}>
-        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-background">
-
-          {/* Floating ring — arcs from top-right to center, stays visible */}
-          <motion.img
-            src={ringFloating}
-            alt="Anel dourado"
-            className="absolute w-32 md:w-52 h-auto z-20 drop-shadow-[0_0_60px_hsl(var(--accent)/0.7)]"
-            style={{
-              x: ringX,
-              y: ringY,
-              rotate: ringRotate,
-              scale: ringScale,
-              opacity: ringOpacity,
-            }}
-          />
-
-          {/* Scroll-triggered phrases */}
-          <div className="absolute inset-0 z-10 flex items-center justify-end px-6 md:px-16">
-            <div className="max-w-md text-right md:mr-12">
-              <motion.p
-                className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight mb-6"
-                style={{ opacity: phrase1Opacity }}
-              >
-                Uma peça que <span className="text-accent italic">conta sua história</span>
-              </motion.p>
-
-              <motion.p
-                className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight mb-6"
-                style={{ opacity: phrase2Opacity }}
-              >
-                Feita para <span className="text-accent italic">brilhar com você</span>
-              </motion.p>
-
-              <motion.p
-                className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight"
-                style={{ opacity: phrase3Opacity }}
-              >
-                Do atelier ao seu <span className="text-accent italic">momento</span>
-              </motion.p>
-            </div>
-          </div>
-
-          {/* Final CTA block */}
+      <section className="relative py-32 md:py-40 overflow-hidden">
+        {/* Centered ring with glow */}
+        <div className="flex flex-col items-center justify-center relative">
           <motion.div
-            className="absolute bottom-16 left-6 md:left-16 z-10 max-w-md"
-            style={{ opacity: finalOpacity, y: finalY }}
+            className="relative mb-16"
+            initial={{ opacity: 0, y: 80, rotate: 30, scale: 0.5 }}
+            whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-100px" }}
           >
+            {/* Glow behind ring */}
+            <div className="absolute inset-0 -m-12 rounded-full bg-accent/20 blur-3xl" />
             <img
-              src={logoSollaris}
-              alt="SOLLARIS"
-              className="w-28 h-auto opacity-20 mb-4"
+              src={ringFloating}
+              alt="Anel dourado"
+              className="relative w-40 md:w-64 h-auto drop-shadow-[0_0_60px_hsl(var(--accent)/0.6)]"
             />
-            <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-accent mb-3">
-              A Arte da Semijoia
-            </p>
-            <h2 className="font-serif text-display-sm md:text-display text-foreground mb-4 leading-tight">
-              Feita para quem{" "}
-              <span className="text-accent italic">valoriza</span>{" "}
-              cada detalhe
-            </h2>
-            <p className="font-sans text-sm text-muted-foreground leading-[1.8] mb-6">
-              Banho de ouro 18k, pedras naturais e design exclusivo — peças que transcendem tendências.
-            </p>
+          </motion.div>
+
+          {/* Phrases staggering in */}
+          <motion.div
+            className="text-center max-w-xl px-6 space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.3, delayChildren: 0.5 } },
+            }}
+          >
+            <motion.p
+              className="font-serif text-[1.4rem] md:text-[2.2rem] text-foreground leading-tight"
+              variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.8 }}
+            >
+              Uma peça que <span className="text-accent italic">conta sua história</span>
+            </motion.p>
+            <motion.p
+              className="font-serif text-[1.4rem] md:text-[2.2rem] text-foreground leading-tight"
+              variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.8 }}
+            >
+              Feita para <span className="text-accent italic">brilhar com você</span>
+            </motion.p>
+            <motion.p
+              className="font-serif text-[1.4rem] md:text-[2.2rem] text-foreground leading-tight"
+              variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.8 }}
+            >
+              Do atelier ao seu <span className="text-accent italic">momento</span>
+            </motion.p>
+          </motion.div>
+
+          {/* CTA */}
+          <motion.div
+            className="mt-12 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.8 }}
+            viewport={{ once: true }}
+          >
             <Link
               to="/colecao"
               className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase text-accent border border-accent/40 rounded-full px-8 py-3.5 hover:bg-accent hover:text-accent-foreground transition-all duration-500 group"
@@ -596,7 +593,7 @@ const HomePage = () => {
             </Link>
           </motion.div>
         </div>
-      </div>
+      </section>
 
       {/* ═══════ TRANSITION ═══════ */}
       <GoldDivider />
