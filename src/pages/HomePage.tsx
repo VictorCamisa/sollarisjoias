@@ -544,7 +544,7 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           EDITORIAL — Ring scroll animation
       ═══════════════════════════════════════════════════ */}
-      <section ref={ringRef} className="relative" style={{ height: "300vh" }}>
+      <section ref={ringRef} className="relative" style={{ height: "250vh" }}>
         <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
           {/* Background hand image — reveals as ring arrives */}
           <motion.div
