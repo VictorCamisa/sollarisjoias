@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoSollaris from "@/assets/logo-sollaris.png";
+import logoSollaris from "@/assets/logo-sollaris-tight.png";
 
 interface ProductCardProps {
   id: string;
@@ -30,12 +30,8 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
           </div>
         )}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pt-10 pb-4 flex justify-center">
-          <img
-            src={logoSollaris}
-            alt=""
-            className="h-7"
-          />
+        <div className="absolute bottom-0 left-0 right-0 bg-foreground/85 border-t border-accent/40 px-3 py-4 flex justify-center">
+          <img src={logoSollaris} alt="Logo SOLLARIS" className="w-[92%] h-auto object-contain" />
         </div>
       </div>
 
