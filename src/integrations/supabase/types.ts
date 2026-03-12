@@ -391,6 +391,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          monthly_goal: number | null
           pix_discount_percent: number | null
           store_name: string
           updated_at: string
@@ -399,6 +400,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          monthly_goal?: number | null
           pix_discount_percent?: number | null
           store_name?: string
           updated_at?: string
@@ -407,6 +409,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          monthly_goal?: number | null
           pix_discount_percent?: number | null
           store_name?: string
           updated_at?: string

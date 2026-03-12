@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useSettings } from "@/hooks/useStore";
 import {
   Package, FolderOpen, ShoppingCart, Users, AlertTriangle,
   TrendingUp, DollarSign, Mail, Target, ArrowUpRight, ArrowDownRight,
@@ -51,7 +52,9 @@ const ChartTooltip = ({ active, payload, label, formatter }: any) => {
    DASHBOARD
 ═══════════════════════════════════════════════════════ */
 const AdminDashboard = () => {
-  const MONTHLY_GOAL = 15000; // Meta mensal de faturamento
+
+  const { data: settings } = useSettings();
+  const MONTHLY_GOAL = (settings as any)?.monthly_goal ?? 15000;
 
   /* ─── queries ─── */
   const { data: productCount } = useQuery({

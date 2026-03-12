@@ -1,0 +1,1 @@
+ALTER TABLE public.settings ADD COLUMN monthly_goal numeric DEFAULT 15000;
