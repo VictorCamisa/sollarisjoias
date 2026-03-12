@@ -359,7 +359,7 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           PILLARS — Brand values
       ═══════════════════════════════════════════════════ */}
-      <section className="max-w-[1200px] mx-auto px-6 py-24">
+      <section className="max-w-[1200px] mx-auto px-4 sm:px-6 py-16 sm:py-24">
         <motion.div
           className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6"
           variants={staggerContainer}
