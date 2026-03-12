@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useSettings } from "@/hooks/useStore";
 import {
   Package, FolderOpen, ShoppingCart, Users, AlertTriangle,
   TrendingUp, DollarSign, Mail, Target, ArrowUpRight, ArrowDownRight,
