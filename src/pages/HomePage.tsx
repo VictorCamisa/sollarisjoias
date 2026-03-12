@@ -4,6 +4,8 @@ import ProductCard from "@/components/store/ProductCard";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Shield, Truck, Star } from "lucide-react";
 import heroSlide1 from "@/assets/hero-bg.jpg";
+import editorialRingHand from "@/assets/editorial-ring-hand.jpg";
+import ringFloating from "@/assets/ring-floating.png";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
 import heroSlide4 from "@/assets/hero-slide-4.jpg";
