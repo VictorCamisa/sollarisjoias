@@ -314,6 +314,7 @@ const HomePage = () => {
             <Link
               to="/sobre"
               className="inline-flex items-center justify-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase border border-accent/40 text-accent px-8 sm:px-10 py-4 rounded-full hover:bg-accent/10 active:scale-[0.97] transition-all duration-500"
+            >
               Nossa História
             </Link>
           </div>
