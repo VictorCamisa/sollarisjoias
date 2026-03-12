@@ -251,7 +251,7 @@ const ProductDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-24 pb-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pt-20 sm:pt-24 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20">
           <div className="aspect-[3/4] rounded-2xl bg-secondary animate-pulse" />
           <div className="space-y-6 py-12">
