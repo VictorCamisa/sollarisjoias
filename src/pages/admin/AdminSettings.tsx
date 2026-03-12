@@ -33,7 +33,8 @@ const AdminSettings = () => {
           whatsapp_number: whatsapp,
           store_name: storeName,
           pix_discount_percent: parseFloat(pixDiscount) || 5,
-        })
+          monthly_goal: parseFloat(monthlyGoal) || 15000,
+        } as any)
         .eq("id", settings.id);
       if (error) throw error;
     },
