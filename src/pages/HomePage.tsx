@@ -614,7 +614,7 @@ const HomePage = () => {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* ═══════ TRANSITION ═══════ */}
       <GoldDivider />
