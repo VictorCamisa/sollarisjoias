@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { to: "/colecao", label: "COLEÇÃO" },
+  { to: "/vitrine", label: "VITRINE" },
   { to: "/sobre", label: "SOBRE" },
 ];
 
