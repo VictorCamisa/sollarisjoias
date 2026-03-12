@@ -560,19 +560,19 @@ const HomePage = () => {
             <div className="absolute inset-0 bg-background/30" />
           </motion.div>
 
-          {/* Floating ring — moves toward the hand */}
+          {/* Floating ring — arcs from top-right toward the hand */}
           <motion.img
             src={ringFloating}
             alt="Anel dourado"
-            className="absolute w-24 md:w-36 h-auto z-20 drop-shadow-[0_0_40px_hsl(var(--accent)/0.5)]"
+            className="absolute w-28 md:w-44 h-auto z-20 drop-shadow-[0_0_50px_hsl(var(--accent)/0.6)]"
             style={{
               x: ringX,
               y: ringY,
               rotate: ringRotate,
               scale: ringScale,
               opacity: ringOpacity,
-              left: "35%",
-              top: "40%",
+              left: "30%",
+              top: "35%",
             }}
           />
 
