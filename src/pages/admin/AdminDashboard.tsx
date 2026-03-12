@@ -53,6 +53,9 @@ const ChartTooltip = ({ active, payload, label, formatter }: any) => {
 ═══════════════════════════════════════════════════════ */
 const AdminDashboard = () => {
 
+  const { data: settings } = useSettings();
+  const MONTHLY_GOAL = (settings as any)?.monthly_goal ?? 15000;
+
   /* ─── queries ─── */
   const { data: productCount } = useQuery({
     queryKey: ["admin-product-count"],
