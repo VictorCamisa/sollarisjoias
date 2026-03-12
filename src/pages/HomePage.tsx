@@ -300,7 +300,7 @@ const HomePage = () => {
           </AnimatePresence>
 
           {/* CTAs — static */}
-          <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
               to="/colecao"
               className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase bg-accent text-accent-foreground px-10 py-4 rounded-full hover:bg-accent/90 hover:shadow-[0_0_30px_hsl(var(--accent)/0.3)] transition-all duration-500 group"
