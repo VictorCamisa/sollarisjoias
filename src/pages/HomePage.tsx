@@ -220,7 +220,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        className="relative flex items-end min-h-screen px-6 md:px-16 pb-24 md:pb-32 overflow-hidden"
+        className="relative flex items-end min-h-[100svh] px-4 sm:px-6 md:px-16 pb-20 sm:pb-24 md:pb-32 overflow-hidden"
       >
         {/* Carousel backgrounds */}
         <AnimatePresence mode="sync">
