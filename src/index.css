@@ -107,6 +107,14 @@
     scroll-behavior: smooth;
   }
 
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .text-caption {
     @apply text-[11px] uppercase font-medium;
     letter-spacing: 0.15em;
