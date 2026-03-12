@@ -488,6 +488,56 @@ const MasonryGrid = ({ products, phone }: { products: any[]; phone: string }) =>
   );
 };
 
+/* ─── Share button ─── */
+const ShareButton = () => {
+  const [copied, setCopied] = useState(false);
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/vitrine` : "";
+  const shareText = "✨ Confira a vitrine da SOLLARIS — semijoias premium selecionadas a dedo:";
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "SOLLARIS — Vitrine", text: shareText, url: shareUrl });
+        return;
+      } catch {}
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {}
+  };
+
+  const handleWhatsAppShare = () => {
+    const msg = encodeURIComponent(`${shareText}\n${shareUrl}`);
+    window.open(`https://wa.me/?text=${msg}`, "_blank");
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-3 mb-8">
+      <motion.button
+        onClick={handleWhatsAppShare}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.15em] uppercase px-5 py-2.5 rounded-full border border-accent/30 text-accent hover:bg-accent/10 transition-colors"
+      >
+        <MessageCircle className="h-3.5 w-3.5" />
+        Enviar vitrine
+      </motion.button>
+      <motion.button
+        onClick={handleShare}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.15em] uppercase px-5 py-2.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+      >
+        {copied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+        {copied ? "Copiado!" : "Copiar link"}
+      </motion.button>
+    </div>
+  );
+};
+
 /* ═══════════════════════════════════════════════════════
    LOOKBOOK PAGE
 ═══════════════════════════════════════════════════════ */
