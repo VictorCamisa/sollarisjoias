@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { MessageCircle, ArrowDown, ArrowRight } from "lucide-react";
+import { MessageCircle, ArrowDown, ArrowRight, Share2, Check, Copy } from "lucide-react";
 import { useFeaturedProducts, useCategories, useSettings } from "@/hooks/useStore";
 import { cn } from "@/lib/utils";
 
