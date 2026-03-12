@@ -437,7 +437,7 @@ const HomePage = () => {
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
 
-        <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
             className="flex items-end justify-between mb-14"
             variants={fadeUp}
