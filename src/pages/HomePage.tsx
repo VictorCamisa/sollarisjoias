@@ -3,6 +3,7 @@ import { useFeaturedProducts, useCategories } from "@/hooks/useStore";
 import ProductCard from "@/components/store/ProductCard";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg";
 
 const HomePage = () => {
   const { data: featured, isLoading } = useFeaturedProducts();
