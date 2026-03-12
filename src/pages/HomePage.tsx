@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { useFeaturedProducts, useCategories, useProducts } from "@/hooks/useStore";
 import ProductCard from "@/components/store/ProductCard";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Shield, Truck, Star } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroSlide1 from "@/assets/hero-bg.jpg";
+import heroSlide2 from "@/assets/hero-slide-2.jpg";
+import heroSlide3 from "@/assets/hero-slide-3.jpg";
+import heroSlide4 from "@/assets/hero-slide-4.jpg";
+import heroSlide5 from "@/assets/hero-slide-5.jpg";
 import logoSollaris from "@/assets/logo-sollaris.png";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
