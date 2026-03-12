@@ -51,7 +51,6 @@ const ChartTooltip = ({ active, payload, label, formatter }: any) => {
    DASHBOARD
 ═══════════════════════════════════════════════════════ */
 const AdminDashboard = () => {
-  const MONTHLY_GOAL = 15000; // Meta mensal de faturamento
 
   /* ─── queries ─── */
   const { data: productCount } = useQuery({

@@ -66,6 +66,11 @@ const AdminSettings = () => {
           <Input type="number" step="0.5" min="0" max="50" value={pixDiscount} onChange={(e) => setPixDiscount(e.target.value)} className="rounded-xl mt-1" />
           <p className="text-[11px] text-muted-foreground mt-1">Percentual de desconto para pagamento via PIX</p>
         </div>
+        <div>
+          <Label className="text-xs">Meta Mensal de Faturamento (R$)</Label>
+          <Input type="number" step="500" min="0" value={monthlyGoal} onChange={(e) => setMonthlyGoal(e.target.value)} className="rounded-xl mt-1" />
+          <p className="text-[11px] text-muted-foreground mt-1">Meta exibida no dashboard do admin</p>
+        </div>
         <Button onClick={() => mutation.mutate()} className="rounded-xl" disabled={mutation.isPending}>
           {mutation.isPending ? "Salvando..." : "Salvar Configurações"}
         </Button>
