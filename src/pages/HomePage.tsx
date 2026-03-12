@@ -540,125 +540,95 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           EDITORIAL — Ring scroll animation
       ═══════════════════════════════════════════════════ */}
-      {(() => {
-        const ringRef = useRef<HTMLElement>(null);
-        const { scrollYProgress: ringScroll } = useScroll({
-          target: ringRef,
-          offset: ["start end", "end start"],
-        });
+      <section ref={ringRef} className="relative" style={{ height: "300vh" }}>
+        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+          {/* Background hand image — reveals as ring arrives */}
+          <motion.div
+            className="absolute inset-0"
+            style={{ opacity: handOpacity, scale: handScale }}
+          >
+            <img
+              src={editorialRingHand}
+              alt="Mão feminina com anel dourado"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/70" />
+            <div className="absolute inset-0 bg-background/30" />
+          </motion.div>
 
-        // Ring travels from top-right to center-left (toward the hand)
-        const ringX = useTransform(ringScroll, [0.1, 0.5], [200, 0]);
-        const ringY = useTransform(ringScroll, [0.1, 0.5], [-120, 0]);
-        const ringRotate = useTransform(ringScroll, [0.1, 0.5], [25, 0]);
-        const ringScale = useTransform(ringScroll, [0.1, 0.4, 0.5], [1.4, 1, 0.85]);
-        const ringOpacity = useTransform(ringScroll, [0.1, 0.25, 0.48, 0.55], [0, 1, 1, 0]);
+          {/* Floating ring — moves toward the hand */}
+          <motion.img
+            src={ringFloating}
+            alt="Anel dourado"
+            className="absolute w-24 md:w-36 h-auto z-20 drop-shadow-[0_0_40px_hsl(var(--accent)/0.5)]"
+            style={{
+              x: ringX,
+              y: ringY,
+              rotate: ringRotate,
+              scale: ringScale,
+              opacity: ringOpacity,
+              left: "35%",
+              top: "40%",
+            }}
+          />
 
-        // Text phrases appear sequentially as user scrolls
-        const phrase1Opacity = useTransform(ringScroll, [0.15, 0.25, 0.35, 0.42], [0, 1, 1, 0]);
-        const phrase2Opacity = useTransform(ringScroll, [0.28, 0.38, 0.48, 0.55], [0, 1, 1, 0]);
-        const phrase3Opacity = useTransform(ringScroll, [0.42, 0.52, 0.65, 0.72], [0, 1, 1, 0]);
-
-        // Hand image reveals
-        const handOpacity = useTransform(ringScroll, [0.35, 0.55], [0, 1]);
-        const handScale = useTransform(ringScroll, [0.35, 0.55], [1.05, 1]);
-
-        // Final text block
-        const finalOpacity = useTransform(ringScroll, [0.6, 0.75], [0, 1]);
-        const finalY = useTransform(ringScroll, [0.6, 0.75], [40, 0]);
-
-        return (
-          <section ref={ringRef} className="relative" style={{ height: "300vh" }}>
-            <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-              {/* Background hand image — reveals as ring arrives */}
-              <motion.div
-                className="absolute inset-0"
-                style={{ opacity: handOpacity, scale: handScale }}
+          {/* Scroll-triggered phrases */}
+          <div className="absolute inset-0 z-10 flex items-center justify-end px-6 md:px-16">
+            <div className="max-w-md text-right md:mr-12">
+              <motion.p
+                className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight mb-6"
+                style={{ opacity: phrase1Opacity }}
               >
-                <img
-                  src={editorialRingHand}
-                  alt="Mão feminina com anel dourado"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/70" />
-                <div className="absolute inset-0 bg-background/30" />
-              </motion.div>
+                Uma peça que <span className="text-accent italic">conta sua história</span>
+              </motion.p>
 
-              {/* Floating ring — moves toward the hand */}
-              <motion.img
-                src={ringFloating}
-                alt="Anel dourado"
-                className="absolute w-24 md:w-36 h-auto z-20 drop-shadow-[0_0_40px_hsl(var(--accent)/0.5)]"
-                style={{
-                  x: ringX,
-                  y: ringY,
-                  rotate: ringRotate,
-                  scale: ringScale,
-                  opacity: ringOpacity,
-                  left: "35%",
-                  top: "40%",
-                }}
-              />
-
-              {/* Scroll-triggered phrases */}
-              <div className="absolute inset-0 z-10 flex items-center justify-end px-6 md:px-16">
-                <div className="max-w-md text-right md:mr-12">
-                  <motion.p
-                    className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight mb-6"
-                    style={{ opacity: phrase1Opacity }}
-                  >
-                    Uma peça que <span className="text-accent italic">conta sua história</span>
-                  </motion.p>
-
-                  <motion.p
-                    className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight mb-6"
-                    style={{ opacity: phrase2Opacity }}
-                  >
-                    Feita para <span className="text-accent italic">brilhar com você</span>
-                  </motion.p>
-
-                  <motion.p
-                    className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight"
-                    style={{ opacity: phrase3Opacity }}
-                  >
-                    Do atelier ao seu <span className="text-accent italic">momento</span>
-                  </motion.p>
-                </div>
-              </div>
-
-              {/* Final CTA block */}
-              <motion.div
-                className="absolute bottom-16 left-6 md:left-16 z-10 max-w-md"
-                style={{ opacity: finalOpacity, y: finalY }}
+              <motion.p
+                className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight mb-6"
+                style={{ opacity: phrase2Opacity }}
               >
-                <img
-                  src={logoSollaris}
-                  alt="SOLLARIS"
-                  className="w-28 h-auto opacity-20 mb-4"
-                />
-                <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-accent mb-3">
-                  A Arte da Semijoia
-                </p>
-                <h2 className="font-serif text-display-sm md:text-display text-foreground mb-4 leading-tight">
-                  Feita para quem{" "}
-                  <span className="text-accent italic">valoriza</span>{" "}
-                  cada detalhe
-                </h2>
-                <p className="font-sans text-sm text-muted-foreground leading-[1.8] mb-6">
-                  Banho de ouro 18k, pedras naturais e design exclusivo — peças que transcendem tendências.
-                </p>
-                <Link
-                  to="/colecao"
-                  className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase text-accent border border-accent/40 rounded-full px-8 py-3.5 hover:bg-accent hover:text-accent-foreground transition-all duration-500 group"
-                >
-                  Descobrir Peças
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.5} />
-                </Link>
-              </motion.div>
+                Feita para <span className="text-accent italic">brilhar com você</span>
+              </motion.p>
+
+              <motion.p
+                className="font-serif text-[1.5rem] md:text-[2.5rem] text-foreground leading-tight"
+                style={{ opacity: phrase3Opacity }}
+              >
+                Do atelier ao seu <span className="text-accent italic">momento</span>
+              </motion.p>
             </div>
-          </section>
-        );
-      })()}
+          </div>
+
+          {/* Final CTA block */}
+          <motion.div
+            className="absolute bottom-16 left-6 md:left-16 z-10 max-w-md"
+            style={{ opacity: finalOpacity, y: finalY }}
+          >
+            <img
+              src={logoSollaris}
+              alt="SOLLARIS"
+              className="w-28 h-auto opacity-20 mb-4"
+            />
+            <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-accent mb-3">
+              A Arte da Semijoia
+            </p>
+            <h2 className="font-serif text-display-sm md:text-display text-foreground mb-4 leading-tight">
+              Feita para quem{" "}
+              <span className="text-accent italic">valoriza</span>{" "}
+              cada detalhe
+            </h2>
+            <p className="font-sans text-sm text-muted-foreground leading-[1.8] mb-6">
+              Banho de ouro 18k, pedras naturais e design exclusivo — peças que transcendem tendências.
+            </p>
+            <Link
+              to="/colecao"
+              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase text-accent border border-accent/40 rounded-full px-8 py-3.5 hover:bg-accent hover:text-accent-foreground transition-all duration-500 group"
+            >
+              Descobrir Peças
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.5} />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
 
       {/* ═══════ TRANSITION ═══════ */}
       <GoldDivider />
