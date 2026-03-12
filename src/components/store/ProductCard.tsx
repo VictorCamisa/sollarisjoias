@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoSollaris from "@/assets/logo-sollaris.png";
 
 interface ProductCardProps {
   id: string;
@@ -16,7 +17,7 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
   return (
     <Link to={`/produto/${id}`} className="group block">
       {/* Image */}
-      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4">
+      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative">
         {image ? (
           <img
             src={image}
@@ -29,6 +30,11 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
           </div>
         )}
+        <img
+          src={logoSollaris}
+          alt=""
+          className="absolute bottom-3 right-3 h-3 opacity-50"
+        />
       </div>
 
       {/* Info */}
