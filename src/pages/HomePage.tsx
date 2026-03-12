@@ -281,7 +281,7 @@ const HomePage = () => {
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em]"
+                  className="font-serif text-[2.4rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.02em]"
                 >
                   <span className="text-foreground">{slide.titleLine2} </span>
                   <span className="text-accent italic">{slide.titleAccent}</span>
