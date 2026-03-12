@@ -48,6 +48,7 @@ const App = () => (
                 <Route path="/colecao" element={<CollectionPage />} />
                 <Route path="/produto/:id" element={<ProductDetailPage />} />
                 <Route path="/sobre" element={<AboutPage />} />
+                <Route path="/vitrine" element={<LookbookPage />} />
               </Route>
 
               {/* Admin */}
