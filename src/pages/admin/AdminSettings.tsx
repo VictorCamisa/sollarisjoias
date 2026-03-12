@@ -20,6 +20,7 @@ const AdminSettings = () => {
       setWhatsapp(settings.whatsapp_number);
       setStoreName(settings.store_name);
       setPixDiscount(String(settings.pix_discount_percent ?? 5));
+      setMonthlyGoal(String((settings as any).monthly_goal ?? 15000));
     }
   }, [settings]);
 
