@@ -541,35 +541,20 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           EDITORIAL — Ring scroll animation
       ═══════════════════════════════════════════════════ */}
-      <section ref={ringRef} className="relative" style={{ height: "250vh" }}>
-        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-          {/* Background hand image — reveals as ring arrives */}
-          <motion.div
-            className="absolute inset-0"
-            style={{ opacity: handOpacity, scale: handScale }}
-          >
-            <img
-              src={editorialRingHand}
-              alt="Mão feminina com anel dourado"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/70" />
-            <div className="absolute inset-0 bg-background/30" />
-          </motion.div>
+      <section ref={ringRef} className="relative" style={{ height: "180vh" }}>
+        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-background">
 
-          {/* Floating ring — arcs from top-right toward the hand */}
+          {/* Floating ring — arcs from top-right to center, stays visible */}
           <motion.img
             src={ringFloating}
             alt="Anel dourado"
-            className="absolute w-28 md:w-44 h-auto z-20 drop-shadow-[0_0_50px_hsl(var(--accent)/0.6)]"
+            className="absolute w-32 md:w-52 h-auto z-20 drop-shadow-[0_0_60px_hsl(var(--accent)/0.7)]"
             style={{
               x: ringX,
               y: ringY,
               rotate: ringRotate,
               scale: ringScale,
               opacity: ringOpacity,
-              left: "30%",
-              top: "35%",
             }}
           />
 
