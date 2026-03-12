@@ -394,7 +394,7 @@ const HomePage = () => {
           CATEGORIES — Interactive grid
       ═══════════════════════════════════════════════════ */}
       {categories && categories.length > 0 && (
-        <section className="max-w-[1200px] mx-auto px-6 py-24">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <motion.div
             className="text-center mb-14"
             variants={fadeUp}
