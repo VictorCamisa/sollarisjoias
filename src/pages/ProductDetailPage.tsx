@@ -251,7 +251,7 @@ const ProductDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-24 pb-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pt-20 sm:pt-24 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20">
           <div className="aspect-[3/4] rounded-2xl bg-secondary animate-pulse" />
           <div className="space-y-6 py-12">
@@ -268,7 +268,7 @@ const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-32 text-center">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 py-32 text-center">
         <div className="font-serif text-6xl text-muted-foreground/10 mb-6">404</div>
         <p className="font-sans text-sm text-muted-foreground mb-4">Produto não encontrado.</p>
         <Link
@@ -332,7 +332,7 @@ const ProductDetailPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* ─── Breadcrumb ─── */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-20 md:pt-24">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pt-18 sm:pt-20 md:pt-24">
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -352,8 +352,8 @@ const ProductDetailPage = () => {
       </div>
 
       {/* ─── Main content ─── */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-20">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-20">
           {/* Left: Gallery */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -368,7 +368,7 @@ const ProductDetailPage = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col py-2 md:py-8 md:sticky md:top-24 md:self-start"
+            className="flex flex-col py-2 md:py-8 md:sticky md:top-20 md:self-start"
           >
             {/* Category */}
             {(product.categories as any)?.name && (
@@ -523,7 +523,7 @@ const ProductDetailPage = () => {
 
       {/* ─── Related Products ─── */}
       {relatedProducts.length > 0 && (
-        <section className="max-w-[1400px] mx-auto px-6 md:px-12 pb-24">
+        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-24">
           <Reveal>
             <div className="gold-line w-full mb-12" />
           </Reveal>

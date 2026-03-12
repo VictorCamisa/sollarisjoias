@@ -214,13 +214,13 @@ const HomePage = () => {
   const newArrivals = allProducts?.slice(0, 4) ?? [];
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden w-full">
       {/* ═══════════════════════════════════════════════════
           HERO — Full-screen parallax + editorial typography
       ═══════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        className="relative flex items-end min-h-screen px-6 md:px-16 pb-24 md:pb-32 overflow-hidden"
+        className="relative flex items-end min-h-[100svh] px-4 sm:px-6 md:px-16 pb-20 sm:pb-24 md:pb-32 overflow-hidden"
       >
         {/* Carousel backgrounds */}
         <AnimatePresence mode="sync">
@@ -240,7 +240,7 @@ const HomePage = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent z-[1]" />
 
         <motion.div
-          className="text-left max-w-3xl relative z-10"
+          className="text-left max-w-3xl relative z-10 w-full"
           style={{ opacity: heroOpacity }}
         >
           {/* Logo mark */}
@@ -271,7 +271,7 @@ const HomePage = () => {
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em] text-foreground"
+                  className="font-serif text-[2.4rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.02em] text-foreground break-words"
                 >
                   {slide.titleLine1}
                 </motion.h1>
@@ -281,7 +281,7 @@ const HomePage = () => {
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em]"
+                  className="font-serif text-[2.4rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.02em]"
                 >
                   <span className="text-foreground">{slide.titleLine2} </span>
                   <span className="text-accent italic">{slide.titleAccent}</span>
@@ -300,10 +300,10 @@ const HomePage = () => {
           </AnimatePresence>
 
           {/* CTAs — static */}
-          <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
               to="/colecao"
-              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase bg-accent text-accent-foreground px-10 py-4 rounded-full hover:bg-accent/90 hover:shadow-[0_0_30px_hsl(var(--accent)/0.3)] transition-all duration-500 group"
+              className="inline-flex items-center justify-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase bg-accent text-accent-foreground px-8 sm:px-10 py-4 rounded-full hover:bg-accent/90 active:scale-[0.97] transition-all duration-500 group"
             >
               Explorar Coleção
               <ArrowRight
@@ -313,7 +313,7 @@ const HomePage = () => {
             </Link>
             <Link
               to="/sobre"
-              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase border border-accent/40 text-accent px-10 py-4 rounded-full hover:bg-accent/10 transition-all duration-500"
+              className="inline-flex items-center justify-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase border border-accent/40 text-accent px-8 sm:px-10 py-4 rounded-full hover:bg-accent/10 active:scale-[0.97] transition-all duration-500"
             >
               Nossa História
             </Link>
@@ -360,7 +360,7 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           PILLARS — Brand values
       ═══════════════════════════════════════════════════ */}
-      <section className="max-w-[1200px] mx-auto px-6 py-24">
+      <section className="max-w-[1200px] mx-auto px-4 sm:px-6 py-16 sm:py-24">
         <motion.div
           className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6"
           variants={staggerContainer}
@@ -395,7 +395,7 @@ const HomePage = () => {
           CATEGORIES — Interactive grid
       ═══════════════════════════════════════════════════ */}
       {categories && categories.length > 0 && (
-        <section className="max-w-[1200px] mx-auto px-6 py-24">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <motion.div
             className="text-center mb-14"
             variants={fadeUp}
@@ -438,7 +438,7 @@ const HomePage = () => {
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
 
-        <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
             className="flex items-end justify-between mb-14"
             variants={fadeUp}
@@ -603,7 +603,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       {newArrivals.length > 0 && (
         <section className="py-24">
-          <div className="max-w-[1200px] mx-auto px-6">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
             <motion.div
               className="text-center mb-14"
               variants={fadeUp}
@@ -651,7 +651,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       <section
         ref={brandRef}
-        className="relative py-32 px-6 overflow-hidden"
+        className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-transparent to-secondary/20" />
 
@@ -678,7 +678,7 @@ const HomePage = () => {
             className="gold-line mx-auto mb-12"
           />
           <motion.blockquote
-            className="font-serif text-[1.8rem] md:text-[3rem] lg:text-[3.5rem] text-foreground leading-[1.1] mb-8"
+            className="font-serif text-[1.6rem] sm:text-[1.8rem] md:text-[3rem] lg:text-[3.5rem] text-foreground leading-[1.1] mb-8"
             variants={scaleIn}
             initial="hidden"
             whileInView="visible"
@@ -713,7 +713,7 @@ const HomePage = () => {
       {/* ═══════════════════════════════════════════════════
           NEWSLETTER — Lead capture
       ═══════════════════════════════════════════════════ */}
-      <section className="py-24 px-6">
+      <section className="py-16 sm:py-24 px-4 sm:px-6">
         <motion.div
           className="max-w-xl mx-auto text-center"
           variants={fadeUp}
