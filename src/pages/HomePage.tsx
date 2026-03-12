@@ -677,7 +677,7 @@ const HomePage = () => {
             className="gold-line mx-auto mb-12"
           />
           <motion.blockquote
-            className="font-serif text-[1.8rem] md:text-[3rem] lg:text-[3.5rem] text-foreground leading-[1.1] mb-8"
+            className="font-serif text-[1.6rem] sm:text-[1.8rem] md:text-[3rem] lg:text-[3.5rem] text-foreground leading-[1.1] mb-8"
             variants={scaleIn}
             initial="hidden"
             whileInView="visible"
