@@ -523,7 +523,7 @@ const ProductDetailPage = () => {
 
       {/* ─── Related Products ─── */}
       {relatedProducts.length > 0 && (
-        <section className="max-w-[1400px] mx-auto px-6 md:px-12 pb-24">
+        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-24">
           <Reveal>
             <div className="gold-line w-full mb-12" />
           </Reveal>
