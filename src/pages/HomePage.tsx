@@ -12,8 +12,16 @@ const HomePage = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="relative flex items-center justify-center min-h-[85vh] px-6">
-        <div className="text-center max-w-2xl mx-auto">
+      <section className="relative flex items-center justify-center min-h-[85vh] px-6 overflow-hidden">
+        {/* Background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBg})` }}
+        />
+        {/* Dark overlay for text contrast */}
+        <div className="absolute inset-0 bg-background/75" />
+
+        <div className="text-center max-w-2xl mx-auto relative z-10">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
