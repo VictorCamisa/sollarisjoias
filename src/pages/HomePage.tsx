@@ -271,7 +271,7 @@ const HomePage = () => {
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em] text-foreground"
+                  className="font-serif text-[2.4rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.02em] text-foreground break-words"
                 >
                   {slide.titleLine1}
                 </motion.h1>
