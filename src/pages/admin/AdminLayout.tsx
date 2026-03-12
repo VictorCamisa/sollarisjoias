@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart, Mail, Menu, X, Users } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart, Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -9,7 +9,12 @@ const navItems = [
   { to: "/admin/produtos", icon: Package, label: "Produtos" },
   { to: "/admin/categorias", icon: FolderOpen, label: "Categorias" },
   { to: "/admin/pedidos", icon: ShoppingCart, label: "Pedidos" },
+  { to: "/admin/financeiro", icon: DollarSign, label: "Financeiro" },
   { to: "/admin/clientes", icon: Users, label: "Clientes" },
+  { to: "/admin/fornecedores", icon: Truck, label: "Fornecedores" },
+  { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
+  { to: "/admin/tarefas", icon: ListTodo, label: "Tarefas" },
+  { to: "/admin/notas", icon: StickyNote, label: "Notas" },
   { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
   { to: "/admin/configuracoes", icon: Settings, label: "Configurações" },
 ];

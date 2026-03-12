@@ -23,6 +23,11 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
+import AdminTarefas from "./pages/admin/AdminTarefas";
+import AdminNotas from "./pages/admin/AdminNotas";
+import AdminFornecedores from "./pages/admin/AdminFornecedores";
+import AdminCupons from "./pages/admin/AdminCupons";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,8 +56,13 @@ const App = () => (
                 <Route path="produtos" element={<AdminProducts />} />
                 <Route path="categorias" element={<AdminCategories />} />
                 <Route path="pedidos" element={<AdminOrders />} />
+                <Route path="financeiro" element={<AdminFinanceiro />} />
                 <Route path="newsletter" element={<AdminNewsletter />} />
                 <Route path="clientes" element={<AdminCustomers />} />
+                <Route path="fornecedores" element={<AdminFornecedores />} />
+                <Route path="cupons" element={<AdminCupons />} />
+                <Route path="tarefas" element={<AdminTarefas />} />
+                <Route path="notas" element={<AdminNotas />} />
                 <Route path="configuracoes" element={<AdminSettings />} />
               </Route>
 
