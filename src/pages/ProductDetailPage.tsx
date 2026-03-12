@@ -352,8 +352,8 @@ const ProductDetailPage = () => {
       </div>
 
       {/* ─── Main content ─── */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-20">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-20">
           {/* Left: Gallery */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
