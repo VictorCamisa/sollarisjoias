@@ -268,7 +268,7 @@ const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-32 text-center">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 py-32 text-center">
         <div className="font-serif text-6xl text-muted-foreground/10 mb-6">404</div>
         <p className="font-sans text-sm text-muted-foreground mb-4">Produto não encontrado.</p>
         <Link
