@@ -218,88 +218,85 @@ const HomePage = () => {
         ref={heroRef}
         className="relative flex items-end min-h-screen px-6 md:px-16 pb-24 md:pb-32 overflow-hidden"
       >
-        {/* Parallax background */}
-        <motion.div
-          className="absolute inset-[-15%] bg-cover bg-center bg-no-repeat will-change-transform"
-          style={{
-            backgroundImage: `url(${heroBg})`,
-            y: heroY,
-            scale: heroScale,
-          }}
-        />
+        {/* Carousel backgrounds */}
+        <AnimatePresence mode="sync">
+          <motion.div
+            key={currentSlide}
+            className="absolute inset-[-10%] bg-cover bg-center bg-no-repeat will-change-transform"
+            style={{ backgroundImage: `url(${slide.image})` }}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1.18 }}
+            exit={{ opacity: 0 }}
+            transition={{ opacity: { duration: 1.5 }, scale: { duration: 5.7, ease: "linear" } }}
+          />
+        </AnimatePresence>
+
         {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/90 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent z-[1]" />
 
         <motion.div
           className="text-left max-w-3xl relative z-10"
           style={{ opacity: heroOpacity }}
         >
           {/* Logo mark */}
-          <motion.img
+          <img
             src={logoSollaris}
             alt="SOLLARIS"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 0.15, y: 0 }}
-            transition={{ duration: 1.5, delay: 0.2 }}
-            className="w-48 md:w-64 h-auto mb-8"
+            className="w-48 md:w-64 h-auto mb-8 opacity-15"
           />
 
-          {/* Animated gold line */}
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "5rem" }}
-            transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] as const, delay: 0.3 }}
-            className="h-px bg-accent/70 mb-8 overflow-hidden"
-          />
+          {/* Gold line */}
+          <div className="h-px w-20 bg-accent/70 mb-8" />
 
-          <motion.p
-            initial={{ opacity: 0, letterSpacing: "0.1em" }}
-            animate={{ opacity: 1, letterSpacing: "0.4em" }}
-            transition={{ duration: 1.5, delay: 0.5 }}
-            className="font-sans text-[10px] uppercase text-accent mb-8"
-          >
-            Semijoias Premium
-          </motion.p>
-
-          <div className="overflow-hidden mb-4">
-            <motion.h1
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1.2, delay: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
-              className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em] text-foreground"
+          {/* Animated text — changes with each slide */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              Curadoria
-            </motion.h1>
-          </div>
-          <div className="overflow-hidden mb-10">
-            <motion.h1
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1.2, delay: 0.9, ease: [0.22, 1, 0.36, 1] as const }}
-              className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em]"
-            >
-              <span className="text-foreground">com </span>
-              <span className="text-accent italic">intenção</span>
-            </motion.h1>
-          </div>
+              <p className="font-sans text-[10px] tracking-[0.4em] uppercase text-accent mb-8">
+                {slide.overline}
+              </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1.3 }}
-            className="font-sans text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mb-12"
-          >
-            Cada peça existe em nosso portfólio porque foi escolhida sob
-            um rigoroso olhar editorial. Exclusividade sem excessos.
-          </motion.p>
+              <div className="overflow-hidden mb-4">
+                <motion.h1
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] as const }}
+                  className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em] text-foreground"
+                >
+                  {slide.titleLine1}
+                </motion.h1>
+              </div>
+              <div className="overflow-hidden mb-10">
+                <motion.h1
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] as const }}
+                  className="font-serif text-[3.2rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] tracking-[0.04em]"
+                >
+                  <span className="text-foreground">{slide.titleLine2} </span>
+                  <span className="text-accent italic">{slide.titleAccent}</span>
+                </motion.h1>
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.6 }}
-            className="flex flex-col sm:flex-row items-start gap-4"
-          >
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="font-sans text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mb-12"
+              >
+                {slide.description}
+              </motion.p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* CTAs — static */}
+          <div className="flex flex-col sm:flex-row items-start gap-4">
             <Link
               to="/colecao"
               className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase bg-accent text-accent-foreground px-10 py-4 rounded-full hover:bg-accent/90 hover:shadow-[0_0_30px_hsl(var(--accent)/0.3)] transition-all duration-500 group"
@@ -316,12 +313,27 @@ const HomePage = () => {
             >
               Nossa História
             </Link>
-          </motion.div>
+          </div>
         </motion.div>
+
+        {/* Slide indicators */}
+        <div className="absolute bottom-8 right-6 md:right-16 z-10 flex items-center gap-2">
+          {heroSlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={`h-1 rounded-full transition-all duration-500 ${
+                i === currentSlide
+                  ? "w-8 bg-accent"
+                  : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground/60"
+              }`}
+            />
+          ))}
+        </div>
 
         {/* Scroll indicator */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.2, duration: 1 }}
