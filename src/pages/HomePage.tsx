@@ -185,24 +185,24 @@ const HomePage = () => {
   const brandY = useTransform(brandScroll, [0, 1], [60, -60]);
 
   /* ── Ring scroll animation refs ────────────────────── */
-  const ringRef = useRef<HTMLElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: ringScroll } = useScroll({
     target: ringRef,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
-  // Ring starts top-right, arcs to center — stays visible at the end
-  const ringX = useTransform(ringScroll, [0.1, 0.3, 0.5], [280, 80, 0]);
-  const ringY = useTransform(ringScroll, [0.1, 0.3, 0.5], [-200, -40, 0]);
-  const ringRotate = useTransform(ringScroll, [0.1, 0.5], [45, 0]);
-  const ringScale = useTransform(ringScroll, [0.1, 0.3, 0.5], [0.6, 1.3, 1]);
-  const ringOpacity = useTransform(ringScroll, [0.08, 0.15], [0, 1]);
-  // Phrases
-  const phrase1Opacity = useTransform(ringScroll, [0.12, 0.2, 0.28, 0.32], [0, 1, 1, 0]);
-  const phrase2Opacity = useTransform(ringScroll, [0.28, 0.36, 0.44, 0.48], [0, 1, 1, 0]);
-  const phrase3Opacity = useTransform(ringScroll, [0.44, 0.52, 0.6, 0.64], [0, 1, 1, 0]);
+  // Ring arcs from top-right to center
+  const ringX = useTransform(ringScroll, [0, 0.35, 0.6], [250, 60, 0]);
+  const ringY = useTransform(ringScroll, [0, 0.35, 0.6], [-180, -30, 0]);
+  const ringRotate = useTransform(ringScroll, [0, 0.6], [40, 0]);
+  const ringScale = useTransform(ringScroll, [0, 0.3, 0.6], [0.5, 1.3, 1]);
+  const ringOpacity = useTransform(ringScroll, [0, 0.08], [0, 1]);
+  // Phrases — evenly spaced through the scroll
+  const phrase1Opacity = useTransform(ringScroll, [0.05, 0.15, 0.25, 0.3], [0, 1, 1, 0]);
+  const phrase2Opacity = useTransform(ringScroll, [0.25, 0.35, 0.45, 0.5], [0, 1, 1, 0]);
+  const phrase3Opacity = useTransform(ringScroll, [0.45, 0.55, 0.65, 0.7], [0, 1, 1, 0]);
   // Final CTA
-  const finalOpacity = useTransform(ringScroll, [0.62, 0.72], [0, 1]);
-  const finalY = useTransform(ringScroll, [0.62, 0.72], [30, 0]);
+  const finalOpacity = useTransform(ringScroll, [0.7, 0.85], [0, 1]);
+  const finalY = useTransform(ringScroll, [0.7, 0.85], [30, 0]);
 
   /* ── Newsletter handler ────────────────────────────── */
   const handleSubscribe = async (e: React.FormEvent) => {
