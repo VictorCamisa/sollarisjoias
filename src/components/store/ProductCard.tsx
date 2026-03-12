@@ -16,13 +16,13 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
 
   return (
     <Link to={`/produto/${id}`} className="group block">
-      {/* Image */}
-      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative">
+      {/* Image container */}
+      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative border border-transparent group-hover:border-accent/30 transition-all duration-500">
         {image ? (
           <img
             src={image}
             alt={name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             loading="lazy"
           />
         ) : (
@@ -30,7 +30,23 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             <span className="font-serif text-2xl text-muted-foreground/30 tracking-[0.1em]">S</span>
           </div>
         )}
-        <img src={logoSollaris} alt="" className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[60%] h-auto drop-shadow-md" />
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors duration-500" />
+
+        {/* Logo watermark */}
+        <img
+          src={logoSollaris}
+          alt=""
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[55%] h-auto drop-shadow-md opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+        />
+
+        {/* Slide-up info overlay on hover */}
+        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out bg-gradient-to-t from-background/90 via-background/60 to-transparent">
+          <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-accent mb-1">
+            Ver detalhes
+          </p>
+        </div>
       </div>
 
       {/* Info */}
