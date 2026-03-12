@@ -190,22 +190,19 @@ const HomePage = () => {
     target: ringRef,
     offset: ["start end", "end start"],
   });
-  // Ring starts top-right, floats down in an arc to the center-left (hand area)
-  const ringX = useTransform(ringScroll, [0.08, 0.25, 0.42], [280, 80, 0]);
-  const ringY = useTransform(ringScroll, [0.08, 0.25, 0.42], [-200, -40, 0]);
-  const ringRotate = useTransform(ringScroll, [0.08, 0.42], [45, 0]);
-  const ringScale = useTransform(ringScroll, [0.08, 0.25, 0.42], [0.6, 1.2, 0.75]);
-  const ringOpacity = useTransform(ringScroll, [0.06, 0.12, 0.4, 0.46], [0, 1, 1, 0]);
-  // Phrases appear one by one, each staying visible a bit longer
-  const phrase1Opacity = useTransform(ringScroll, [0.10, 0.16, 0.24, 0.28], [0, 1, 1, 0]);
-  const phrase2Opacity = useTransform(ringScroll, [0.22, 0.28, 0.36, 0.40], [0, 1, 1, 0]);
-  const phrase3Opacity = useTransform(ringScroll, [0.34, 0.40, 0.48, 0.52], [0, 1, 1, 0]);
-  // Hand reveals as ring reaches its destination
-  const handOpacity = useTransform(ringScroll, [0.25, 0.42], [0, 1]);
-  const handScale = useTransform(ringScroll, [0.25, 0.42], [1.08, 1]);
-  // Final CTA after everything settles
-  const finalOpacity = useTransform(ringScroll, [0.52, 0.62], [0, 1]);
-  const finalY = useTransform(ringScroll, [0.52, 0.62], [30, 0]);
+  // Ring starts top-right, arcs to center — stays visible at the end
+  const ringX = useTransform(ringScroll, [0.1, 0.3, 0.5], [280, 80, 0]);
+  const ringY = useTransform(ringScroll, [0.1, 0.3, 0.5], [-200, -40, 0]);
+  const ringRotate = useTransform(ringScroll, [0.1, 0.5], [45, 0]);
+  const ringScale = useTransform(ringScroll, [0.1, 0.3, 0.5], [0.6, 1.3, 1]);
+  const ringOpacity = useTransform(ringScroll, [0.08, 0.15], [0, 1]);
+  // Phrases
+  const phrase1Opacity = useTransform(ringScroll, [0.12, 0.2, 0.28, 0.32], [0, 1, 1, 0]);
+  const phrase2Opacity = useTransform(ringScroll, [0.28, 0.36, 0.44, 0.48], [0, 1, 1, 0]);
+  const phrase3Opacity = useTransform(ringScroll, [0.44, 0.52, 0.6, 0.64], [0, 1, 1, 0]);
+  // Final CTA
+  const finalOpacity = useTransform(ringScroll, [0.62, 0.72], [0, 1]);
+  const finalY = useTransform(ringScroll, [0.62, 0.72], [30, 0]);
 
   /* ── Newsletter handler ────────────────────────────── */
   const handleSubscribe = async (e: React.FormEvent) => {
