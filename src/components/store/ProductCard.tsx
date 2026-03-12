@@ -23,7 +23,7 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
   return (
     <Link to={`/produto/${id}`} className="group block">
       {/* Image container */}
-      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative border border-transparent group-hover:border-accent/25 transition-all duration-700">
+      <div className="aspect-[3/4] bg-secondary overflow-hidden mb-4 relative rounded-2xl border border-transparent group-hover:border-accent/20 transition-all duration-700 shadow-subtle group-hover:shadow-elevated">
         {image ? (
           <img
             src={image}
@@ -32,17 +32,17 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-secondary">
+          <div className="w-full h-full flex items-center justify-center bg-secondary rounded-2xl">
             <span className="font-serif text-3xl text-muted-foreground/20 tracking-[0.1em]">S</span>
           </div>
         )}
 
         {/* Dark hover overlay */}
-        <div className="absolute inset-0 bg-background/0 group-hover:bg-background/30 transition-all duration-700" />
+        <div className="absolute inset-0 rounded-2xl bg-background/0 group-hover:bg-background/25 transition-all duration-700" />
 
         {/* Discount badge */}
         {hasDiscount && (
-          <div className="absolute top-3 left-3 bg-accent text-accent-foreground font-sans text-[9px] tracking-[0.1em] uppercase px-2.5 py-1">
+          <div className="absolute top-3 left-3 bg-accent text-accent-foreground font-sans text-[9px] tracking-[0.1em] uppercase px-3 py-1 rounded-full">
             -{discountPercent}%
           </div>
         )}
@@ -56,20 +56,10 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
 
         {/* Hover CTA overlay */}
         <div className="absolute inset-x-0 bottom-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
-          <div className="flex items-center justify-center gap-2 font-sans text-[10px] tracking-[0.2em] uppercase text-accent">
+          <div className="flex items-center justify-center gap-2 font-sans text-[10px] tracking-[0.2em] uppercase text-accent bg-background/70 backdrop-blur-sm rounded-full py-2.5 px-4 mx-auto w-fit">
             Ver detalhes
             <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
           </div>
-        </div>
-
-        {/* Corner accents on hover */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-          <div className="w-4 h-px bg-accent/60" />
-          <div className="w-px h-4 bg-accent/60 ml-auto" />
-        </div>
-        <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-          <div className="w-px h-4 bg-accent/60" />
-          <div className="w-4 h-px bg-accent/60" />
         </div>
       </div>
 

@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { useFeaturedProducts, useCategories, useProducts } from "@/hooks/useStore";
 import ProductCard from "@/components/store/ProductCard";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles, Shield, Truck, Star } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import logoSollaris from "@/assets/logo-sollaris.png";
 import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -155,7 +156,7 @@ const HomePage = () => {
       ═══════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        className="relative flex items-end min-h-screen px-6 pb-24 md:pb-32 overflow-hidden"
+        className="relative flex items-end min-h-screen px-6 md:px-16 pb-24 md:pb-32 overflow-hidden"
       >
         {/* Parallax background */}
         <motion.div
@@ -166,7 +167,7 @@ const HomePage = () => {
             scale: heroScale,
           }}
         />
-        {/* Gradient overlays — heavier on bottom-left */}
+        {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/90" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent" />
 
@@ -174,6 +175,16 @@ const HomePage = () => {
           className="text-left max-w-3xl relative z-10"
           style={{ opacity: heroOpacity }}
         >
+          {/* Logo mark */}
+          <motion.img
+            src={logoSollaris}
+            alt="SOLLARIS"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 0.15, y: 0 }}
+            transition={{ duration: 1.5, delay: 0.2 }}
+            className="w-48 md:w-64 h-auto mb-8"
+          />
+
           {/* Animated gold line */}
           <motion.div
             initial={{ width: 0 }}
@@ -231,7 +242,7 @@ const HomePage = () => {
           >
             <Link
               to="/colecao"
-              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase bg-accent text-accent-foreground px-10 py-4 hover:bg-accent/90 transition-all duration-500 group"
+              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase bg-accent text-accent-foreground px-10 py-4 rounded-full hover:bg-accent/90 hover:shadow-[0_0_30px_hsl(var(--accent)/0.3)] transition-all duration-500 group"
             >
               Explorar Coleção
               <ArrowRight
@@ -241,7 +252,7 @@ const HomePage = () => {
             </Link>
             <Link
               to="/sobre"
-              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase border border-accent/40 text-accent px-10 py-4 hover:bg-accent/10 transition-all duration-500"
+              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase border border-accent/40 text-accent px-10 py-4 rounded-full hover:bg-accent/10 transition-all duration-500"
             >
               Nossa História
             </Link>
@@ -287,7 +298,7 @@ const HomePage = () => {
               variants={fadeUp}
               className="text-center group"
             >
-              <div className="w-12 h-12 mx-auto mb-5 border border-accent/30 flex items-center justify-center group-hover:border-accent group-hover:bg-accent/5 transition-all duration-500">
+              <div className="w-14 h-14 mx-auto mb-5 rounded-2xl border border-accent/25 flex items-center justify-center group-hover:border-accent group-hover:bg-accent/5 transition-all duration-500">
                 <pillar.icon className="h-5 w-5 text-accent" strokeWidth={1.2} />
               </div>
               <h3 className="font-serif text-sm md:text-base text-foreground mb-2">
@@ -335,7 +346,7 @@ const HomePage = () => {
               <motion.div key={cat.id} variants={fadeUp}>
                 <Link
                   to={`/colecao?categoria=${cat.slug}`}
-                  className="block font-sans text-[11px] tracking-[0.18em] uppercase px-8 py-4 border border-border text-muted-foreground hover:text-accent-foreground hover:border-accent hover:bg-accent transition-all duration-500"
+                  className="block font-sans text-[11px] tracking-[0.18em] uppercase px-8 py-3.5 rounded-full border border-border text-muted-foreground hover:text-accent-foreground hover:border-accent hover:bg-accent transition-all duration-500"
                 >
                   {cat.name}
                 </Link>
@@ -349,7 +360,6 @@ const HomePage = () => {
           FEATURED PRODUCTS — Main showcase
       ═══════════════════════════════════════════════════ */}
       <section className="relative py-24 overflow-hidden">
-        {/* Subtle background accent */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
 
         <div className="max-w-[1200px] mx-auto px-6 relative z-10">
@@ -384,9 +394,9 @@ const HomePage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="space-y-4">
-                  <div className="aspect-[3/4] bg-secondary animate-pulse" />
-                  <div className="h-3 w-2/3 bg-secondary animate-pulse" />
-                  <div className="h-3 w-1/3 bg-secondary animate-pulse" />
+                  <div className="aspect-[3/4] bg-secondary rounded-2xl animate-pulse" />
+                  <div className="h-3 w-2/3 bg-secondary rounded animate-pulse" />
+                  <div className="h-3 w-1/3 bg-secondary rounded animate-pulse" />
                 </div>
               ))}
             </div>
@@ -422,7 +432,7 @@ const HomePage = () => {
           >
             <Link
               to="/colecao"
-              className="font-sans text-[11px] tracking-[0.15em] uppercase text-accent hover:text-foreground transition-colors inline-flex items-center gap-2 border border-accent/40 px-8 py-3"
+              className="font-sans text-[11px] tracking-[0.15em] uppercase text-accent hover:text-foreground transition-colors inline-flex items-center gap-2 border border-accent/40 rounded-full px-8 py-3"
             >
               Ver coleção completa
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -441,7 +451,7 @@ const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
           {/* Left — Image */}
           <motion.div
-            className="relative aspect-[4/5] overflow-hidden"
+            className="relative aspect-[4/5] overflow-hidden rounded-3xl"
             variants={slideFromLeft}
             initial="hidden"
             whileInView="visible"
@@ -476,6 +486,11 @@ const HomePage = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
           >
+            <img
+              src={logoSollaris}
+              alt="SOLLARIS"
+              className="w-32 h-auto opacity-20 mb-6"
+            />
             <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-accent mb-4">
               A Arte da Semijoia
             </p>
@@ -493,7 +508,7 @@ const HomePage = () => {
               {["Banho de ouro 18k de alta durabilidade", "Pedras naturais selecionadas", "Design exclusivo e atemporal"].map(
                 (item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 bg-accent rotate-45 shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
                     <span className="font-sans text-xs text-foreground/80 tracking-wide">
                       {item}
                     </span>
@@ -503,7 +518,7 @@ const HomePage = () => {
             </div>
             <Link
               to="/colecao"
-              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase text-accent hover:text-foreground transition-colors duration-300 group"
+              className="inline-flex items-center gap-3 font-sans text-[11px] tracking-[0.2em] uppercase text-accent border border-accent/40 rounded-full px-8 py-3.5 hover:bg-accent hover:text-accent-foreground transition-all duration-500 group"
             >
               Descobrir Peças
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.5} />
@@ -516,7 +531,7 @@ const HomePage = () => {
       <GoldDivider />
 
       {/* ═══════════════════════════════════════════════════
-          NEW ARRIVALS — Horizontal scroll feel
+          NEW ARRIVALS
       ═══════════════════════════════════════════════════ */}
       {newArrivals.length > 0 && (
         <section className="py-24">
@@ -564,14 +579,24 @@ const HomePage = () => {
       <GoldDivider />
 
       {/* ═══════════════════════════════════════════════════
-          BRAND STATEMENT — Parallax quote
+          BRAND STATEMENT — Parallax quote with large logo
       ═══════════════════════════════════════════════════ */}
       <section
         ref={brandRef}
         className="relative py-32 px-6 overflow-hidden"
       >
-        {/* Background subtle pattern */}
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-transparent to-secondary/20" />
+
+        {/* Large background logo watermark */}
+        <motion.img
+          src={logoSollaris}
+          alt=""
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] md:w-[40%] h-auto opacity-[0.04]"
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 0.04, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5 }}
+        />
 
         <motion.div
           className="max-w-2xl mx-auto text-center relative z-10"
@@ -628,6 +653,11 @@ const HomePage = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
+          <img
+            src={logoSollaris}
+            alt="SOLLARIS"
+            className="w-28 h-auto opacity-15 mx-auto mb-6"
+          />
           <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-accent mb-4">
             Exclusividade
           </p>
@@ -645,12 +675,12 @@ const HomePage = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Seu melhor e-mail"
               required
-              className="flex-1 bg-secondary border border-border px-5 py-3.5 font-sans text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors duration-300"
+              className="flex-1 bg-secondary border border-border rounded-full px-6 py-3.5 font-sans text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors duration-300"
             />
             <button
               type="submit"
               disabled={subscribing}
-              className="font-sans text-[11px] tracking-[0.15em] uppercase bg-accent text-accent-foreground px-8 py-3.5 hover:bg-accent/90 transition-all duration-300 disabled:opacity-50"
+              className="font-sans text-[11px] tracking-[0.15em] uppercase bg-accent text-accent-foreground rounded-full px-8 py-3.5 hover:bg-accent/90 hover:shadow-[0_0_25px_hsl(var(--accent)/0.25)] transition-all duration-300 disabled:opacity-50"
             >
               {subscribing ? "Enviando..." : "Inscrever-se"}
             </button>
