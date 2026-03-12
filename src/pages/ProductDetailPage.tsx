@@ -368,7 +368,7 @@ const ProductDetailPage = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col py-2 md:py-8 md:sticky md:top-24 md:self-start"
+            className="flex flex-col py-2 md:py-8 md:sticky md:top-20 md:self-start"
           >
             {/* Category */}
             {(product.categories as any)?.name && (
