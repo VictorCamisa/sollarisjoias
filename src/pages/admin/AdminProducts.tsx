@@ -9,34 +9,17 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useCategories } from "@/hooks/useStore";
+import { motion } from "framer-motion";
 
 interface ProductForm {
-  name: string;
-  sku: string;
-  description: string;
-  price: string;
-  original_price: string;
-  category_id: string;
-  sizes: string;
-  colors: string;
-  banho: string;
-  pedra: string;
-  material: string;
-  weight_g: string;
-  tags: string;
-  tags_seo: string;
-  priority: string;
-  stock_quantity: string;
-  is_featured: boolean;
-  stock_status: boolean;
-  internal_notes: string;
-  foto_frontal: string;
-  foto_lateral: string;
-  foto_lifestyle: string;
-  foto_detalhe: string;
+  name: string; sku: string; description: string; price: string; original_price: string;
+  category_id: string; sizes: string; colors: string; banho: string; pedra: string;
+  material: string; weight_g: string; tags: string; tags_seo: string; priority: string;
+  stock_quantity: string; is_featured: boolean; stock_status: boolean; internal_notes: string;
+  foto_frontal: string; foto_lateral: string; foto_lifestyle: string; foto_detalhe: string;
   images: string[];
 }
 
@@ -84,32 +67,22 @@ const AdminProducts = () => {
     mutationFn: async (form: ProductForm) => {
       const stockQty = parseInt(form.stock_quantity) || 0;
       const payload = {
-        name: form.name,
-        sku: form.sku || null,
-        description: form.description || null,
-        price: parseFloat(form.price) || 0,
-        original_price: parseFloat(form.original_price) || null,
+        name: form.name, sku: form.sku || null, description: form.description || null,
+        price: parseFloat(form.price) || 0, original_price: parseFloat(form.original_price) || null,
         category_id: form.category_id || null,
         sizes: form.sizes ? form.sizes.split(",").map((s) => s.trim()) : [],
         colors: form.colors ? form.colors.split(",").map((s) => s.trim()) : [],
-        banho: form.banho || null,
-        pedra: form.pedra || null,
-        material: form.material || null,
+        banho: form.banho || null, pedra: form.pedra || null, material: form.material || null,
         weight_g: parseFloat(form.weight_g) || null,
         tags: form.tags ? form.tags.split(",").map((s) => s.trim()) : [],
-        tags_seo: form.tags_seo || null,
-        priority: form.priority,
-        stock_quantity: stockQty,
-        stock_status: stockQty > 0,
+        tags_seo: form.tags_seo || null, priority: form.priority,
+        stock_quantity: stockQty, stock_status: stockQty > 0,
         is_featured: form.is_featured || form.priority === "Alta",
         internal_notes: form.internal_notes || null,
-        foto_frontal: form.foto_frontal || null,
-        foto_lateral: form.foto_lateral || null,
-        foto_lifestyle: form.foto_lifestyle || null,
-        foto_detalhe: form.foto_detalhe || null,
+        foto_frontal: form.foto_frontal || null, foto_lateral: form.foto_lateral || null,
+        foto_lifestyle: form.foto_lifestyle || null, foto_detalhe: form.foto_detalhe || null,
         images: form.images,
       };
-
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
         if (error) throw error;
@@ -123,9 +96,7 @@ const AdminProducts = () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["admin-product-count"] });
       toast.success(editingId ? "Produto atualizado!" : "Produto criado!");
-      setOpen(false);
-      setEditingId(null);
-      setForm(emptyForm);
+      setOpen(false); setEditingId(null); setForm(emptyForm);
     },
     onError: (err: any) => toast.error(err.message),
   });
@@ -147,14 +118,12 @@ const AdminProducts = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     setUploading(true);
-
     for (const file of Array.from(files)) {
       const ext = file.name.split(".").pop();
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage.from("product-images").upload(path, file);
       if (error) { toast.error(`Erro ao enviar ${file.name}`); continue; }
       const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
-      
       if (slot) {
         setForm((prev) => ({ ...prev, [slot]: urlData.publicUrl }));
       } else {
@@ -167,117 +136,101 @@ const AdminProducts = () => {
   const openEdit = (p: any) => {
     setEditingId(p.id);
     setForm({
-      name: p.name,
-      sku: p.sku || "",
-      description: p.description || "",
-      price: String(p.price),
-      original_price: p.original_price ? String(p.original_price) : "",
-      category_id: p.category_id || "",
-      sizes: (p.sizes || []).join(", "),
-      colors: (p.colors || []).join(", "),
-      banho: p.banho || "",
-      pedra: p.pedra || "",
-      material: p.material || "",
-      weight_g: p.weight_g ? String(p.weight_g) : "",
-      tags: (p.tags || []).join(", "),
-      tags_seo: p.tags_seo || "",
-      priority: p.priority || "Média",
-      stock_quantity: String(p.stock_quantity ?? 0),
-      is_featured: p.is_featured,
-      stock_status: p.stock_status,
-      internal_notes: p.internal_notes || "",
-      foto_frontal: p.foto_frontal || "",
-      foto_lateral: p.foto_lateral || "",
-      foto_lifestyle: p.foto_lifestyle || "",
-      foto_detalhe: p.foto_detalhe || "",
-      images: p.images || [],
+      name: p.name, sku: p.sku || "", description: p.description || "",
+      price: String(p.price), original_price: p.original_price ? String(p.original_price) : "",
+      category_id: p.category_id || "", sizes: (p.sizes || []).join(", "),
+      colors: (p.colors || []).join(", "), banho: p.banho || "", pedra: p.pedra || "",
+      material: p.material || "", weight_g: p.weight_g ? String(p.weight_g) : "",
+      tags: (p.tags || []).join(", "), tags_seo: p.tags_seo || "",
+      priority: p.priority || "Média", stock_quantity: String(p.stock_quantity ?? 0),
+      is_featured: p.is_featured, stock_status: p.stock_status,
+      internal_notes: p.internal_notes || "", foto_frontal: p.foto_frontal || "",
+      foto_lateral: p.foto_lateral || "", foto_lifestyle: p.foto_lifestyle || "",
+      foto_detalhe: p.foto_detalhe || "", images: p.images || [],
     });
     setOpen(true);
   };
 
   const FotoSlot = ({ label, field }: { label: string; field: string }) => (
     <div>
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
       <div className="flex gap-2 mt-1">
         {(form as any)[field] ? (
           <div className="relative group">
-            <img src={(form as any)[field]} alt="" className="h-16 w-14 object-cover rounded-lg" />
+            <img src={(form as any)[field]} alt="" className="h-16 w-14 object-cover rounded-lg border border-border" />
             <button type="button" onClick={() => setForm({ ...form, [field]: "" })}
               className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-4 w-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition">×</button>
           </div>
         ) : (
-          <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, field)} className="rounded-xl text-xs" disabled={uploading} />
+          <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, field)} className="rounded-lg text-xs h-8" disabled={uploading} />
         )}
       </div>
     </div>
   );
 
+  const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-5 max-w-[1400px]">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Produtos</h1>
-          <p className="text-xs text-muted-foreground mt-1">{filtered?.length ?? 0} de {products?.length ?? 0} produtos</p>
+          <h1 className="text-xl font-serif font-semibold">Produtos</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {filtered?.length ?? 0} de {products?.length ?? 0} produtos
+          </p>
         </div>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button className="rounded-xl gap-2" size="sm"><Plus className="h-4 w-4" /> Novo Produto</Button>
+            <Button className="rounded-lg gap-2 h-9 text-xs" size="sm"><Plus className="h-3.5 w-3.5" /> Novo Produto</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="font-serif">{editingId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
+              <DialogTitle className="font-serif text-lg">{editingId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(form); }} className="space-y-5">
-              {/* Basic info */}
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(form); }} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2 sm:col-span-1">
-                  <Label className="text-xs">Nome *</Label>
-                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1" required />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome *</Label>
+                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-lg mt-1 h-9" required />
                 </div>
                 <div>
-                  <Label className="text-xs">SKU</Label>
-                  <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} className="rounded-xl mt-1" placeholder="BR-001" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">SKU</Label>
+                  <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="BR-001" />
                 </div>
               </div>
-
               <div>
-                <Label className="text-xs">Descrição</Label>
-                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="rounded-xl mt-1" rows={3} />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Descrição</Label>
+                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="rounded-lg mt-1" rows={2} />
               </div>
-
-              {/* Pricing */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <Label className="text-xs">Preço "De" (R$)</Label>
-                  <Input type="number" step="0.01" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} className="rounded-xl mt-1" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Preço "De"</Label>
+                  <Input type="number" step="0.01" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} className="rounded-lg mt-1 h-9" />
                 </div>
                 <div>
-                  <Label className="text-xs">Preço "Por" (R$) *</Label>
-                  <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="rounded-xl mt-1" required />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Preço "Por" *</Label>
+                  <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="rounded-lg mt-1 h-9" required />
                 </div>
                 <div>
-                  <Label className="text-xs">Estoque</Label>
-                  <Input type="number" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })} className="rounded-xl mt-1" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Estoque</Label>
+                  <Input type="number" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })} className="rounded-lg mt-1 h-9" />
                 </div>
               </div>
-
-              {/* Category & Priority */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Categoria</Label>
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Categoria</Label>
                   <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-                    <SelectTrigger className="rounded-xl mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectTrigger className="rounded-lg mt-1 h-9"><SelectValue placeholder="Selecione" /></SelectTrigger>
                     <SelectContent>
-                      {categories?.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
+                      {categories?.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-xs">Prioridade</Label>
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Prioridade</Label>
                   <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
-                    <SelectTrigger className="rounded-xl mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="rounded-lg mt-1 h-9"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Alta">🔥 Alta</SelectItem>
                       <SelectItem value="Média">Média</SelectItem>
@@ -286,81 +239,69 @@ const AdminProducts = () => {
                   </Select>
                 </div>
               </div>
-
-              {/* Attributes */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Banho</Label>
-                  <Input value={form.banho} onChange={(e) => setForm({ ...form, banho: e.target.value })} className="rounded-xl mt-1" placeholder="Ouro 18k" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Banho</Label>
+                  <Input value={form.banho} onChange={(e) => setForm({ ...form, banho: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="Ouro 18k" />
                 </div>
                 <div>
-                  <Label className="text-xs">Pedra</Label>
-                  <Input value={form.pedra} onChange={(e) => setForm({ ...form, pedra: e.target.value })} className="rounded-xl mt-1" placeholder="Zircônia" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Pedra</Label>
+                  <Input value={form.pedra} onChange={(e) => setForm({ ...form, pedra: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="Zircônia" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Material</Label>
-                  <Input value={form.material} onChange={(e) => setForm({ ...form, material: e.target.value })} className="rounded-xl mt-1" placeholder="Aço inoxidável" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Material</Label>
+                  <Input value={form.material} onChange={(e) => setForm({ ...form, material: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="Aço inoxidável" />
                 </div>
                 <div>
-                  <Label className="text-xs">Peso (g)</Label>
-                  <Input type="number" step="0.1" value={form.weight_g} onChange={(e) => setForm({ ...form, weight_g: e.target.value })} className="rounded-xl mt-1" />
-                </div>
-              </div>
-
-              {/* Variations */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs">Tamanhos (vírgula)</Label>
-                  <Input value={form.sizes} onChange={(e) => setForm({ ...form, sizes: e.target.value })} className="rounded-xl mt-1" placeholder="P, M, G" />
-                </div>
-                <div>
-                  <Label className="text-xs">Cores / Banhos (vírgula)</Label>
-                  <Input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} className="rounded-xl mt-1" placeholder="Dourado, Prata" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Peso (g)</Label>
+                  <Input type="number" step="0.1" value={form.weight_g} onChange={(e) => setForm({ ...form, weight_g: e.target.value })} className="rounded-lg mt-1 h-9" />
                 </div>
               </div>
-
-              {/* Tags */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Tags / Subcategorias (vírgula)</Label>
-                  <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="rounded-xl mt-1" placeholder="argola, festa" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tamanhos (vírgula)</Label>
+                  <Input value={form.sizes} onChange={(e) => setForm({ ...form, sizes: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="P, M, G" />
                 </div>
                 <div>
-                  <Label className="text-xs">Tags SEO</Label>
-                  <Input value={form.tags_seo} onChange={(e) => setForm({ ...form, tags_seo: e.target.value })} className="rounded-xl mt-1" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Cores (vírgula)</Label>
+                  <Input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="Dourado, Prata" />
                 </div>
               </div>
-
-              {/* Switches */}
-              <div className="flex items-center gap-6">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tags (vírgula)</Label>
+                  <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="rounded-lg mt-1 h-9" placeholder="argola, festa" />
+                </div>
+                <div>
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tags SEO</Label>
+                  <Input value={form.tags_seo} onChange={(e) => setForm({ ...form, tags_seo: e.target.value })} className="rounded-lg mt-1 h-9" />
+                </div>
+              </div>
+              <div className="flex items-center gap-6 py-1">
                 <div className="flex items-center gap-2">
                   <Switch checked={form.is_featured} onCheckedChange={(v) => setForm({ ...form, is_featured: v })} />
                   <Label className="text-xs">Destaque</Label>
                 </div>
               </div>
-
-              {/* Photo slots */}
-              <div className="space-y-3">
-                <Label className="text-xs font-semibold">Fotos (4 slots)</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <FotoSlot label="Foto Frontal" field="foto_frontal" />
-                  <FotoSlot label="Foto Lateral" field="foto_lateral" />
-                  <FotoSlot label="Foto Lifestyle" field="foto_lifestyle" />
-                  <FotoSlot label="Foto Detalhe" field="foto_detalhe" />
+              <div className="space-y-2">
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Fotos (4 slots)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <FotoSlot label="Frontal" field="foto_frontal" />
+                  <FotoSlot label="Lateral" field="foto_lateral" />
+                  <FotoSlot label="Lifestyle" field="foto_lifestyle" />
+                  <FotoSlot label="Detalhe" field="foto_detalhe" />
                 </div>
               </div>
-
-              {/* Extra images */}
               <div>
-                <Label className="text-xs">Imagens extras</Label>
-                <Input type="file" accept="image/*" multiple onChange={(e) => handleImageUpload(e)} className="rounded-xl mt-1" disabled={uploading} />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Imagens extras</Label>
+                <Input type="file" accept="image/*" multiple onChange={(e) => handleImageUpload(e)} className="rounded-lg mt-1 h-9" disabled={uploading} />
                 {form.images.length > 0 && (
                   <div className="flex gap-2 mt-2 flex-wrap">
                     {form.images.map((img, i) => (
                       <div key={i} className="relative group">
-                        <img src={img} alt="" className="h-16 w-14 object-cover rounded-lg" />
+                        <img src={img} alt="" className="h-14 w-12 object-cover rounded-lg border border-border" />
                         <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })}
                           className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-4 w-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition">×</button>
                       </div>
@@ -368,15 +309,11 @@ const AdminProducts = () => {
                   </div>
                 )}
               </div>
-
-              {/* Internal notes */}
               <div>
-                <Label className="text-xs">Observação Interna (admin + IA)</Label>
-                <Textarea value={form.internal_notes} onChange={(e) => setForm({ ...form, internal_notes: e.target.value })} className="rounded-xl mt-1" rows={2}
-                  placeholder="Ex: Mais vendido, tendência 2026, combina com colar X..." />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Observação Interna</Label>
+                <Textarea value={form.internal_notes} onChange={(e) => setForm({ ...form, internal_notes: e.target.value })} className="rounded-lg mt-1" rows={2} />
               </div>
-
-              <Button type="submit" className="w-full rounded-xl" disabled={saveMutation.isPending}>
+              <Button type="submit" className="w-full rounded-lg h-9" disabled={saveMutation.isPending}>
                 {saveMutation.isPending ? "Salvando..." : "Salvar"}
               </Button>
             </form>
@@ -385,20 +322,20 @@ const AdminProducts = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar nome ou SKU..." className="rounded-xl pl-9" />
+      <div className="flex flex-wrap gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar nome ou SKU..." className="rounded-lg pl-9 h-9 text-xs" />
         </div>
         <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-40 rounded-xl"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectTrigger className="w-36 rounded-lg h-9 text-xs"><SelectValue placeholder="Categoria" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
             {categories?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterPriority} onValueChange={setFilterPriority}>
-          <SelectTrigger className="w-32 rounded-xl"><SelectValue placeholder="Prioridade" /></SelectTrigger>
+          <SelectTrigger className="w-28 rounded-lg h-9 text-xs"><SelectValue placeholder="Prioridade" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
             <SelectItem value="Alta">🔥 Alta</SelectItem>
@@ -408,44 +345,86 @@ const AdminProducts = () => {
         </Select>
       </div>
 
-      {/* Product list */}
-      <div className="space-y-2">
-        {isLoading ? (
-          <p className="text-muted-foreground text-sm">Carregando...</p>
-        ) : filtered && filtered.length > 0 ? (
-          filtered.map((p) => (
-            <div key={p.id} className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl">
-              <div className="h-14 w-12 rounded-lg bg-secondary overflow-hidden flex-shrink-0">
-                {(p.foto_frontal || p.images?.[0]) && <img src={p.foto_frontal || p.images?.[0]} alt="" className="w-full h-full object-cover" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-sm truncate">{p.name}</p>
-                  {p.priority === "Alta" && <span className="text-xs">🔥</span>}
-                  {(p.stock_quantity ?? 0) < 5 && (p.stock_quantity ?? 0) > 0 && <AlertTriangle className="h-3 w-3 text-amber-500" />}
+      {/* Table */}
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />)}
+        </div>
+      ) : !filtered?.length ? (
+        <div className="text-center py-16">
+          <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+          <p className="text-sm text-muted-foreground">Nenhum produto encontrado.</p>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          {/* Table Header */}
+          <div className="hidden md:grid grid-cols-[auto_1fr_100px_100px_80px_80px_70px] gap-3 px-4 py-2.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <span className="w-10">Foto</span>
+            <span>Produto</span>
+            <span>Categoria</span>
+            <span className="text-right">Preço</span>
+            <span className="text-center">Estoque</span>
+            <span className="text-center">Prior.</span>
+            <span></span>
+          </div>
+          <div className="divide-y divide-border">
+            {filtered.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.02 }}
+                className="grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_100px_100px_80px_80px_70px] gap-3 items-center px-4 py-3 hover:bg-secondary/30 transition-colors"
+              >
+                <div className="h-10 w-10 rounded-lg bg-secondary overflow-hidden flex-shrink-0">
+                  {(p.foto_frontal || p.images?.[0]) ? (
+                    <img src={p.foto_frontal || p.images?.[0]} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground/30" />
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {p.sku && <span className="mr-2">{p.sku}</span>}
-                  R$ {p.price.toFixed(2).replace(".", ",")}
-                  {" · "}{(p.categories as any)?.name || "Sem categoria"}
-                  {" · "}{p.stock_quantity ?? 0} un.
-                </p>
-              </div>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"
-                  onClick={() => { if (confirm("Excluir este produto?")) deleteMutation.mutate(p.id); }}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">Nenhum produto encontrado.</p>
-        )}
-      </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[13px] font-medium truncate">{p.name}</p>
+                    {p.priority === "Alta" && <span className="text-[10px]">🔥</span>}
+                    {(p.stock_quantity ?? 0) === 0 && <Badge variant="destructive" className="text-[8px] h-4 px-1">Esgotado</Badge>}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {p.sku && <span className="mr-1.5 font-mono">{p.sku}</span>}
+                    {p.banho && <span className="mr-1.5">{p.banho}</span>}
+                  </p>
+                </div>
+                <span className="hidden md:block text-xs text-muted-foreground truncate">{(p.categories as any)?.name || "—"}</span>
+                <div className="hidden md:block text-right">
+                  {p.original_price && p.original_price > p.price && (
+                    <p className="text-[10px] text-muted-foreground line-through">{fmt(p.original_price)}</p>
+                  )}
+                  <p className="text-xs font-semibold">{fmt(p.price)}</p>
+                </div>
+                <div className="hidden md:flex justify-center">
+                  <Badge variant={(p.stock_quantity ?? 0) === 0 ? "destructive" : (p.stock_quantity ?? 0) < 5 ? "outline" : "secondary"} className="text-[10px]">
+                    {p.stock_quantity ?? 0}
+                  </Badge>
+                </div>
+                <div className="hidden md:flex justify-center">
+                  <Badge variant="outline" className="text-[10px]">{p.priority || "Média"}</Badge>
+                </div>
+                <div className="flex gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(p)}>
+                    <Pencil className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                    onClick={() => { if (confirm("Excluir?")) deleteMutation.mutate(p.id); }}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

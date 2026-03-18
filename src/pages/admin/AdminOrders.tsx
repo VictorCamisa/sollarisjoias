@@ -4,17 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
-const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  pending: { label: "Pendente", variant: "outline" },
-  confirmed: { label: "Confirmado", variant: "default" },
-  shipped: { label: "Enviado", variant: "secondary" },
-  delivered: { label: "Entregue", variant: "default" },
-  cancelled: { label: "Cancelado", variant: "destructive" },
+const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; color: string }> = {
+  pending: { label: "Pendente", variant: "outline", color: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
+  confirmed: { label: "Confirmado", variant: "default", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
+  shipped: { label: "Enviado", variant: "secondary", color: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
+  delivered: { label: "Entregue", variant: "default", color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
+  cancelled: { label: "Cancelado", variant: "destructive", color: "bg-red-500/10 text-red-400 border-red-500/20" },
 };
+
+const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
 const AdminOrders = () => {
   const queryClient = useQueryClient();
@@ -24,10 +26,7 @@ const AdminOrders = () => {
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -46,35 +45,40 @@ const AdminOrders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-order-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-all-orders"] });
       toast.success("Status atualizado!");
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-serif font-semibold">Pedidos</h1>
-        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
-      </div>
-    );
-  }
+  const pendingCount = orders?.filter((o) => o.status === "pending").length ?? 0;
+  const confirmedCount = orders?.filter((o) => o.status === "confirmed").length ?? 0;
+  const totalRevenue = orders?.reduce((s, o) => s + Number(o.total), 0) ?? 0;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-serif font-semibold">Pedidos</h1>
-        <p className="text-xs text-muted-foreground mt-1">{filtered?.length ?? 0} pedidos</p>
+    <div className="space-y-5 max-w-[1400px]">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-serif font-semibold">Pedidos</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{filtered?.length ?? 0} pedidos</p>
+        </div>
+        <div className="flex items-center gap-3 text-xs">
+          {pendingCount > 0 && (
+            <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg px-2.5 py-1 font-medium">
+              {pendingCount} pendente(s)
+            </span>
+          )}
+          <span className="text-muted-foreground">Total: <span className="font-semibold text-foreground">{fmt(totalRevenue)}</span></span>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar cliente ou telefone..." className="rounded-xl pl-9" />
+      <div className="flex flex-wrap gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar cliente ou telefone..." className="rounded-lg pl-9 h-9 text-xs" />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-36 rounded-xl"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-36 rounded-lg h-9 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             {Object.entries(statusMap).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
@@ -82,53 +86,60 @@ const AdminOrders = () => {
         </Select>
       </div>
 
-      {!filtered?.length ? (
-        <p className="text-sm text-muted-foreground text-center py-10">Nenhum pedido encontrado.</p>
+      {/* Table */}
+      {isLoading ? (
+        <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-20 bg-card/50 rounded-lg animate-pulse" />)}</div>
+      ) : !filtered?.length ? (
+        <div className="text-center py-16">
+          <ShoppingCart className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+          <p className="text-sm text-muted-foreground">Nenhum pedido encontrado.</p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((order) => {
-            const items = (order.items as any[]) || [];
-            const st = statusMap[order.status] || statusMap.pending;
-            return (
-              <div key={order.id} className="border border-border rounded-xl p-4 space-y-3 bg-card">
-                <div className="flex items-start justify-between gap-4">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="hidden md:grid grid-cols-[1fr_120px_1fr_100px_120px] gap-3 px-4 py-2.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <span>Cliente</span>
+            <span>Data</span>
+            <span>Itens</span>
+            <span className="text-right">Total</span>
+            <span className="text-center">Status</span>
+          </div>
+          <div className="divide-y divide-border">
+            {filtered.map((order, i) => {
+              const items = (order.items as any[]) || [];
+              const st = statusMap[order.status] || statusMap.pending;
+              return (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.02 }}
+                  className="grid grid-cols-1 md:grid-cols-[1fr_120px_1fr_100px_120px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/30 transition-colors"
+                >
                   <div>
-                    <p className="font-medium text-sm">{order.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{order.customer_phone}</p>
-                    {order.customer_email && <p className="text-xs text-muted-foreground">{order.customer_email}</p>}
+                    <p className="text-[13px] font-medium">{order.customer_name}</p>
+                    <p className="text-[10px] text-muted-foreground">{order.customer_phone}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={st.variant}>{st.label}</Badge>
+                  <span className="text-[11px] text-muted-foreground">
+                    {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "2-digit" })}
+                  </span>
+                  <div className="text-[11px] text-muted-foreground truncate">
+                    {items.map((item: any) => `${item.name} x${item.quantity}`).join(", ")}
+                  </div>
+                  <span className="text-[13px] font-semibold text-right tabular-nums">{fmt(Number(order.total))}</span>
+                  <div className="flex justify-center">
                     <Select value={order.status} onValueChange={(v) => updateStatus.mutate({ id: order.id, status: v })}>
-                      <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className={`w-full h-7 text-[10px] rounded-md border ${st.color}`}>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {Object.entries(statusMap).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                <div className="text-xs space-y-1">
-                  {items.map((item: any, i: number) => (
-                    <p key={i}>
-                      {item.name} {item.size ? `— ${item.size}` : ""}{item.color ? `/${item.color}` : ""} x{item.quantity} — R$ {(item.price * item.quantity).toFixed(2).replace(".", ",")}
-                    </p>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">
-                    {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                  <span className="font-semibold">Total: R$ {Number(order.total).toFixed(2).replace(".", ",")}</span>
-                </div>
-
-                {order.notes && (
-                  <p className="text-xs text-muted-foreground italic border-t border-border pt-2">📝 {order.notes}</p>
-                )}
-              </div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
