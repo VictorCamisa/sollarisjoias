@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Search, Truck, Phone, Mail, Trash2, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -21,10 +20,7 @@ const AdminFornecedores = () => {
   const { data: suppliers, isLoading } = useQuery({
     queryKey: ["admin-suppliers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("suppliers")
-        .select("*")
-        .order("name");
+      const { data, error } = await supabase.from("suppliers").select("*").order("name");
       if (error) throw error;
       return data;
     },
@@ -32,31 +28,22 @@ const AdminFornecedores = () => {
 
   const upsert = useMutation({
     mutationFn: async () => {
+      const payload = {
+        name: form.name, contact_name: form.contact_name || null,
+        phone: form.phone || null, email: form.email || null, notes: form.notes || null,
+      };
       if (editingId) {
-        const { error } = await supabase.from("suppliers").update({
-          name: form.name,
-          contact_name: form.contact_name || null,
-          phone: form.phone || null,
-          email: form.email || null,
-          notes: form.notes || null,
-        }).eq("id", editingId);
+        const { error } = await supabase.from("suppliers").update(payload).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("suppliers").insert({
-          name: form.name,
-          contact_name: form.contact_name || null,
-          phone: form.phone || null,
-          email: form.email || null,
-          notes: form.notes || null,
-        });
+        const { error } = await supabase.from("suppliers").insert(payload);
         if (error) throw error;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-suppliers"] });
-      toast.success(editingId ? "Fornecedor atualizado!" : "Fornecedor adicionado!");
-      setDialogOpen(false);
-      setEditingId(null);
+      toast.success(editingId ? "Atualizado!" : "Adicionado!");
+      setDialogOpen(false); setEditingId(null);
       setForm({ name: "", contact_name: "", phone: "", email: "", notes: "" });
     },
     onError: (e: any) => toast.error(e.message),
@@ -69,7 +56,7 @@ const AdminFornecedores = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-suppliers"] });
-      toast.success("Fornecedor removido");
+      toast.success("Removido");
     },
   });
 
@@ -83,101 +70,95 @@ const AdminFornecedores = () => {
     !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.contact_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-serif font-semibold">Fornecedores</h1>
-        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Fornecedores</h1>
-          <p className="text-xs text-muted-foreground mt-1">{suppliers?.length ?? 0} fornecedores</p>
+          <h1 className="text-xl font-serif font-semibold">Fornecedores</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{suppliers?.length ?? 0} cadastrados</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm({ name: "", contact_name: "", phone: "", email: "", notes: "" }); } }}>
           <DialogTrigger asChild>
-            <Button size="sm" className="rounded-xl gap-2">
-              <Plus className="h-4 w-4" /> Novo fornecedor
-            </Button>
+            <Button size="sm" className="rounded-lg gap-2 h-9 text-xs"><Plus className="h-3.5 w-3.5" /> Novo fornecedor</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
+            <DialogHeader><DialogTitle className="font-serif">{editingId ? "Editar" : "Novo"} Fornecedor</DialogTitle></DialogHeader>
+            <div className="space-y-3">
               <div>
-                <Label>Nome da empresa</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl" />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome da empresa</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-lg h-9 mt-1" />
               </div>
               <div>
-                <Label>Contato</Label>
-                <Input value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} className="rounded-xl" placeholder="Nome do contato" />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Contato</Label>
+                <Input value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} className="rounded-lg h-9 mt-1" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Telefone</Label>
-                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</Label>
+                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-lg h-9 mt-1" />
                 </div>
                 <div>
-                  <Label>Email</Label>
-                  <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</Label>
+                  <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-lg h-9 mt-1" />
                 </div>
               </div>
               <div>
-                <Label>Observações</Label>
-                <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="rounded-xl" rows={2} />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Observações</Label>
+                <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="rounded-lg mt-1" rows={2} />
               </div>
-              <Button onClick={() => upsert.mutate()} disabled={!form.name} className="w-full rounded-xl">
-                {editingId ? "Atualizar" : "Salvar"}
-              </Button>
+              <Button onClick={() => upsert.mutate()} disabled={!form.name} className="w-full rounded-lg h-9">{editingId ? "Atualizar" : "Salvar"}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar fornecedor..." className="rounded-xl pl-9" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar fornecedor..." className="rounded-lg pl-9 h-9 text-xs" />
       </div>
 
-      {!filtered?.length ? (
+      {isLoading ? (
+        <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />)}</div>
+      ) : !filtered?.length ? (
         <div className="text-center py-16">
-          <Truck className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+          <Truck className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
           <p className="text-sm text-muted-foreground">Nenhum fornecedor cadastrado.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((s, i) => (
-            <motion.div key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-              className="border border-border rounded-xl p-4 bg-card flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
-                  <Truck className="h-4 w-4 text-muted-foreground" />
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="hidden md:grid grid-cols-[1fr_140px_140px_140px_70px] gap-3 px-4 py-2.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <span>Empresa</span>
+            <span>Contato</span>
+            <span>Telefone</span>
+            <span>Email</span>
+            <span></span>
+          </div>
+          <div className="divide-y divide-border">
+            {filtered.map((s, i) => (
+              <motion.div key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                className="grid grid-cols-[1fr_auto] md:grid-cols-[1fr_140px_140px_140px_70px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/30 transition-colors">
+                <p className="text-[13px] font-medium">{s.name}</p>
+                <span className="hidden md:block text-[11px] text-muted-foreground">{s.contact_name || "—"}</span>
+                <span className="hidden md:flex items-center gap-1 text-[11px] text-muted-foreground">
+                  {s.phone && <><Phone className="h-3 w-3" />{s.phone}</>}
+                  {!s.phone && "—"}
+                </span>
+                <span className="hidden md:flex items-center gap-1 text-[11px] text-muted-foreground truncate">
+                  {s.email && <><Mail className="h-3 w-3 flex-shrink-0" />{s.email}</>}
+                  {!s.email && "—"}
+                </span>
+                <div className="flex gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(s)}>
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={() => deleteSupplier.mutate(s.id)}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
-                <div>
-                  <p className="text-sm font-medium">{s.name}</p>
-                  {s.contact_name && <p className="text-xs text-muted-foreground">{s.contact_name}</p>}
-                  <div className="flex items-center gap-3 mt-0.5">
-                    {s.phone && <span className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" />{s.phone}</span>}
-                    {s.email && <span className="text-xs text-muted-foreground flex items-center gap-1"><Mail className="h-3 w-3" />{s.email}</span>}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => openEdit(s)} className="p-2 rounded-lg hover:bg-secondary transition">
-                  <Edit2 className="h-4 w-4 text-muted-foreground" />
-                </button>
-                <button onClick={() => deleteSupplier.mutate(s.id)} className="p-2 rounded-lg hover:bg-secondary transition">
-                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
     </div>

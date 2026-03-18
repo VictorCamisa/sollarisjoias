@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const AdminCategories = () => {
   const queryClient = useQueryClient();
@@ -41,10 +42,8 @@ const AdminCategories = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["admin-category-count"] });
-      toast.success(editingId ? "Categoria atualizada!" : "Categoria criada!");
-      setOpen(false);
-      setEditingId(null);
-      setName("");
+      toast.success(editingId ? "Atualizada!" : "Criada!");
+      setOpen(false); setEditingId(null); setName("");
     },
     onError: (err: any) => toast.error(err.message),
   });
@@ -58,30 +57,29 @@ const AdminCategories = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["admin-category-count"] });
-      toast.success("Categoria excluída!");
+      toast.success("Excluída!");
     },
   });
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-serif font-semibold">Categorias</h1>
+    <div className="space-y-5 max-w-[1400px]">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-serif font-semibold">Categorias</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{categories?.length ?? 0} categorias</p>
+        </div>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setEditingId(null); setName(""); } }}>
           <DialogTrigger asChild>
-            <Button className="rounded-xl gap-2" size="sm">
-              <Plus className="h-4 w-4" /> Nova Categoria
-            </Button>
+            <Button className="rounded-lg gap-2 h-9 text-xs" size="sm"><Plus className="h-3.5 w-3.5" /> Nova Categoria</Button>
           </DialogTrigger>
           <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="font-serif">{editingId ? "Editar Categoria" : "Nova Categoria"}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(); }} className="space-y-4">
+            <DialogHeader><DialogTitle className="font-serif">{editingId ? "Editar" : "Nova"} Categoria</DialogTitle></DialogHeader>
+            <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(); }} className="space-y-3">
               <div>
-                <Label className="text-xs">Nome</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} className="rounded-xl mt-1" required />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} className="rounded-lg h-9 mt-1" required />
               </div>
-              <Button type="submit" className="w-full rounded-xl" disabled={saveMutation.isPending}>
+              <Button type="submit" className="w-full rounded-lg h-9" disabled={saveMutation.isPending}>
                 {saveMutation.isPending ? "Salvando..." : "Salvar"}
               </Button>
             </form>
@@ -89,35 +87,41 @@ const AdminCategories = () => {
         </Dialog>
       </div>
 
-      <div className="space-y-3">
-        {isLoading ? (
-          <p className="text-muted-foreground text-sm">Carregando...</p>
-        ) : categories && categories.length > 0 ? (
-          categories.map((c) => (
-            <div key={c.id} className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl">
-              <div className="flex-1">
-                <p className="font-medium text-sm">{c.name}</p>
-                <p className="text-xs text-muted-foreground">{c.slug}</p>
-              </div>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingId(c.id); setName(c.name); setOpen(true); }}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive"
-                  onClick={() => { if (confirm("Excluir esta categoria?")) deleteMutation.mutate(c.id); }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">Nenhuma categoria cadastrada.</p>
-        )}
-      </div>
+      {isLoading ? (
+        <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-12 bg-card/50 rounded-lg animate-pulse" />)}</div>
+      ) : categories && categories.length > 0 ? (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="hidden md:grid grid-cols-[1fr_200px_70px] gap-3 px-4 py-2.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <span>Nome</span>
+            <span>Slug</span>
+            <span></span>
+          </div>
+          <div className="divide-y divide-border">
+            {categories.map((c, i) => (
+              <motion.div key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                className="grid grid-cols-[1fr_auto] md:grid-cols-[1fr_200px_70px] gap-3 items-center px-4 py-3 hover:bg-secondary/30 transition-colors">
+                <p className="text-[13px] font-medium">{c.name}</p>
+                <span className="hidden md:block text-[11px] text-muted-foreground font-mono">{c.slug}</span>
+                <div className="flex gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7"
+                    onClick={() => { setEditingId(c.id); setName(c.name); setOpen(true); }}>
+                    <Pencil className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                    onClick={() => { if (confirm("Excluir?")) deleteMutation.mutate(c.id); }}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <FolderOpen className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+          <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
+        </div>
+      )}
     </div>
   );
 };
