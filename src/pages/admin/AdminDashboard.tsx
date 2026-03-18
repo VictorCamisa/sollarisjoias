@@ -12,7 +12,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, PieChart, Pie,
 } from "recharts";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 /* ─── helpers ─── */
 const fmt = (v: number) =>
@@ -26,7 +26,6 @@ const fmtShort = (v: number) => {
 const MONTHS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
 const CHART_GOLD = "hsl(39, 41%, 70%)";
-const CHART_GOLD_LIGHT = "hsl(39, 35%, 80%)";
 const CHART_EMERALD = "hsl(152, 57%, 58%)";
 const CHART_BLUE = "hsl(217, 91%, 60%)";
 const CHART_ORANGE = "hsl(25, 95%, 53%)";
@@ -37,8 +36,8 @@ const BAR_COLORS = [CHART_GOLD, CHART_EMERALD, CHART_BLUE, CHART_ORANGE, CHART_P
 const ChartTooltip = ({ active, payload, label, formatter }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-popover border border-border rounded-xl px-4 py-2.5 shadow-lg">
-      <p className="text-[11px] text-muted-foreground mb-1">{label}</p>
+    <div className="bg-popover border border-border rounded-lg px-3 py-2 shadow-lg">
+      <p className="text-[10px] text-muted-foreground mb-0.5">{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-sm font-semibold text-foreground">
           {formatter ? formatter(entry.value) : fmt(entry.value)}
@@ -48,11 +47,32 @@ const ChartTooltip = ({ active, payload, label, formatter }: any) => {
   );
 };
 
+/* ─── Stat Card ─── */
+const StatCard = ({ label, value, icon: Icon, color, to, subtitle, trend }: any) => (
+  <Link to={to} className="group block">
+    <div className="bg-card border border-border rounded-xl p-4 hover:border-accent/20 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-accent/5">
+      <div className="flex items-center justify-between mb-3">
+        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${color}`}>
+          <Icon className="h-4 w-4" />
+        </div>
+        {trend !== undefined && trend !== 0 && (
+          <div className={`flex items-center gap-0.5 text-[11px] font-semibold ${trend >= 0 ? "text-emerald-500" : "text-red-400"}`}>
+            {trend >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+            {Math.abs(trend).toFixed(0)}%
+          </div>
+        )}
+      </div>
+      <p className="text-2xl font-bold tracking-tight">{value}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+      {subtitle && <p className="text-[10px] text-muted-foreground/60 mt-0.5">{subtitle}</p>}
+    </div>
+  </Link>
+);
+
 /* ═══════════════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════════════ */
 const AdminDashboard = () => {
-
   const { data: settings } = useSettings();
   const MONTHLY_GOAL = (settings as any)?.monthly_goal ?? 15000;
 
@@ -107,12 +127,10 @@ const AdminDashboard = () => {
   /* ─── derived data ─── */
   const analytics = useMemo(() => {
     if (!allOrders) return null;
-
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    // Monthly revenue for last 12 months
     const monthlyData: { month: string; receita: number; pedidos: number }[] = [];
     for (let i = 11; i >= 0; i--) {
       const d = new Date(currentYear, currentMonth - i, 1);
@@ -129,7 +147,6 @@ const AdminDashboard = () => {
       });
     }
 
-    // This month stats
     const thisMonthOrders = allOrders.filter((o) => {
       const od = new Date(o.created_at);
       return od.getMonth() === currentMonth && od.getFullYear() === currentYear;
@@ -137,7 +154,6 @@ const AdminDashboard = () => {
     const monthRevenue = thisMonthOrders.reduce((s, o) => s + Number(o.total), 0);
     const monthOrderCount = thisMonthOrders.length;
 
-    // Last month
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const lastYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const lastMonthOrders = allOrders.filter((o) => {
@@ -145,22 +161,16 @@ const AdminDashboard = () => {
       return od.getMonth() === lastMonth && od.getFullYear() === lastYear;
     });
     const lastMonthRevenue = lastMonthOrders.reduce((s, o) => s + Number(o.total), 0);
-
-    // Revenue change
     const revenueChange = lastMonthRevenue > 0
       ? ((monthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
       : monthRevenue > 0 ? 100 : 0;
 
-    // Total
     const totalRevenue = allOrders.reduce((s, o) => s + Number(o.total), 0);
     const totalOrders = allOrders.length;
     const avgTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const thisMonthAvgTicket = monthOrderCount > 0 ? monthRevenue / monthOrderCount : 0;
-
-    // Pending
     const pending = allOrders.filter((o) => o.status === "pending").length;
 
-    // Top products
     const productSales: Record<string, { name: string; qty: number; revenue: number }> = {};
     allOrders.forEach((order) => {
       const items = (order.items as any[]) || [];
@@ -173,43 +183,24 @@ const AdminDashboard = () => {
     });
     const topProducts = Object.values(productSales).sort((a, b) => b.revenue - a.revenue).slice(0, 6);
 
-    // Ticket médio por mês
     const ticketData = monthlyData.map((m) => ({
       ...m,
       ticket: m.pedidos > 0 ? m.receita / m.pedidos : 0,
     }));
 
-    // Goal progress
     const goalProgress = Math.min((monthRevenue / MONTHLY_GOAL) * 100, 100);
 
     return {
-      monthlyData,
-      ticketData,
-      monthRevenue,
-      monthOrderCount,
-      lastMonthRevenue,
-      revenueChange,
-      totalRevenue,
-      totalOrders,
-      avgTicket,
-      thisMonthAvgTicket,
-      pending,
-      topProducts,
-      goalProgress,
+      monthlyData, ticketData, monthRevenue, monthOrderCount, lastMonthRevenue,
+      revenueChange, totalRevenue, totalOrders, avgTicket, thisMonthAvgTicket,
+      pending, topProducts, goalProgress,
     };
-  }, [allOrders]);
+  }, [allOrders, MONTHLY_GOAL]);
 
   const recentOrders = useMemo(() => {
     if (!allOrders) return [];
     return [...allOrders].reverse().slice(0, 5);
   }, [allOrders]);
-
-  const stats = [
-    { label: "Produtos", value: productCount ?? 0, icon: Package, color: "text-blue-500", to: "/admin/produtos" },
-    { label: "Categorias", value: categoryCount ?? 0, icon: FolderOpen, color: "text-emerald-500", to: "/admin/categorias" },
-    { label: "Pedidos", value: analytics?.totalOrders ?? 0, icon: ShoppingCart, color: "text-orange-500", to: "/admin/pedidos" },
-    { label: "Newsletter", value: subscriberCount ?? 0, icon: Mail, color: "text-pink-500", to: "/admin/newsletter" },
-  ];
 
   const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     pending: { label: "Pendente", variant: "outline" },
@@ -220,167 +211,134 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-serif font-semibold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">Visão geral da SOLLARIS</p>
+    <div className="space-y-6 max-w-[1400px]">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-serif font-semibold">Dashboard</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Visão geral da operação</p>
+        </div>
+        {(analytics?.pending ?? 0) > 0 && (
+          <Link to="/admin/pedidos" className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5 text-xs font-medium text-amber-500 hover:bg-amber-500/15 transition">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            {analytics?.pending} pendente(s)
+          </Link>
+        )}
       </div>
 
-      {/* ─── Stats cards ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
-          <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <Link to={stat.to} className="block bg-card border border-border rounded-2xl p-5 hover:border-accent/30 transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center">
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-                <span className="text-xs text-muted-foreground">{stat.label}</span>
-              </div>
-              <p className="text-2xl font-semibold">{stat.value}</p>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* ─── Revenue + Goal + Ticket ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Revenue this month */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-emerald-500" />
-              <span className="text-xs text-muted-foreground">Receita do Mês</span>
-            </div>
-            {analytics && analytics.revenueChange !== 0 && (
-              <div className={`flex items-center gap-0.5 text-[11px] font-medium ${analytics.revenueChange >= 0 ? "text-emerald-500" : "text-red-400"}`}>
-                {analytics.revenueChange >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                {Math.abs(analytics.revenueChange).toFixed(0)}%
-              </div>
-            )}
-          </div>
-          <p className="text-2xl font-semibold">{fmt(analytics?.monthRevenue ?? 0)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{analytics?.monthOrderCount ?? 0} pedidos</p>
+      {/* ─── KPI Row ─── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
+          <StatCard label="Receita do mês" value={fmt(analytics?.monthRevenue ?? 0)} icon={DollarSign}
+            color="bg-emerald-500/10 text-emerald-500" to="/admin/financeiro" trend={analytics?.revenueChange}
+            subtitle={`${analytics?.monthOrderCount ?? 0} pedidos`}
+          />
         </motion.div>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <StatCard label="Ticket médio" value={fmt(analytics?.thisMonthAvgTicket ?? 0)} icon={TrendingUp}
+            color="bg-blue-500/10 text-blue-500" to="/admin/pedidos"
+            subtitle={`Geral: ${fmt(analytics?.avgTicket ?? 0)}`}
+          />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <StatCard label="Total de pedidos" value={analytics?.totalOrders ?? 0} icon={ShoppingCart}
+            color="bg-orange-500/10 text-orange-500" to="/admin/pedidos"
+            subtitle={`${analytics?.monthOrderCount ?? 0} este mês`}
+          />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <StatCard label="Produtos cadastrados" value={productCount ?? 0} icon={Package}
+            color="bg-accent/10 text-accent" to="/admin/produtos"
+            subtitle={`${categoryCount ?? 0} categorias · ${subscriberCount ?? 0} inscritos`}
+          />
+        </motion.div>
+      </div>
 
-        {/* Goal progress */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
+      {/* ─── Goal Progress Bar ─── */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+        className="bg-card border border-border rounded-xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-accent" />
-            <span className="text-xs text-muted-foreground">Meta Mensal</span>
+            <span className="text-xs font-semibold">Meta Mensal</span>
           </div>
-          <p className="text-2xl font-semibold">{(analytics?.goalProgress ?? 0).toFixed(0)}%</p>
-          <div className="w-full h-2 bg-secondary rounded-full mt-3 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${analytics?.goalProgress ?? 0}%` }}
-              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-              className="h-full rounded-full"
-              style={{ background: `linear-gradient(90deg, ${CHART_GOLD}, ${CHART_EMERALD})` }}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {fmt(analytics?.monthRevenue ?? 0)} de {fmt(MONTHLY_GOAL)}
-          </p>
-        </motion.div>
-
-        {/* Ticket médio */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-          className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-4 w-4 text-blue-500" />
-            <span className="text-xs text-muted-foreground">Ticket Médio</span>
-          </div>
-          <p className="text-2xl font-semibold">{fmt(analytics?.thisMonthAvgTicket ?? 0)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Geral: {fmt(analytics?.avgTicket ?? 0)}
-          </p>
-        </motion.div>
-      </div>
+          <span className="text-xs text-muted-foreground">
+            {fmt(analytics?.monthRevenue ?? 0)} / {fmt(MONTHLY_GOAL)}
+          </span>
+        </div>
+        <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${analytics?.goalProgress ?? 0}%` }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+            className="h-full rounded-full bg-gradient-to-r from-accent to-emerald-500"
+          />
+        </div>
+        <div className="flex justify-between mt-1.5">
+          <span className="text-[10px] text-muted-foreground">{(analytics?.goalProgress ?? 0).toFixed(0)}% atingido</span>
+          <span className="text-[10px] text-muted-foreground">
+            Faltam {fmt(Math.max(0, MONTHLY_GOAL - (analytics?.monthRevenue ?? 0)))}
+          </span>
+        </div>
+      </motion.div>
 
       {/* ─── Charts row ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Revenue Area Chart */}
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="text-sm font-semibold mb-1">Vendas por Mês</h2>
-          <p className="text-xs text-muted-foreground mb-6">Últimos 12 meses</p>
-          <div className="h-[260px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Revenue Chart */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+          className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold">Faturamento</h2>
+              <p className="text-[10px] text-muted-foreground">Últimos 12 meses</p>
+            </div>
+            <span className="text-xs font-semibold text-accent">{fmt(analytics?.totalRevenue ?? 0)}</span>
+          </div>
+          <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={analytics?.monthlyData || []} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+              <AreaChart data={analytics?.monthlyData || []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={CHART_GOLD} stopOpacity={0.4} />
+                    <stop offset="0%" stopColor={CHART_GOLD} stopOpacity={0.3} />
                     <stop offset="100%" stopColor={CHART_GOLD} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(234, 8%, 18%)" vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 10, fill: "hsl(234, 6%, 55%)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tickFormatter={(v) => fmtShort(v)}
-                  tick={{ fontSize: 10, fill: "hsl(234, 6%, 55%)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(234, 8%, 15%)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 9, fill: "hsl(234, 6%, 45%)" }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={fmtShort} tick={{ fontSize: 9, fill: "hsl(234, 6%, 45%)" }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="receita"
-                  stroke={CHART_GOLD}
-                  strokeWidth={2.5}
-                  fill="url(#goldGradient)"
-                  dot={false}
-                  activeDot={{ r: 5, fill: CHART_GOLD, stroke: "hsl(234, 18%, 7%)", strokeWidth: 2 }}
-                />
+                <Area type="monotone" dataKey="receita" stroke={CHART_GOLD} strokeWidth={2} fill="url(#goldGradient)" dot={false}
+                  activeDot={{ r: 4, fill: CHART_GOLD, stroke: "hsl(234, 18%, 7%)", strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
 
-        {/* Ticket Médio Line Chart */}
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="text-sm font-semibold mb-1">Ticket Médio Mensal</h2>
-          <p className="text-xs text-muted-foreground mb-6">Evolução do valor médio por pedido</p>
-          <div className="h-[260px]">
+        {/* Ticket Chart */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold">Ticket Médio</h2>
+              <p className="text-[10px] text-muted-foreground">Evolução mensal</p>
+            </div>
+            <span className="text-xs font-semibold text-emerald-500">{fmt(analytics?.avgTicket ?? 0)}</span>
+          </div>
+          <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={analytics?.ticketData || []} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+              <AreaChart data={analytics?.ticketData || []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="emeraldGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={CHART_EMERALD} stopOpacity={0.3} />
+                    <stop offset="0%" stopColor={CHART_EMERALD} stopOpacity={0.25} />
                     <stop offset="100%" stopColor={CHART_EMERALD} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(234, 8%, 18%)" vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 10, fill: "hsl(234, 6%, 55%)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tickFormatter={(v) => fmtShort(v)}
-                  tick={{ fontSize: 10, fill: "hsl(234, 6%, 55%)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(234, 8%, 15%)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 9, fill: "hsl(234, 6%, 45%)" }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={fmtShort} tick={{ fontSize: 9, fill: "hsl(234, 6%, 45%)" }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="ticket"
-                  stroke={CHART_EMERALD}
-                  strokeWidth={2.5}
-                  fill="url(#emeraldGradient)"
-                  dot={false}
-                  activeDot={{ r: 5, fill: CHART_EMERALD, stroke: "hsl(234, 18%, 7%)", strokeWidth: 2 }}
-                />
+                <Area type="monotone" dataKey="ticket" stroke={CHART_EMERALD} strokeWidth={2} fill="url(#emeraldGradient)" dot={false}
+                  activeDot={{ r: 4, fill: CHART_EMERALD, stroke: "hsl(234, 18%, 7%)", strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -388,43 +346,26 @@ const AdminDashboard = () => {
       </div>
 
       {/* ─── Top Products + Goal Gauge ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Top Products Bar Chart */}
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="bg-card border border-border rounded-2xl p-5 lg:col-span-2">
-          <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-accent" />
-            Produtos Mais Vendidos
-          </h2>
-          <p className="text-xs text-muted-foreground mb-6">Por receita gerada</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="bg-card border border-border rounded-xl p-4 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold">Produtos Mais Vendidos</h2>
+              <p className="text-[10px] text-muted-foreground">Por receita gerada</p>
+            </div>
+          </div>
           {analytics?.topProducts?.length ? (
-            <div className="h-[280px]">
+            <div className="h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={analytics.topProducts}
-                  layout="vertical"
-                  margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(234, 8%, 18%)" horizontal={false} />
-                  <XAxis
-                    type="number"
-                    tickFormatter={(v) => fmtShort(v)}
-                    tick={{ fontSize: 10, fill: "hsl(234, 6%, 55%)" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: "hsl(0, 0%, 92%)" }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={120}
-                  />
+                <BarChart data={analytics.topProducts} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(234, 8%, 15%)" horizontal={false} />
+                  <XAxis type="number" tickFormatter={fmtShort} tick={{ fontSize: 9, fill: "hsl(234, 6%, 45%)" }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: "hsl(0, 0%, 85%)" }} axisLine={false} tickLine={false} width={110} />
                   <Tooltip content={<ChartTooltip />} />
-                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]} barSize={24}>
+                  <Bar dataKey="revenue" radius={[0, 4, 4, 0]} barSize={20}>
                     {analytics.topProducts.map((_, i) => (
-                      <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} fillOpacity={0.85} />
+                      <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} fillOpacity={0.8} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -436,14 +377,13 @@ const AdminDashboard = () => {
         </motion.div>
 
         {/* Goal Gauge */}
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
-          className="bg-card border border-border rounded-2xl p-5 flex flex-col items-center justify-center">
-          <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
-            <Target className="h-4 w-4 text-accent" />
-            Meta do Mês
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+          className="bg-card border border-border rounded-xl p-4 flex flex-col items-center justify-center">
+          <h2 className="text-sm font-semibold flex items-center gap-2 mb-1">
+            <Target className="h-4 w-4 text-accent" /> Meta do Mês
           </h2>
-          <p className="text-xs text-muted-foreground mb-4">{fmt(MONTHLY_GOAL)}</p>
-          <div className="h-[180px] w-[180px]">
+          <p className="text-[10px] text-muted-foreground mb-3">{fmt(MONTHLY_GOAL)}</p>
+          <div className="h-[160px] w-[160px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -451,55 +391,48 @@ const AdminDashboard = () => {
                     { value: analytics?.goalProgress ?? 0 },
                     { value: Math.max(0, 100 - (analytics?.goalProgress ?? 0)) },
                   ]}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={75}
-                  startAngle={90}
-                  endAngle={-270}
-                  dataKey="value"
-                  strokeWidth={0}
+                  cx="50%" cy="50%" innerRadius={50} outerRadius={68}
+                  startAngle={90} endAngle={-270} dataKey="value" strokeWidth={0}
                 >
                   <Cell fill={CHART_GOLD} />
-                  <Cell fill="hsl(234, 8%, 18%)" />
+                  <Cell fill="hsl(234, 8%, 15%)" />
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-3xl font-semibold -mt-[115px] mb-[70px]">
+          <p className="text-2xl font-bold -mt-[102px] mb-[58px]">
             {(analytics?.goalProgress ?? 0).toFixed(0)}%
           </p>
-          <div className="text-center space-y-1">
-            <p className="text-sm font-medium">{fmt(analytics?.monthRevenue ?? 0)}</p>
-            <p className="text-xs text-muted-foreground">
+          <div className="text-center space-y-0.5">
+            <p className="text-sm font-semibold">{fmt(analytics?.monthRevenue ?? 0)}</p>
+            <p className="text-[10px] text-muted-foreground">
               Faltam {fmt(Math.max(0, MONTHLY_GOAL - (analytics?.monthRevenue ?? 0)))}
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* ─── Low Stock + Recent Orders ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ─── Bottom Row ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Low stock */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
-              Estoque Baixo
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Estoque Baixo
             </h2>
-            <Link to="/admin/produtos" className="text-xs text-accent hover:underline">Ver todos</Link>
+            <Link to="/admin/produtos" className="text-[10px] text-accent hover:underline">Ver todos</Link>
           </div>
           {!lowStockProducts?.length ? (
-            <p className="text-xs text-muted-foreground">Nenhum produto com estoque baixo 🎉</p>
+            <p className="text-xs text-muted-foreground py-4">Tudo em ordem 🎉</p>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y divide-border">
               {lowStockProducts.map((p) => (
-                <div key={p.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div key={p.id} className="flex items-center justify-between py-2.5">
                   <div>
-                    <p className="text-sm font-medium">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">{p.sku}</p>
+                    <p className="text-[13px] font-medium">{p.name}</p>
+                    {p.sku && <p className="text-[10px] text-muted-foreground">{p.sku}</p>}
                   </div>
-                  <Badge variant={p.stock_quantity === 0 ? "destructive" : "outline"} className="text-xs">
+                  <Badge variant={p.stock_quantity === 0 ? "destructive" : "outline"} className="text-[10px]">
                     {p.stock_quantity === 0 ? "Esgotado" : `${p.stock_quantity} un.`}
                   </Badge>
                 </div>
@@ -509,29 +442,29 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent orders */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold">Pedidos Recentes</h2>
-            <Link to="/admin/pedidos" className="text-xs text-accent hover:underline">Ver todos</Link>
+        <div className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold">Últimos Pedidos</h2>
+            <Link to="/admin/pedidos" className="text-[10px] text-accent hover:underline">Ver todos</Link>
           </div>
           {!recentOrders?.length ? (
-            <p className="text-xs text-muted-foreground">Nenhum pedido ainda.</p>
+            <p className="text-xs text-muted-foreground py-4">Nenhum pedido ainda.</p>
           ) : (
-            <div className="space-y-3">
+            <div className="divide-y divide-border">
               {recentOrders.map((order) => {
                 const st = statusMap[order.status] || statusMap.pending;
                 return (
-                  <div key={order.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div key={order.id} className="flex items-center justify-between py-2.5">
                     <div>
-                      <p className="text-sm font-medium">{order.customer_name}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[13px] font-medium">{order.customer_name}</p>
+                      <p className="text-[10px] text-muted-foreground">
                         {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
                         {" · "}{order.customer_phone}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={st.variant} className="text-xs">{st.label}</Badge>
-                      <span className="text-sm font-semibold">{fmt(Number(order.total))}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={st.variant} className="text-[10px]">{st.label}</Badge>
+                      <span className="text-[13px] font-semibold tabular-nums">{fmt(Number(order.total))}</span>
                     </div>
                   </div>
                 );
@@ -540,21 +473,6 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
-
-      {/* Pending alert */}
-      {(analytics?.pending ?? 0) > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-center gap-4"
-        >
-          <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
-          <div>
-            <p className="text-sm font-medium">Você tem {analytics?.pending} pedido(s) pendente(s)</p>
-            <Link to="/admin/pedidos" className="text-xs text-accent hover:underline">Ver pedidos →</Link>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 };

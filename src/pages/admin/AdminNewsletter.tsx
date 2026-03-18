@@ -1,51 +1,56 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 const AdminNewsletter = () => {
   const { data: subscribers, isLoading } = useQuery({
     queryKey: ["admin-newsletter"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("newsletter_subscribers")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("newsletter_subscribers").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-serif font-semibold">Newsletter</h1>
-          <p className="text-xs text-muted-foreground mt-1">{subscribers?.length ?? 0} inscritos</p>
-        </div>
+    <div className="space-y-5 max-w-[1400px]">
+      <div>
+        <h1 className="text-xl font-serif font-semibold">Newsletter</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">{subscribers?.length ?? 0} inscritos</p>
       </div>
 
-      <div className="space-y-2">
-        {isLoading ? (
-          <p className="text-muted-foreground text-sm">Carregando...</p>
-        ) : subscribers && subscribers.length > 0 ? (
-          subscribers.map((s) => (
-            <div key={s.id} className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl">
-              <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{s.email}</p>
-                <p className="text-xs text-muted-foreground">
+      {isLoading ? (
+        <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-12 bg-card/50 rounded-lg animate-pulse" />)}</div>
+      ) : subscribers && subscribers.length > 0 ? (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="hidden md:grid grid-cols-[1fr_160px] gap-3 px-4 py-2.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <span>Email</span>
+            <span>Data de inscrição</span>
+          </div>
+          <div className="divide-y divide-border">
+            {subscribers.map((s, i) => (
+              <motion.div key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                className="grid grid-cols-[1fr_auto] md:grid-cols-[1fr_160px] gap-3 items-center px-4 py-3 hover:bg-secondary/30 transition-colors">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="h-7 w-7 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <Mail className="h-3 w-3 text-accent" />
+                  </div>
+                  <span className="text-[13px] font-medium truncate">{s.email}</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground">
                   {new Date(s.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
-                </p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">Nenhum inscrito ainda.</p>
-        )}
-      </div>
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <Mail className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+          <p className="text-sm text-muted-foreground">Nenhum inscrito ainda.</p>
+        </div>
+      )}
     </div>
   );
 };
