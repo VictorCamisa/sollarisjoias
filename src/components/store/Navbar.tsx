@@ -14,7 +14,15 @@ const navLinks = [
 const Navbar = () => {
   const { totalItems, setIsOpen } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 64);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Close menu on route change
   useEffect(() => {
@@ -33,7 +41,12 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      <header className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        scrolled || menuOpen
+          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-[0_1px_0_0_hsl(var(--border))]"
+          : "bg-transparent border-b border-transparent"
+      )}>
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           {/* Mobile menu toggle */}
           <button

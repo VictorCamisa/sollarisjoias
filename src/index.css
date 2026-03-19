@@ -149,6 +149,18 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, hsl(var(--sollaris-champagne) / 0.4), transparent);
   }
+
+  /* Brand marquee */
+  @keyframes sollaris-marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Clip-path reveal */
+  @keyframes sollaris-reveal-down {
+    from { clip-path: inset(0 0 100% 0); }
+    to   { clip-path: inset(0 0 0% 0); }
+  }
 }
 
 /* Custom scrollbar */
