@@ -29,6 +29,8 @@ import AdminTarefas from "./pages/admin/AdminTarefas";
 import AdminNotas from "./pages/admin/AdminNotas";
 import AdminFornecedores from "./pages/admin/AdminFornecedores";
 import AdminCupons from "./pages/admin/AdminCupons";
+import AdminMarketing from "./pages/admin/AdminMarketing";
+import AdminAutomacoes from "./pages/admin/AdminAutomacoes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +67,8 @@ const App = () => (
                 <Route path="cupons" element={<AdminCupons />} />
                 <Route path="tarefas" element={<AdminTarefas />} />
                 <Route path="notas" element={<AdminNotas />} />
+                <Route path="marketing" element={<AdminMarketing />} />
+                <Route path="automacoes" element={<AdminAutomacoes />} />
                 <Route path="configuracoes" element={<AdminSettings />} />
               </Route>
 
