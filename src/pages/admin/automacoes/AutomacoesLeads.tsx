@@ -55,7 +55,7 @@ const AutomacoesLeads = () => {
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["sales-leads"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_leads").select("*").order("created_at", { ascending: false });
+      const { data } = await (supabase.from as any)("sales_leads").select("*").order("created_at", { ascending: false });
       return data || [];
     },
   });
@@ -74,9 +74,9 @@ const AutomacoesLeads = () => {
         notes: values.notes || null,
       };
       if (editingId) {
-        await supabase.from("sales_leads").update(payload).eq("id", editingId);
+        await (supabase.from as any)("sales_leads").update(payload).eq("id", editingId);
       } else {
-        await supabase.from("sales_leads").insert(payload);
+        await (supabase.from as any)("sales_leads").insert(payload);
       }
     },
     onSuccess: () => {
@@ -92,7 +92,7 @@ const AutomacoesLeads = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_leads").delete().eq("id", id);
+      await (supabase.from as any)("sales_leads").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-leads"] });
@@ -102,7 +102,7 @@ const AutomacoesLeads = () => {
 
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      await supabase.from("sales_leads").update({ status }).eq("id", id);
+      await (supabase.from as any)("sales_leads").update({ status }).eq("id", id);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sales-leads"] }),
   });

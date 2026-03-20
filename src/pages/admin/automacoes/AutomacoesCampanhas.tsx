@@ -62,7 +62,7 @@ const AutomacoesCampanhas = () => {
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ["sales-campaigns"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_campaigns").select("*").order("created_at", { ascending: false });
+      const { data } = await (supabase.from as any)("sales_campaigns").select("*").order("created_at", { ascending: false });
       return data || [];
     },
   });
@@ -70,14 +70,14 @@ const AutomacoesCampanhas = () => {
   const { data: leadsCount } = useQuery({
     queryKey: ["sales-leads-count"],
     queryFn: async () => {
-      const { count } = await supabase.from("sales_leads").select("*", { count: "exact", head: true });
+      const { count } = await (supabase.from as any)("sales_leads").select("*", { count: "exact", head: true });
       return count || 0;
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      await supabase.from("sales_campaigns").insert({
+      await (supabase.from as any)("sales_campaigns").insert({
         name: form.name,
         description: form.description || null,
         channel: form.channel,
@@ -102,7 +102,7 @@ const AutomacoesCampanhas = () => {
       const extra: any = {};
       if (status === "ativa") extra.started_at = new Date().toISOString();
       if (status === "concluida") extra.completed_at = new Date().toISOString();
-      await supabase.from("sales_campaigns").update({ status, ...extra }).eq("id", id);
+      await (supabase.from as any)("sales_campaigns").update({ status, ...extra }).eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-campaigns"] });
@@ -112,7 +112,7 @@ const AutomacoesCampanhas = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_campaigns").delete().eq("id", id);
+      await (supabase.from as any)("sales_campaigns").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-campaigns"] });

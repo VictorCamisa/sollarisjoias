@@ -103,7 +103,7 @@ const AutomacoesIA = () => {
   const { data: savedConfig } = useQuery({
     queryKey: ["sales-ai-config"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_ai_config").select("*").single();
+      const { data } = await (supabase.from as any)("sales_ai_config").select("*").single();
       return data;
     },
     onSuccess: (data: any) => {
@@ -125,16 +125,16 @@ const AutomacoesIA = () => {
   const { data: knowledgeDocs = [] } = useQuery({
     queryKey: ["sales-knowledge"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_knowledge_docs").select("title, content, category");
+      const { data } = await (supabase.from as any)("sales_knowledge_docs").select("title, content, category");
       return data || [];
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const { data: existing } = await supabase.from("sales_ai_config").select("id").single();
+      const { data: existing } = await (supabase.from as any)("sales_ai_config").select("id").single();
       if (existing?.id) {
-        await supabase.from("sales_ai_config").update({
+        await (supabase.from as any)("sales_ai_config").update({
           enabled: config.enabled,
           system_prompt: config.system_prompt,
           temperature: config.temperature,
@@ -144,6 +144,17 @@ const AutomacoesIA = () => {
           schedule_days: config.schedule_days,
           only_outside_hours: config.only_outside_hours,
         }).eq("id", existing.id);
+      } else {
+        await (supabase.from as any)("sales_ai_config").insert({
+          enabled: config.enabled,
+          system_prompt: config.system_prompt,
+          temperature: config.temperature,
+          scenario_key: config.scenario_key,
+          schedule_start: config.schedule_start,
+          schedule_end: config.schedule_end,
+          schedule_days: config.schedule_days,
+          only_outside_hours: config.only_outside_hours,
+        });
       }
     },
     onSuccess: () => {
