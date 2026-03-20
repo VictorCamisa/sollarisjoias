@@ -40,11 +40,38 @@ const STATUS_LEAD_LABELS: Record<string, string> = {
 };
 
 const MESSAGE_TEMPLATES = [
-  { label: "Nova Coleção", text: "Olá, {nome}! 💎 A nova coleção Sollaris chegou e você vai amar. Peças exclusivas em ouro 18k com pedras selecionadas. Quer conhecer? Agende sua visita: [link]" },
-  { label: "Promoção Relâmpago", text: "✨ {nome}, só hoje: 15% OFF em toda a linha de colares da Sollaris. Use o código COLAR15. Aproveite antes que acabe!" },
-  { label: "Lembrete de Aniversário", text: "🎂 {nome}, seu aniversário está chegando! Que tal se presentear com uma joia especial da Sollaris? Temos uma surpresa esperando por você na loja." },
-  { label: "Reativação", text: "Olá, {nome}! Sentimos sua falta na Sollaris. Preparamos uma seleção especial baseada no seu estilo. Venha nos visitar ou acesse [link] para ver as novidades." },
-  { label: "Pós-compra", text: "{nome}, esperamos que esteja adorando sua nova peça Sollaris! 💕 Qualquer dúvida sobre cuidados ou ajuste, estamos aqui. Deixe sua avaliação: [link]" },
+  {
+    label: "Nova Coleção",
+    text: "Olá, {nome}! ✨\n\nUma nova coleção acaba de chegar à Sollaris — e ela foi feita pensando em você.\n\nPeças exclusivas em ouro 18k com pedras selecionadas a mão. Cada detalhe conta uma história.\n\n💎 Quer ver em primeira mão? Agende sua visita ou responda essa mensagem.\n\nSerá um prazer te receber!\n— Equipe Sollaris",
+  },
+  {
+    label: "Dia das Mães",
+    text: "{nome}, o Dia das Mães está chegando — e a maior declaração de amor pode caber numa caixinha. 💛\n\nSelecionamos as peças mais especiais para esse momento: colares, brincos e anéis em ouro 18k que ela vai usar para sempre.\n\n🎁 Embalagem premium + mensagem personalizada inclusa.\n\nGaranta antes que acabe — estoque limitado!\n— Sollaris 💎",
+  },
+  {
+    label: "Dia dos Namorados",
+    text: "{nome}, que presente você está planejando? 💍\n\nNa Sollaris, cada joia conta uma história de amor. De anéis clássicos a colares exclusivos — temos a peça certa para o seu momento especial.\n\n✨ Entrega garantida antes do Dia dos Namorados.\n\nMe conta: você prefere algo clássico, moderno ou personalizado?\n— Sollaris",
+  },
+  {
+    label: "Natal & Fim de Ano",
+    text: "{nome}, uma joia Sollaris é o presente que fica para sempre. 🌟\n\nColeção especial disponível com:\n✓ Embalagem premium de presente\n✓ Entrega expressa\n✓ Gravação personalizada em peças selecionadas\n\nNão deixe para a última hora — as favoritas esgotam rápido!\n— Equipe Sollaris 💎",
+  },
+  {
+    label: "Aniversário do Cliente",
+    text: "{nome}, feliz aniversário! 🎂\n\nNesse dia tão especial, a Sollaris quer celebrar com você. Preparamos uma surpresa — venha nos visitar e descubra o que temos para você.\n\nSó porque você merece brilhar ainda mais nessa data! ✨\n\nCom carinho,\n— Equipe Sollaris 💎",
+  },
+  {
+    label: "Reativação",
+    text: "{nome}, sentimos sua falta! 💛\n\nFaz um tempo que não nos encontramos. Enquanto isso, chegaram coisas incríveis na Sollaris — peças que tenho certeza que você vai adorar.\n\nQue tal uma visita? Tenho uma novidade guardada para você.\n\nEstamos esperando! 💎\n— Sollaris",
+  },
+  {
+    label: "Pós-compra",
+    text: "{nome}, esperamos que esteja apaixonada pela sua nova peça! 💕\n\nDica de cuidado: guarde em local seco e evite contato com perfume diretamente na joia — ela vai durar para sempre assim.\n\nQualquer dúvida sobre ajuste ou cuidados, estamos aqui.\n\nNos vemos em breve? 💎\n— Equipe Sollaris",
+  },
+  {
+    label: "Promoção Relâmpago",
+    text: "{nome}, avisa agora: condição especial na Sollaris! ⚡\n\nPor tempo limitado: peças selecionadas com preço especial. Estoque pequeno — vai rápido!\n\nNão perca a chance de garantir aquela peça que você estava de olho. 💎\n\n👉 Responda essa mensagem e te passo os detalhes agora.\n— Sollaris",
+  },
 ];
 
 const emptyForm = {
