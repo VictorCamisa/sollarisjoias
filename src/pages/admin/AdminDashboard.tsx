@@ -256,7 +256,7 @@ const AdminDashboard = () => {
 
       {/* ─── Goal Progress Bar ─── */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="bg-card border border-border rounded-xl p-4">
+        className="admin-card p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-accent" />
@@ -286,7 +286,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Revenue Chart */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-          className="bg-card border border-border rounded-xl p-4">
+          className="admin-card p-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold">Faturamento</h2>
@@ -316,7 +316,7 @@ const AdminDashboard = () => {
 
         {/* Ticket Chart */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="bg-card border border-border rounded-xl p-4">
+          className="admin-card p-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold">Ticket Médio</h2>
@@ -348,7 +348,7 @@ const AdminDashboard = () => {
       {/* ─── Top Products + Goal Gauge ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="bg-card border border-border rounded-xl p-4 lg:col-span-2">
+          className="admin-card p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold">Produtos Mais Vendidos</h2>
@@ -378,7 +378,7 @@ const AdminDashboard = () => {
 
         {/* Goal Gauge */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="bg-card border border-border rounded-xl p-4 flex flex-col items-center justify-center">
+          className="admin-card p-4 flex flex-col items-center justify-center">
           <h2 className="text-sm font-semibold flex items-center gap-2 mb-1">
             <Target className="h-4 w-4 text-accent" /> Meta do Mês
           </h2>
@@ -415,7 +415,7 @@ const AdminDashboard = () => {
       {/* ─── Bottom Row ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Low stock */}
-        <div className="bg-card border border-border rounded-xl p-4">
+        <div className="admin-card p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Estoque Baixo
@@ -442,7 +442,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent orders */}
-        <div className="bg-card border border-border rounded-xl p-4">
+        <div className="admin-card p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold">Últimos Pedidos</h2>
             <Link to="/admin/pedidos" className="text-[10px] text-accent hover:underline">Ver todos</Link>
