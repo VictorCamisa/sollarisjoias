@@ -101,11 +101,11 @@ const AdminLayout = () => {
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 py-4 overflow-y-auto scrollbar-hide">
+          <nav className="flex-1 py-3 overflow-y-auto">
             {navGroups.map((group) => (
-              <div key={group.label} className="mb-4">
+              <div key={group.label} className="mb-2">
                 {!collapsed && (
-                  <p className="px-4 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
+                  <p className="px-4 mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
                     {group.label}
                   </p>
                 )}
@@ -118,7 +118,7 @@ const AdminLayout = () => {
                         to={item.to}
                         className={cn(
                           "flex items-center gap-2.5 rounded-lg text-[13px] font-medium transition-all duration-200",
-                          collapsed ? "h-10 w-10 justify-center mx-auto" : "px-3 py-2",
+                          collapsed ? "h-9 w-9 justify-center mx-auto" : "px-3 py-1.5",
                           active
                             ? "bg-accent/10 text-accent"
                             : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
