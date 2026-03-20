@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart,
   Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket,
-  ChevronLeft, ChevronRight, Store,
+  ChevronLeft, ChevronRight, Store, Megaphone, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -35,6 +35,13 @@ const navGroups = [
       { to: "/admin/tarefas", icon: ListTodo, label: "Tarefas" },
       { to: "/admin/notas", icon: StickyNote, label: "Notas" },
       { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
+    ],
+  },
+  {
+    label: "Crescimento",
+    items: [
+      { to: "/admin/marketing", icon: Megaphone, label: "Marketing" },
+      { to: "/admin/automacoes", icon: Zap, label: "Automações" },
     ],
   },
 ];
