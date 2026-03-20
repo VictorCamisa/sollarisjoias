@@ -354,7 +354,118 @@ const AutomacoesIA = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="test" className="mt-4">
+        <TabsContent value="routing" className="space-y-5 mt-4">
+          {/* Routing explanation */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sistema de Roteamento Híbrido</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-[12px] text-muted-foreground leading-relaxed">
+                O roteamento híbrido combina <strong>regras automáticas</strong> baseadas nos dados do lead com a <strong>classificação da IA</strong> que analisa a intenção da mensagem. O admin também pode forçar um perfil específico na ficha do lead.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-[11px] font-semibold mb-1">1. Override Manual</p>
+                  <p className="text-[10px] text-muted-foreground">Se o lead tem um perfil forçado na ficha, esse é usado diretamente.</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-[11px] font-semibold mb-1">2. Regras por Dados</p>
+                  <p className="text-[10px] text-muted-foreground">Status, origem, engajamento e métricas determinam o perfil padrão.</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-[11px] font-semibold mb-1">3. Classificação da IA</p>
+                  <p className="text-[10px] text-muted-foreground">A IA pode trocar o perfil se detectar uma intenção diferente na mensagem.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Routing rules table */}
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Regras de Roteamento Automático</Label>
+            <p className="text-[10px] text-muted-foreground mt-0.5 mb-3">Avaliadas em ordem de prioridade. A primeira regra que corresponder define o perfil.</p>
+            <div className="border border-border rounded-xl overflow-hidden">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-muted/30 border-b border-border">
+                    <th className="text-left px-4 py-2 font-semibold text-muted-foreground text-[11px]">Condição do Lead</th>
+                    <th className="text-center px-4 py-2 font-semibold text-muted-foreground text-[11px]"></th>
+                    <th className="text-left px-4 py-2 font-semibold text-muted-foreground text-[11px]">Perfil IA Usado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { condition: "Override manual definido na ficha", profile: "Perfil escolhido pelo admin", priority: "Máxima" },
+                    { condition: "Mensagem contém reclamação / problema", profile: "Atendimento Geral", priority: "Alta" },
+                    { condition: 'Status = "convertido" ou pedido recente', profile: "Pós-Venda & Fidelização", priority: "Alta" },
+                    { condition: 'Status = "qualificado" + budget definido', profile: "Vendedora Ativa", priority: "Média" },
+                    { condition: 'Status = "novo" ou "em_contato"', profile: "Consultora de Joias", priority: "Normal" },
+                    { condition: "Nenhuma regra corresponde", profile: "Consultora de Joias (fallback)", priority: "Baixa" },
+                  ].map((rule, i) => (
+                    <tr key={i} className="border-b border-border/50 last:border-0">
+                      <td className="px-4 py-2.5 text-[12px]">{rule.condition}</td>
+                      <td className="px-2 py-2.5 text-center"><ArrowRight className="h-3 w-3 text-muted-foreground mx-auto" /></td>
+                      <td className="px-4 py-2.5">
+                        <Badge variant="secondary" className="text-[10px]">{rule.profile}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Context data used */}
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dados do Lead Enviados como Contexto</Label>
+            <p className="text-[10px] text-muted-foreground mt-0.5 mb-3">Esses dados são injetados no prompt junto com o perfil selecionado para personalizar a resposta.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {[
+                { label: "Identificação", items: "Nome, telefone, e-mail" },
+                { label: "Perfil", items: "Status, origem, interesse, ocasião" },
+                { label: "Financeiro", items: "Orçamento, ticket médio, valor total gasto" },
+                { label: "Histórico", items: "Última compra, pedidos anteriores, preferências" },
+                { label: "Engajamento", items: "Score, tempo de resposta, produtos visualizados" },
+                { label: "Campanhas", items: "Campanhas recebidas, interações, conversões" },
+              ].map((g) => (
+                <div key={g.label} className="border border-border rounded-lg p-2.5">
+                  <p className="text-[11px] font-semibold mb-0.5">{g.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{g.items}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How IA classification works */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Classificação pela IA (Camada Inteligente)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[12px] text-muted-foreground leading-relaxed mb-3">
+                Mesmo com as regras definindo o perfil padrão, a IA analisa cada mensagem do lead e pode <strong>trocar o perfil em tempo real</strong> se detectar uma intenção diferente:
+              </p>
+              <div className="space-y-1.5">
+                {[
+                  { from: "Vendedora", trigger: "Lead faz reclamação", to: "Atendimento" },
+                  { from: "Consultora", trigger: "Lead pede preço/desconto", to: "Vendedora" },
+                  { from: "Atendimento", trigger: "Lead mostra interesse em nova peça", to: "Consultora" },
+                  { from: "Qualquer", trigger: "Lead menciona compra recente", to: "Pós-Venda" },
+                ].map((e, i) => (
+                  <div key={i} className="flex items-center gap-2 text-[11px]">
+                    <Badge variant="outline" className="text-[10px] min-w-[80px] justify-center">{e.from}</Badge>
+                    <span className="text-muted-foreground">+</span>
+                    <span className="text-muted-foreground flex-1">"{e.trigger}"</span>
+                    <ArrowRight className="h-3 w-3 text-accent" />
+                    <Badge className="bg-accent/10 text-accent border-accent/20 text-[10px] min-w-[80px] justify-center">{e.to}</Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
           <div className="border border-border rounded-xl overflow-hidden" style={{ height: 520 }}>
             {/* Chat header */}
             <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-card/50">
