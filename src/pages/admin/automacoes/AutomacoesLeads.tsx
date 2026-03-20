@@ -37,9 +37,17 @@ const INTEREST_LABELS: Record<string, string> = {
   personalizado: "Personalizado", outro: "Outro",
 };
 
+const AI_PROFILE_OPTIONS: Record<string, string> = {
+  auto: "Automático (híbrido)",
+  consultora: "Consultora de Joias",
+  vendedora: "Vendedora Ativa",
+  atendimento: "Atendimento Geral",
+  pos_venda: "Pós-Venda & Fidelização",
+};
+
 const emptyForm = {
   name: "", phone: "", email: "", source: "manual", status: "novo",
-  interest: "", budget: "", occasion: "", notes: "",
+  interest: "", budget: "", occasion: "", notes: "", ai_profile_override: "",
 };
 
 const AutomacoesLeads = () => {
@@ -62,7 +70,7 @@ const AutomacoesLeads = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (values: typeof form & { id?: string }) => {
-      const payload = {
+      const payload: any = {
         name: values.name,
         phone: values.phone || null,
         email: values.email || null,
@@ -72,6 +80,7 @@ const AutomacoesLeads = () => {
         budget: values.budget ? Number(values.budget) : null,
         occasion: values.occasion || null,
         notes: values.notes || null,
+        ai_profile_override: values.ai_profile_override || null,
       };
       if (editingId) {
         await (supabase.from as any)("sales_leads").update(payload).eq("id", editingId);
@@ -113,7 +122,7 @@ const AutomacoesLeads = () => {
       name: lead.name, phone: lead.phone || "", email: lead.email || "",
       source: lead.source, status: lead.status, interest: lead.interest || "",
       budget: lead.budget ? String(lead.budget) : "", occasion: lead.occasion || "",
-      notes: lead.notes || "",
+      notes: lead.notes || "", ai_profile_override: lead.ai_profile_override || "",
     });
     setDialogOpen(true);
   };
