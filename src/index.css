@@ -20,19 +20,19 @@
     --foreground: 0 0% 92%;
 
     /* Card: Slightly lighter */
-    --card: 234 14% 11%;
+    --card: 234 14% 10%;
     --card-foreground: 0 0% 90%;
 
     --popover: 234 14% 10%;
     --popover-foreground: 0 0% 88%;
 
     /* Secondary */
-    --secondary: 234 10% 15%;
+    --secondary: 234 10% 14%;
     --secondary-foreground: 0 0% 90%;
 
     /* Muted */
-    --muted: 234 8% 18%;
-    --muted-foreground: 234 6% 55%;
+    --muted: 234 8% 17%;
+    --muted-foreground: 234 6% 52%;
 
     /* Accent: Ouro Champagne #D1BF94 */
     --accent: 39 41% 70%;
@@ -41,12 +41,12 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders */
-    --border: 234 8% 18%;
-    --input: 234 8% 18%;
+    /* Borders — slightly more visible */
+    --border: 234 8% 16%;
+    --input: 234 8% 16%;
     --ring: 39 41% 70%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
     /* Brand tokens — Sollaris */
     --sollaris-obsidiana: 234 18% 7%;
@@ -58,14 +58,22 @@
     --sollaris-midnight: 228 50% 15%;
 
     /* Sidebar (admin) */
-    --sidebar-background: 234 18% 7%;
+    --sidebar-background: 234 16% 8%;
     --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 39 41% 70%;
     --sidebar-primary-foreground: 234 18% 7%;
-    --sidebar-accent: 234 10% 14%;
+    --sidebar-accent: 234 10% 13%;
     --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 234 8% 16%;
+    --sidebar-border: 234 8% 14%;
     --sidebar-ring: 39 41% 70%;
+
+    /* Status colors — semantic tokens */
+    --success: 152 57% 48%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
   }
 }
 
@@ -101,6 +109,68 @@
   }
 }
 
+@layer components {
+  /* ─── Admin-specific component tokens ─── */
+  
+  /* Fluid card with subtle hover */
+  .admin-card {
+    @apply bg-card border border-border rounded-xl transition-all duration-300;
+    @apply hover:border-accent/15 hover:shadow-lg hover:shadow-accent/[0.03];
+  }
+
+  /* Table styling */
+  .admin-table {
+    @apply w-full text-sm;
+  }
+  .admin-table thead tr {
+    @apply bg-secondary/40 border-b border-border;
+  }
+  .admin-table thead th {
+    @apply text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+  .admin-table tbody tr {
+    @apply border-b border-border/50 transition-colors duration-150;
+    @apply hover:bg-secondary/30;
+  }
+  .admin-table tbody td {
+    @apply px-4 py-3;
+  }
+
+  /* Section label */
+  .admin-section-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground;
+  }
+
+  /* Stat badge */
+  .admin-stat-pill {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border;
+  }
+
+  /* Input group */
+  .admin-input {
+    @apply h-9 text-sm bg-secondary/40 border-border/60 rounded-lg;
+    @apply focus:border-accent/40 focus:ring-1 focus:ring-accent/20;
+    @apply placeholder:text-muted-foreground/40 transition-all duration-200;
+  }
+
+  /* Button reset for nav items */
+  .admin-nav-item {
+    @apply flex items-center gap-2.5 rounded-lg text-[13px] font-medium;
+    @apply transition-all duration-200 ease-out;
+  }
+
+  /* Page header */
+  .admin-page-header {
+    @apply flex items-center justify-between mb-6;
+  }
+  .admin-page-title {
+    @apply text-lg font-serif tracking-tight;
+  }
+  .admin-page-subtitle {
+    @apply text-xs text-muted-foreground mt-0.5;
+  }
+}
+
 @layer utilities {
   .scroll-smooth {
     scroll-behavior: smooth;
@@ -129,12 +199,21 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.4s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.6s ease-out forwards;
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
   }
 
   .hover-lift {
@@ -167,6 +246,6 @@
 @media (min-width: 768px) {
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: hsl(var(--secondary)); }
-  ::-webkit-scrollbar-thumb { background: hsl(var(--sollaris-champagne) / 0.25); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--sollaris-champagne) / 0.45); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--sollaris-champagne) / 0.2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--sollaris-champagne) / 0.4); }
 }
