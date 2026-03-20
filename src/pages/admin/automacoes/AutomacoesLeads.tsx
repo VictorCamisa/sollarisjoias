@@ -342,6 +342,15 @@ const AutomacoesLeads = () => {
               <Label className="text-xs">Ocasião</Label>
               <Input className="mt-1 h-8 text-sm" value={form.occasion} onChange={(e) => setForm({ ...form, occasion: e.target.value })} placeholder="Ex: casamento, presente, uso próprio..." />
             </div>
+            <div>
+              <Label className="text-xs">Perfil IA (Override)</Label>
+              <Select value={form.ai_profile_override || "auto"} onValueChange={(v) => setForm({ ...form, ai_profile_override: v === "auto" ? "" : v })}>
+                <SelectTrigger className="mt-1 h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(AI_PROFILE_OPTIONS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="col-span-2">
               <Label className="text-xs">Observações</Label>
               <Textarea className="mt-1 text-sm resize-none" rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Informações adicionais sobre o lead..." />
