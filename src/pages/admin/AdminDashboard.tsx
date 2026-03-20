@@ -50,9 +50,9 @@ const ChartTooltip = ({ active, payload, label, formatter }: any) => {
 /* ─── Stat Card ─── */
 const StatCard = ({ label, value, icon: Icon, color, to, subtitle, trend }: any) => (
   <Link to={to} className="group block">
-    <div className="bg-card border border-border rounded-xl p-4 hover:border-accent/20 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-accent/5">
+    <div className="admin-card p-4">
       <div className="flex items-center justify-between mb-3">
-        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${color}`}>
+        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${color} transition-transform duration-200 group-hover:scale-105`}>
           <Icon className="h-4 w-4" />
         </div>
         {trend !== undefined && trend !== 0 && (
@@ -62,9 +62,9 @@ const StatCard = ({ label, value, icon: Icon, color, to, subtitle, trend }: any)
           </div>
         )}
       </div>
-      <p className="text-2xl font-bold tracking-tight">{value}</p>
+      <p className="text-2xl font-bold tracking-tight font-sans">{value}</p>
       <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
-      {subtitle && <p className="text-[10px] text-muted-foreground/60 mt-0.5">{subtitle}</p>}
+      {subtitle && <p className="text-[10px] text-muted-foreground/50 mt-0.5">{subtitle}</p>}
     </div>
   </Link>
 );
@@ -211,12 +211,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-[1400px]">
+    <div className="space-y-5 max-w-[1400px]">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="admin-page-header">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Visão geral da operação</p>
+          <h1 className="admin-page-title">Dashboard</h1>
+          <p className="admin-page-subtitle">Visão geral da operação</p>
         </div>
         {(analytics?.pending ?? 0) > 0 && (
           <Link to="/admin/pedidos" className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5 text-xs font-medium text-amber-500 hover:bg-amber-500/15 transition">
@@ -256,7 +256,7 @@ const AdminDashboard = () => {
 
       {/* ─── Goal Progress Bar ─── */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="bg-card border border-border rounded-xl p-4">
+        className="admin-card p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-accent" />
@@ -286,7 +286,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Revenue Chart */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-          className="bg-card border border-border rounded-xl p-4">
+          className="admin-card p-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold">Faturamento</h2>
@@ -316,7 +316,7 @@ const AdminDashboard = () => {
 
         {/* Ticket Chart */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="bg-card border border-border rounded-xl p-4">
+          className="admin-card p-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold">Ticket Médio</h2>
@@ -348,7 +348,7 @@ const AdminDashboard = () => {
       {/* ─── Top Products + Goal Gauge ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="bg-card border border-border rounded-xl p-4 lg:col-span-2">
+          className="admin-card p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold">Produtos Mais Vendidos</h2>
@@ -378,7 +378,7 @@ const AdminDashboard = () => {
 
         {/* Goal Gauge */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="bg-card border border-border rounded-xl p-4 flex flex-col items-center justify-center">
+          className="admin-card p-4 flex flex-col items-center justify-center">
           <h2 className="text-sm font-semibold flex items-center gap-2 mb-1">
             <Target className="h-4 w-4 text-accent" /> Meta do Mês
           </h2>
@@ -415,7 +415,7 @@ const AdminDashboard = () => {
       {/* ─── Bottom Row ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Low stock */}
-        <div className="bg-card border border-border rounded-xl p-4">
+        <div className="admin-card p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Estoque Baixo
@@ -442,7 +442,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent orders */}
-        <div className="bg-card border border-border rounded-xl p-4">
+        <div className="admin-card p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold">Últimos Pedidos</h2>
             <Link to="/admin/pedidos" className="text-[10px] text-accent hover:underline">Ver todos</Link>

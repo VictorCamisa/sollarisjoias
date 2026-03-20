@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Store, Lock } from "lucide-react";
+import { Store, Lock, ArrowRight } from "lucide-react";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -41,34 +41,73 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        className="w-full max-w-[360px]"
+      >
+        {/* Brand */}
         <div className="text-center mb-8">
-          <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
-            <Store className="h-6 w-6 text-accent" />
-          </div>
-          <h1 className="font-serif text-xl tracking-[0.2em]">SOLLARIS</h1>
-          <div className="gold-line w-10 mx-auto my-3" />
-          <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase font-medium">Painel Administrativo</p>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="h-14 w-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-5"
+          >
+            <Store className="h-7 w-7 text-accent" />
+          </motion.div>
+          <h1 className="font-serif text-xl tracking-[0.2em] text-foreground">SOLLARIS</h1>
+          <div className="gold-line w-12 mx-auto my-3" />
+          <p className="text-muted-foreground text-[10px] tracking-[0.18em] uppercase font-medium">
+            Painel Administrativo
+          </p>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6">
+        {/* Card */}
+        <div className="admin-card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="rounded-lg h-10 mt-1" required />
+              <Label className="admin-section-label mb-1.5 block">Email</Label>
+              <Input
+                id="email" type="email" value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="admin-input" required
+                placeholder="admin@sollaris.com"
+              />
             </div>
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Senha</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="rounded-lg h-10 mt-1" required />
+              <Label className="admin-section-label mb-1.5 block">Senha</Label>
+              <Input
+                id="password" type="password" value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="admin-input" required
+                placeholder="••••••••"
+              />
             </div>
-            <Button type="submit" className="w-full rounded-lg h-10 gap-2" disabled={loading}>
-              <Lock className="h-3.5 w-3.5" />
-              {loading ? "Entrando..." : "Entrar"}
+            <Button
+              type="submit"
+              className="w-full h-10 gap-2 rounded-lg font-medium text-sm mt-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="h-3.5 w-3.5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
+                  Entrando...
+                </>
+              ) : (
+                <>
+                  Acessar Painel
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </>
+              )}
             </Button>
           </form>
         </div>
+
+        <p className="text-center text-[10px] text-muted-foreground/40 mt-6 tracking-wider">
+          Acesso restrito a administradores
+        </p>
       </motion.div>
     </div>
   );
