@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Bot, Save, Send, RefreshCw, Sparkles, Settings, MessageSquare, Clock } from "lucide-react";
+import { Bot, Save, Send, RefreshCw, Sparkles, Settings, MessageSquare, Clock, Route, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -243,6 +243,7 @@ const AutomacoesIA = () => {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="h-8">
           <TabsTrigger value="config" className="text-xs h-6"><Settings className="h-3 w-3 mr-1" />Configuração</TabsTrigger>
+          <TabsTrigger value="routing" className="text-xs h-6"><Route className="h-3 w-3 mr-1" />Roteamento</TabsTrigger>
           <TabsTrigger value="test" className="text-xs h-6"><MessageSquare className="h-3 w-3 mr-1" />Simular Chat</TabsTrigger>
         </TabsList>
 
