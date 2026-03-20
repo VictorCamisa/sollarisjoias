@@ -83,7 +83,7 @@ const AutomacoesPipeline = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_opportunities").delete().eq("id", id);
+      await (supabase.from as any)("sales_opportunities").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-pipeline"] });
