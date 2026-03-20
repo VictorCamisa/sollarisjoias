@@ -466,6 +466,7 @@ const AutomacoesIA = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="test" className="mt-4">
           <div className="border border-border rounded-xl overflow-hidden" style={{ height: 520 }}>
             {/* Chat header */}
             <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-card/50">
