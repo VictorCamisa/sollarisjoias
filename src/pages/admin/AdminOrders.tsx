@@ -56,14 +56,14 @@ const AdminOrders = () => {
 
   return (
     <div className="space-y-5 max-w-[1400px]">
-      <div className="flex items-center justify-between">
+      <div className="admin-page-header">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Pedidos</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{filtered?.length ?? 0} pedidos</p>
+          <h1 className="admin-page-title">Pedidos</h1>
+          <p className="admin-page-subtitle">{filtered?.length ?? 0} pedidos</p>
         </div>
         <div className="flex items-center gap-3 text-xs">
           {pendingCount > 0 && (
-            <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg px-2.5 py-1 font-medium">
+            <span className="admin-stat-pill bg-amber-500/10 text-amber-500 border-amber-500/20">
               {pendingCount} pendente(s)
             </span>
           )}
@@ -75,10 +75,10 @@ const AdminOrders = () => {
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar cliente ou telefone..." className="rounded-lg pl-9 h-9 text-xs" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar cliente ou telefone..." className="admin-input pl-9" />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-36 rounded-lg h-9 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-36 h-9 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             {Object.entries(statusMap).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
@@ -95,8 +95,8 @@ const AdminOrders = () => {
           <p className="text-sm text-muted-foreground">Nenhum pedido encontrado.</p>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="hidden md:grid grid-cols-[1fr_120px_1fr_100px_120px] gap-3 px-4 py-2.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+        <div className="admin-card overflow-hidden">
+          <div className="hidden md:grid grid-cols-[1fr_120px_1fr_100px_120px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/30 admin-section-label">
             <span>Cliente</span>
             <span>Data</span>
             <span>Itens</span>
