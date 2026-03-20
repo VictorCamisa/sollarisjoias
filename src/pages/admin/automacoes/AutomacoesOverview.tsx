@@ -28,7 +28,7 @@ const AutomacoesOverview = () => {
   const { data: leads = [] } = useQuery({
     queryKey: ["sales-leads-overview"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_leads").select("*").order("created_at", { ascending: false });
+      const { data } = await (supabase.from as any)("sales_leads").select("*").order("created_at", { ascending: false });
       return data || [];
     },
   });
@@ -36,7 +36,7 @@ const AutomacoesOverview = () => {
   const { data: appointments = [] } = useQuery({
     queryKey: ["sales-appointments-overview"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_appointments").select("*").gte("scheduled_at", new Date().toISOString()).order("scheduled_at");
+      const { data } = await (supabase.from as any)("sales_appointments").select("*").gte("scheduled_at", new Date().toISOString()).order("scheduled_at");
       return data || [];
     },
   });
@@ -44,7 +44,7 @@ const AutomacoesOverview = () => {
   const { data: campaigns = [] } = useQuery({
     queryKey: ["sales-campaigns-overview"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_campaigns").select("*");
+      const { data } = await (supabase.from as any)("sales_campaigns").select("*");
       return data || [];
     },
   });
@@ -52,7 +52,7 @@ const AutomacoesOverview = () => {
   const { data: opportunities = [] } = useQuery({
     queryKey: ["sales-opp-overview"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_opportunities").select("*, sales_leads(name, interest)");
+      const { data } = await (supabase.from as any)("sales_opportunities").select("*, sales_leads(name, interest)");
       return data || [];
     },
   });
@@ -60,7 +60,7 @@ const AutomacoesOverview = () => {
   const { data: aiConfig } = useQuery({
     queryKey: ["sales-ai-config-overview"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_ai_config").select("*").single();
+      const { data } = await (supabase.from as any)("sales_ai_config").select("*").single();
       return data;
     },
   });

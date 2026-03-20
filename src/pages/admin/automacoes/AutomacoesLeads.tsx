@@ -37,9 +37,17 @@ const INTEREST_LABELS: Record<string, string> = {
   personalizado: "Personalizado", outro: "Outro",
 };
 
+const AI_PROFILE_OPTIONS: Record<string, string> = {
+  auto: "Automático (híbrido)",
+  consultora: "Consultora de Joias",
+  vendedora: "Vendedora Ativa",
+  atendimento: "Atendimento Geral",
+  pos_venda: "Pós-Venda & Fidelização",
+};
+
 const emptyForm = {
   name: "", phone: "", email: "", source: "manual", status: "novo",
-  interest: "", budget: "", occasion: "", notes: "",
+  interest: "", budget: "", occasion: "", notes: "", ai_profile_override: "",
 };
 
 const AutomacoesLeads = () => {
@@ -55,14 +63,14 @@ const AutomacoesLeads = () => {
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["sales-leads"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_leads").select("*").order("created_at", { ascending: false });
+      const { data } = await (supabase.from as any)("sales_leads").select("*").order("created_at", { ascending: false });
       return data || [];
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async (values: typeof form & { id?: string }) => {
-      const payload = {
+      const payload: any = {
         name: values.name,
         phone: values.phone || null,
         email: values.email || null,
@@ -72,11 +80,12 @@ const AutomacoesLeads = () => {
         budget: values.budget ? Number(values.budget) : null,
         occasion: values.occasion || null,
         notes: values.notes || null,
+        ai_profile_override: values.ai_profile_override || null,
       };
       if (editingId) {
-        await supabase.from("sales_leads").update(payload).eq("id", editingId);
+        await (supabase.from as any)("sales_leads").update(payload).eq("id", editingId);
       } else {
-        await supabase.from("sales_leads").insert(payload);
+        await (supabase.from as any)("sales_leads").insert(payload);
       }
     },
     onSuccess: () => {
@@ -92,7 +101,7 @@ const AutomacoesLeads = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_leads").delete().eq("id", id);
+      await (supabase.from as any)("sales_leads").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-leads"] });
@@ -102,7 +111,7 @@ const AutomacoesLeads = () => {
 
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      await supabase.from("sales_leads").update({ status }).eq("id", id);
+      await (supabase.from as any)("sales_leads").update({ status }).eq("id", id);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sales-leads"] }),
   });
@@ -113,7 +122,7 @@ const AutomacoesLeads = () => {
       name: lead.name, phone: lead.phone || "", email: lead.email || "",
       source: lead.source, status: lead.status, interest: lead.interest || "",
       budget: lead.budget ? String(lead.budget) : "", occasion: lead.occasion || "",
-      notes: lead.notes || "",
+      notes: lead.notes || "", ai_profile_override: lead.ai_profile_override || "",
     });
     setDialogOpen(true);
   };
@@ -332,6 +341,15 @@ const AutomacoesLeads = () => {
             <div className="col-span-2">
               <Label className="text-xs">Ocasião</Label>
               <Input className="mt-1 h-8 text-sm" value={form.occasion} onChange={(e) => setForm({ ...form, occasion: e.target.value })} placeholder="Ex: casamento, presente, uso próprio..." />
+            </div>
+            <div>
+              <Label className="text-xs">Perfil IA (Override)</Label>
+              <Select value={form.ai_profile_override || "auto"} onValueChange={(v) => setForm({ ...form, ai_profile_override: v === "auto" ? "" : v })}>
+                <SelectTrigger className="mt-1 h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(AI_PROFILE_OPTIONS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="col-span-2">
               <Label className="text-xs">Observações</Label>

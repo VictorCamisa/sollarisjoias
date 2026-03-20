@@ -58,14 +58,14 @@ const AutomacoesConhecimento = () => {
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["sales-knowledge"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_knowledge_docs").select("*").order("created_at", { ascending: false });
+      const { data } = await (supabase.from as any)("sales_knowledge_docs").select("*").order("created_at", { ascending: false });
       return data || [];
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      await supabase.from("sales_knowledge_docs").insert({
+      await (supabase.from as any)("sales_knowledge_docs").insert({
         title: form.title,
         content: form.content,
         category: form.category,
@@ -84,7 +84,7 @@ const AutomacoesConhecimento = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_knowledge_docs").delete().eq("id", id);
+      await (supabase.from as any)("sales_knowledge_docs").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-knowledge"] });

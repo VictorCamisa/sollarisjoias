@@ -387,6 +387,295 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_ai_config: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          only_outside_hours: boolean | null
+          routing_rules: Json | null
+          scenario_key: string | null
+          schedule_days: number[] | null
+          schedule_end: string | null
+          schedule_start: string | null
+          system_prompt: string | null
+          temperature: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          only_outside_hours?: boolean | null
+          routing_rules?: Json | null
+          scenario_key?: string | null
+          schedule_days?: number[] | null
+          schedule_end?: string | null
+          schedule_start?: string | null
+          system_prompt?: string | null
+          temperature?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          only_outside_hours?: boolean | null
+          routing_rules?: Json | null
+          scenario_key?: string | null
+          schedule_days?: number[] | null
+          schedule_end?: string | null
+          schedule_start?: string | null
+          system_prompt?: string | null
+          temperature?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_appointments: {
+        Row: {
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          lead_id: string | null
+          location: string | null
+          notes: string | null
+          scheduled_at: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_appointments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_campaigns: {
+        Row: {
+          channel: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          message_template: string | null
+          name: string
+          scheduled_at: string | null
+          segment_interest: string[] | null
+          segment_status: string[] | null
+          sent_count: number | null
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          message_template?: string | null
+          name: string
+          scheduled_at?: string | null
+          segment_interest?: string[] | null
+          segment_status?: string[] | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          message_template?: string | null
+          name?: string
+          scheduled_at?: string | null
+          segment_interest?: string[] | null
+          segment_status?: string[] | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_knowledge_docs: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          processed: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          processed?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          processed?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_leads: {
+        Row: {
+          ai_profile_override: string | null
+          avg_response_time_minutes: number | null
+          budget: number | null
+          campaigns_received: string[] | null
+          created_at: string
+          email: string | null
+          engagement_score: number | null
+          id: string
+          interest: string | null
+          last_interaction_at: string | null
+          name: string
+          notes: string | null
+          occasion: string | null
+          phone: string | null
+          products_viewed: string[] | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_profile_override?: string | null
+          avg_response_time_minutes?: number | null
+          budget?: number | null
+          campaigns_received?: string[] | null
+          created_at?: string
+          email?: string | null
+          engagement_score?: number | null
+          id?: string
+          interest?: string | null
+          last_interaction_at?: string | null
+          name: string
+          notes?: string | null
+          occasion?: string | null
+          phone?: string | null
+          products_viewed?: string[] | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_profile_override?: string | null
+          avg_response_time_minutes?: number | null
+          budget?: number | null
+          campaigns_received?: string[] | null
+          created_at?: string
+          email?: string | null
+          engagement_score?: number | null
+          id?: string
+          interest?: string | null
+          last_interaction_at?: string | null
+          name?: string
+          notes?: string | null
+          occasion?: string | null
+          phone?: string | null
+          products_viewed?: string[] | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_opportunities: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          notes: string | null
+          stage_entered_at: string | null
+          stage_key: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          stage_entered_at?: string | null
+          stage_key?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          stage_entered_at?: string | null
+          stage_key?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_opportunities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings: {
         Row: {
           created_at: string
