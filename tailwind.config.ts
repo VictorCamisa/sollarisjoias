@@ -98,7 +98,6 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
-        },
       },
       spacing: {
         "18": "4.5rem",
