@@ -86,6 +86,19 @@ export default {
           white: "hsl(var(--sollaris-white))",
           midnight: "hsl(var(--sollaris-midnight))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        },
       },
       spacing: {
         "18": "4.5rem",
