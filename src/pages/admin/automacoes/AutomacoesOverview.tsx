@@ -117,7 +117,7 @@ const AutomacoesOverview = () => {
           <Gem className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Vendas & Automações</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Departamento Comercial</h1>
           <p className="text-xs text-muted-foreground">Central de inteligência comercial da Sollaris</p>
         </div>
       </motion.div>
