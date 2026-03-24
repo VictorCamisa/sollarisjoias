@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const tabs = [
-  { to: "/admin/automacoes", label: "Visão Geral", icon: LayoutDashboard, exact: true },
+  { to: "/admin/automacoes", label: "Painel", icon: LayoutDashboard, exact: true },
   { to: "/admin/automacoes/leads", label: "Leads", icon: Users },
   { to: "/admin/automacoes/pipeline", label: "Pipeline", icon: Kanban },
   { to: "/admin/automacoes/conhecimento", label: "Conhecimento", icon: BookOpen },

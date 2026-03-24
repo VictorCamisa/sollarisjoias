@@ -41,7 +41,7 @@ const navGroups = [
     label: "Crescimento",
     items: [
       { to: "/admin/marketing", icon: Megaphone, label: "Marketing" },
-      { to: "/admin/automacoes", icon: Zap, label: "Automações" },
+      { to: "/admin/automacoes", icon: Zap, label: "Dept. Comercial" },
     ],
   },
 ];
