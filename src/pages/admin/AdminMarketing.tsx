@@ -697,8 +697,9 @@ const CreatePostTab = () => {
     if (!generatedPost) return;
     setImageLoading(true);
     try {
+      const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption },
+        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle },
       });
       if (imgErr) throw imgErr;
       if (imgData?.error) { toast.error(imgData.error); return; }
@@ -824,6 +825,16 @@ const CreatePostTab = () => {
                 <SelectItem value="promocional-sutil">🎁 Promocional Sutil</SelectItem>
                 <SelectItem value="bastidores">🎬 Bastidores</SelectItem>
                 <SelectItem value="celebracao">🥂 Celebração</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={postStyle} onValueChange={(v: "dark" | "light" | "auto") => setPostStyle(v)}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">🔄 Alternar Dark/Light</SelectItem>
+                <SelectItem value="dark">🌑 Obsidiana (escuro)</SelectItem>
+                <SelectItem value="light">🤍 Champagne (claro)</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={handleGenerate} disabled={loading || imageLoading} className="ml-auto">

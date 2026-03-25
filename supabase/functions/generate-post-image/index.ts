@@ -11,7 +11,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, platform, productId, caption } = await req.json();
+    const { prompt, platform, productId, caption, style = "dark" } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -42,50 +42,70 @@ ${product.material ? `Material: ${product.material}` : ""}
 ${product.banho ? `Banho: ${product.banho}` : ""}
 ${product.pedra ? `Pedra: ${product.pedra}` : ""}`;
 
-        // Pick best image
         productImageUrl = product.foto_lifestyle || product.foto_frontal || (product.images && product.images[0]) || "";
       }
     }
 
-    // Determine aspect ratio based on platform
+    // Platform format
     const platformFormats: Record<string, string> = {
-      Instagram: "1080x1080 square",
-      TikTok: "1080x1920 vertical 9:16",
-      Facebook: "1200x630 landscape",
-      WhatsApp: "1080x1080 square",
-      LinkedIn: "1200x627 landscape",
+      Instagram: "1080x1080 square (1:1)",
+      TikTok: "1080x1920 vertical (9:16)",
+      Facebook: "1200x630 landscape (1.91:1)",
+      WhatsApp: "1080x1080 square (1:1)",
+      LinkedIn: "1200x627 landscape (1.91:1)",
     };
-    const format = platformFormats[platform] || "1080x1080 square";
+    const format = platformFormats[platform] || "1080x1080 square (1:1)";
 
-    const imagePrompt = `Create a luxurious, elegant social media post image for a premium Brazilian jewelry brand called SOLLARIS.
+    // Style-specific design tokens
+    const isDark = style === "dark";
+    const styleDirective = isDark
+      ? `DARK MODE — "Obsidiana":
+- Background: Deep matte black (#0F0F14) or very dark charcoal gradient
+- Text: White (#FFFFFF) for headlines, champagne gold (#C5A96A) for accents and highlights
+- Accents: Thin champagne gold lines, subtle gold foil textures, gold borders
+- Mood: Mysterious, editorial, dramatic — like a luxury magazine night edition
+- Shadows: Deep, dramatic with subtle gold rim lighting on product`
+      : `LIGHT MODE — "Champagne":
+- Background: Warm off-white (#F8F4EF) or soft champagne cream gradient
+- Text: Deep obsidian black (#0F0F14) for headlines, muted charcoal for body
+- Accents: Champagne gold (#C5A96A) for decorative elements, thin gold lines
+- Mood: Airy, luminous, refined — like a high-end bridal magazine
+- Shadows: Soft, diffused, elegant natural lighting on product`;
 
-BRAND IDENTITY:
-- Colors: Black obsidian background, champagne gold accents, white text
-- Style: Editorial luxury, like a high-end fashion magazine
-- Philosophy: "Curadoria com Intenção" (Curation with Intention)
-- Aesthetic: Sophisticated, minimal, premium
+    const imagePrompt = `You are a world-class graphic designer at a top luxury branding agency. Create a single, stunning social media post for SOLLARIS — a premium Brazilian jewelry brand.
 
-POST CONTEXT:
-- Platform: ${platform} (${format})
-- Theme: ${prompt}
-${productContext ? `- Product info: ${productContext}` : ""}
-${caption ? `- Caption context: ${caption.slice(0, 200)}` : ""}
+═══ BRAND DNA ═══
+Brand: SOLLARIS
+Tagline: "Curadoria com Intenção"
+Aesthetic: Ultra-modern minimalism meets editorial luxury. Think Celine × Cartier × Aesop.
+Typography: Clean, modern sans-serif (like Futura, Didot, or similar). NO handwritten or script fonts. Always uppercase for brand name.
+Logo treatment: "SOLLARIS" in elegant, wide-spaced uppercase letters — small, tasteful, never overwhelming.
 
-DESIGN REQUIREMENTS:
-- Elegant black/dark background with gold accents
-- Brand name "SOLLARIS" subtly integrated (small, elegant, gold)
-- If there's a product, show a beautiful jewelry piece as the hero element
-- Minimalist luxury typography with the product name and price displayed elegantly
-- High-end editorial feel — like a Cartier or Bulgari ad
-- Clean composition with generous negative space
-- No cluttered elements — sophistication through simplicity
-- The image should look like a professional designer created it
-- Include subtle gold border or frame elements
-${productContext ? `- Feature the product name and price: ${productContext.split("\n").filter(l => l.trim()).join(", ")}` : ""}
+═══ COLOR PALETTE & STYLE ═══
+${styleDirective}
 
-OUTPUT: A single beautiful post-ready image. Professional quality. Magazine-level design.`;
+═══ POST SPECIFICATIONS ═══
+Platform: ${platform}
+Format: ${format}
+Theme: ${prompt}
+${productContext ? `Product: ${productContext}` : ""}
+${caption ? `Caption context: ${caption.slice(0, 200)}` : ""}
 
-    // Build messages for image generation
+═══ DESIGN RULES (CRITICAL) ═══
+1. COMPOSITION: Use the rule of thirds. Generous negative space. Asymmetric balance. The product (if any) should be the hero — centered or slightly off-center with breathing room.
+2. TYPOGRAPHY: Maximum 2 lines of text on the image. Product name in clean modern font. Price displayed elegantly (small, refined). NO paragraphs of text. Let the image speak.
+3. LAYOUT: Clean geometric structure. Consider using thin gold lines as dividers or frames. Subtle grid alignment.
+4. PRODUCT PHOTOGRAPHY STYLE: If showing jewelry, make it look like a professional still-life shoot — dramatic lighting, clean reflections, precise focus. The piece should glow.
+5. TEXTURE: Subtle grain or noise for editorial feel. No glossy/plastic look. Matte sophistication.
+6. BRAND MARK: "SOLLARIS" appears small at bottom or top — never as the main focal point. Wide letter-spacing.
+7. NO CLUTTER: No emojis, no busy patterns, no stock-photo feel, no generic templates. Every element must have purpose.
+8. MODERN: This should look like it belongs on the Instagram feed of a brand with 500K+ followers. Contemporary, not dated.
+
+═══ REFERENCE AESTHETIC ═══
+Think: Bottega Veneta campaign simplicity + Bulgari product elegance + Apple's clean design language. The post should make someone stop scrolling.
+
+OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to publish.`;
+
     const messages: any[] = [
       {
         role: "user",
@@ -139,7 +159,7 @@ OUTPUT: A single beautiful post-ready image. Professional quality. Magazine-leve
     }
 
     // Upload to storage
-    const fileName = `posts/${Date.now()}-${platform.toLowerCase()}.png`;
+    const fileName = `posts/${Date.now()}-${platform.toLowerCase()}-${style}.png`;
     const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
     const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
 
@@ -149,7 +169,6 @@ OUTPUT: A single beautiful post-ready image. Professional quality. Magazine-leve
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      // Return base64 as fallback
       return new Response(JSON.stringify({ image_url: imageData }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -157,7 +176,7 @@ OUTPUT: A single beautiful post-ready image. Professional quality. Magazine-leve
 
     const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
-    return new Response(JSON.stringify({ image_url: publicUrl.publicUrl }), {
+    return new Response(JSON.stringify({ image_url: publicUrl.publicUrl, style }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
