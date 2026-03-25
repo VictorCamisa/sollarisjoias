@@ -72,7 +72,7 @@ const AdminCupons = () => {
     <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Cupons</h1>
+          <h1 className="text-xl font-semibold">Cupons</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{coupons?.length ?? 0} cupons</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -80,7 +80,7 @@ const AdminCupons = () => {
             <Button size="sm" className="rounded-lg gap-2 h-9 text-xs"><Plus className="h-3.5 w-3.5" /> Novo cupom</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle className="font-serif">Novo Cupom</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle >Novo Cupom</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Código</Label>

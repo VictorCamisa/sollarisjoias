@@ -175,7 +175,7 @@ const AdminProducts = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Produtos</h1>
+          <h1 className="text-xl font-semibold">Produtos</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             {filtered?.length ?? 0} de {products?.length ?? 0} produtos
           </p>
@@ -186,7 +186,7 @@ const AdminProducts = () => {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="font-serif text-lg">{editingId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
+              <DialogTitle className="text-lg">{editingId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(form); }} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">

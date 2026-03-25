@@ -110,7 +110,7 @@ const AdminCustomers = () => {
             {(selected.full_name || "?")[0]?.toUpperCase()}
           </div>
           <div>
-            <h1 className="text-lg font-serif font-semibold">{selected.full_name || "Sem nome"}</h1>
+            <h1 className="text-lg font-semibold">{selected.full_name || "Sem nome"}</h1>
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
               Cliente desde {new Date(selected.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}
             </p>
@@ -230,7 +230,7 @@ const AdminCustomers = () => {
   return (
     <div className="space-y-5 max-w-[1400px]">
       <div>
-        <h1 className="text-xl font-serif font-semibold">Clientes</h1>
+        <h1 className="text-xl font-semibold">Clientes</h1>
         <p className="text-xs text-muted-foreground mt-0.5">{customers?.length ?? 0} cadastrados</p>
       </div>
 
