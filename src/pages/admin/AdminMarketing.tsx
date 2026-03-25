@@ -615,6 +615,8 @@ const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState("Instagram");
   const [tone, setTone] = useState("padrao");
+  const [postStyle, setPostStyle] = useState<"dark" | "light" | "auto">("auto");
+  const [postCount, setPostCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
@@ -662,12 +664,14 @@ const CreatePostTab = () => {
       setImageLoading(true);
       try {
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption },
+        const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
+        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle },
         });
         if (imgErr) throw imgErr;
         if (imgData?.error) { toast.error(imgData.error); return; }
         if (imgData?.image_url) {
           setGeneratedImage(imgData.image_url);
+          setPostCount(prev => prev + 1);
           setHistory(prev => {
             const updated = [...prev];
             if (updated[0]) updated[0] = { ...updated[0], image: imgData.image_url };
