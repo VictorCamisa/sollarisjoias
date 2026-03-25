@@ -3,7 +3,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart,
   Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket,
-  ChevronLeft, ChevronRight, Store, Megaphone, Zap,
+  ChevronLeft, ChevronRight, Store, Megaphone, Zap, Brain,
+
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -42,6 +43,12 @@ const navGroups = [
     items: [
       { to: "/admin/marketing", icon: Megaphone, label: "Marketing" },
       { to: "/admin/automacoes", icon: Zap, label: "Dept. Comercial" },
+    ],
+  },
+  {
+    label: "Inteligência",
+    items: [
+      { to: "/admin/brain-nalu", icon: Brain, label: "Brain Nalu" },
     ],
   },
 ];
