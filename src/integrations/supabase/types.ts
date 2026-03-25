@@ -753,6 +753,7 @@ export type Database = {
       settings: {
         Row: {
           created_at: string
+          evolution_instance: string | null
           id: string
           monthly_goal: number | null
           pix_discount_percent: number | null
@@ -762,6 +763,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          evolution_instance?: string | null
           id?: string
           monthly_goal?: number | null
           pix_discount_percent?: number | null
@@ -771,6 +773,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          evolution_instance?: string | null
           id?: string
           monthly_goal?: number | null
           pix_discount_percent?: number | null
