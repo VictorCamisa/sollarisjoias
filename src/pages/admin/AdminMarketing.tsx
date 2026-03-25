@@ -614,7 +614,7 @@ const SeoTab = () => {
 const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState("Instagram");
-  const [tone, setTone] = useState("");
+  const [tone, setTone] = useState("padrao");
   const [loading, setLoading] = useState(false);
   const [generatedPost, setGeneratedPost] = useState<{
     caption: string;
