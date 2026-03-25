@@ -620,7 +620,7 @@ const AutomacoesIA = () => {
             </div>
           </div>
           <div className="flex items-center justify-between mt-2">
-            <p className="text-[10px] text-muted-foreground">Simulação local · Conecte sua API de IA para respostas reais</p>
+            <p className="text-[10px] text-muted-foreground">Simulação com IA real · Perfil: {SCENARIOS.find((s) => s.key === config.scenario_key)?.label}</p>
             <button onClick={() => setMessages([])} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
               <RefreshCw className="h-2.5 w-2.5" /> Limpar chat
             </button>
