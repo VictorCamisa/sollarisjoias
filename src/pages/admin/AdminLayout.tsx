@@ -86,12 +86,12 @@ const AdminLayout = () => {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="min-h-screen flex bg-background">
+      <div className="h-screen flex bg-background overflow-hidden">
         {/* ══ Desktop Sidebar ══ */}
         <motion.aside
           animate={{ width: collapsed ? 64 : 232 }}
           transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-          className="hidden md:flex flex-col border-r border-sidebar-border bg-sidebar relative overflow-hidden"
+          className="hidden md:flex flex-col border-r border-sidebar-border bg-sidebar relative overflow-visible flex-shrink-0"
         >
           {/* Logo */}
           <div className={cn("flex items-center h-14 border-b border-sidebar-border", collapsed ? "justify-center px-2" : "px-4")}>
@@ -116,7 +116,7 @@ const AdminLayout = () => {
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
+          <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-hide">
             {navGroups.map((group, gi) => (
               <div key={group.label} className={cn("mb-1", gi > 0 && "mt-2")}>
                 <AnimatePresence>
@@ -341,7 +341,7 @@ const AdminLayout = () => {
         </AnimatePresence>
 
         {/* ══ Main Content ══ */}
-        <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
+        <main className="flex-1 flex flex-col h-screen overflow-y-auto">
           {/* Desktop Header */}
           <header className="hidden md:flex items-center h-12 border-b border-border px-8 bg-card/20 backdrop-blur-sm sticky top-0 z-10">
             <div className="flex items-center gap-1.5 text-xs">
