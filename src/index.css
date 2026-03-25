@@ -11,39 +11,39 @@
        Identidade visual premium · Semijoias
     ═══════════════════════════════════════════════════════════════ */
 
-    /* Primary: Preto Obsidiana */
-    --primary: 234 18% 7%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Ouro Champagne — main action color */
+    --primary: 39 41% 70%;
+    --primary-foreground: 234 18% 7%;
 
     /* Background: Preto Obsidiana #0F0F14 */
     --background: 234 18% 7%;
     --foreground: 0 0% 92%;
 
-    /* Card: Slightly lighter */
-    --card: 234 14% 10%;
+    /* Card: clearer separation from background */
+    --card: 234 12% 11%;
     --card-foreground: 0 0% 90%;
 
-    --popover: 234 14% 10%;
+    --popover: 234 12% 12%;
     --popover-foreground: 0 0% 88%;
 
-    /* Secondary */
-    --secondary: 234 10% 14%;
-    --secondary-foreground: 0 0% 90%;
+    /* Secondary: for secondary buttons, subtle fills */
+    --secondary: 234 10% 15%;
+    --secondary-foreground: 0 0% 88%;
 
-    /* Muted */
-    --muted: 234 8% 17%;
-    --muted-foreground: 234 6% 52%;
+    /* Muted: for disabled, captions, hints */
+    --muted: 234 8% 18%;
+    --muted-foreground: 234 6% 55%;
 
-    /* Accent: Ouro Champagne #D1BF94 */
+    /* Accent: Ouro Champagne — for highlights, links */
     --accent: 39 41% 70%;
     --accent-foreground: 234 18% 7%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders — slightly more visible */
-    --border: 234 8% 16%;
-    --input: 234 8% 16%;
+    /* Borders — more visible for structure */
+    --border: 234 8% 18%;
+    --input: 234 8% 20%;
     --ring: 39 41% 70%;
 
     --radius: 0.625rem;
@@ -58,13 +58,13 @@
     --sollaris-midnight: 228 50% 15%;
 
     /* Sidebar (admin) */
-    --sidebar-background: 234 16% 8%;
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-background: 234 14% 9%;
+    --sidebar-foreground: 0 0% 88%;
     --sidebar-primary: 39 41% 70%;
     --sidebar-primary-foreground: 234 18% 7%;
-    --sidebar-accent: 234 10% 13%;
+    --sidebar-accent: 234 10% 14%;
     --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 234 8% 14%;
+    --sidebar-border: 234 8% 16%;
     --sidebar-ring: 39 41% 70%;
 
     /* Status colors — semantic tokens */
@@ -74,6 +74,13 @@
     --warning-foreground: 0 0% 100%;
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
+
+    /* Chart palette */
+    --chart-gold: 39 41% 70%;
+    --chart-emerald: 152 57% 58%;
+    --chart-blue: 217 91% 60%;
+    --chart-orange: 25 95% 53%;
+    --chart-pink: 330 81% 60%;
   }
 }
 
@@ -98,9 +105,17 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  /* Gloock ONLY for storefront / brand display headings */
+  .font-serif,
+  .font-display {
     font-family: 'Gloock', Georgia, serif;
     font-weight: 400;
+  }
+
+  /* Admin headings: use sans-serif for clarity */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-weight: 600;
   }
 
   ::selection {
@@ -111,11 +126,11 @@
 
 @layer components {
   /* ─── Admin-specific component tokens ─── */
-  
-  /* Fluid card with subtle hover */
+
+  /* Fluid card with visible border and hover */
   .admin-card {
-    @apply bg-card border border-border rounded-xl transition-all duration-300;
-    @apply hover:border-accent/15 hover:shadow-lg hover:shadow-accent/[0.03];
+    @apply bg-card border border-border rounded-xl transition-all duration-200;
+    @apply hover:border-primary/25 hover:shadow-lg hover:shadow-primary/[0.04];
   }
 
   /* Table styling */
@@ -123,14 +138,14 @@
     @apply w-full text-sm;
   }
   .admin-table thead tr {
-    @apply bg-secondary/40 border-b border-border;
+    @apply bg-secondary/60 border-b border-border;
   }
   .admin-table thead th {
     @apply text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground;
   }
   .admin-table tbody tr {
-    @apply border-b border-border/50 transition-colors duration-150;
-    @apply hover:bg-secondary/30;
+    @apply border-b border-border/60 transition-colors duration-150;
+    @apply hover:bg-secondary/40;
   }
   .admin-table tbody td {
     @apply px-4 py-3;
@@ -143,14 +158,14 @@
 
   /* Stat badge */
   .admin-stat-pill {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border;
   }
 
   /* Input group */
   .admin-input {
-    @apply h-9 text-sm bg-secondary/40 border-border/60 rounded-lg;
-    @apply focus:border-accent/40 focus:ring-1 focus:ring-accent/20;
-    @apply placeholder:text-muted-foreground/40 transition-all duration-200;
+    @apply h-9 text-sm bg-secondary/50 border-border rounded-lg;
+    @apply focus:border-primary/50 focus:ring-1 focus:ring-primary/25;
+    @apply placeholder:text-muted-foreground/50 transition-all duration-200;
   }
 
   /* Button reset for nav items */
@@ -164,7 +179,7 @@
     @apply flex items-center justify-between mb-6;
   }
   .admin-page-title {
-    @apply text-lg font-serif tracking-tight;
+    @apply text-lg font-semibold tracking-tight;
   }
   .admin-page-subtitle {
     @apply text-xs text-muted-foreground mt-0.5;
