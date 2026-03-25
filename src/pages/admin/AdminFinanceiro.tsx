@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Search, ArrowUpRight, ArrowDownRight, DollarSign, Wallet,
   ShoppingCart, TrendingUp, Eye, Users, AlertTriangle, CheckCircle2, Phone,
+  Package, CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -25,6 +26,10 @@ const statusColors: Record<string, string> = {
 };
 const statusLabels: Record<string, string> = { pending: "Pendente", paid: "Pago", overdue: "Atrasado", cancelled: "Cancelado" };
 
+const typeLabels: Record<string, string> = {
+  income: "💰 Receita", expense: "💸 Despesa", purchase: "🛒 Compra", investment: "📈 Investimento",
+};
+
 const AdminFinanceiro = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -33,7 +38,7 @@ const AdminFinanceiro = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<TransactionForm>(emptyTransactionForm);
   const [selectedTx, setSelectedTx] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("transacoes");
 
   const { data: transactions, isLoading } = useQuery({
     queryKey: ["admin-financial-transactions"],
@@ -60,38 +65,60 @@ const AdminFinanceiro = () => {
 
   // Computed stats
   const stats = useMemo(() => {
-    if (!transactions) return { income: 0, expense: 0, balance: 0, pending: 0, overdue: 0, crediarioTotal: 0, crediarioPending: 0 };
+    if (!transactions) return { income: 0, expense: 0, balance: 0, pending: 0, overdue: 0, crediarioPending: 0, purchaseTotal: 0 };
     const income = transactions.filter((t) => t.type === "income" && t.status === "paid").reduce((s, t) => s + Number(t.amount), 0);
-    const expense = transactions.filter((t) => t.type === "expense" && t.status === "paid").reduce((s, t) => s + Number(t.amount), 0);
+    const expense = transactions.filter((t) => (t.type === "expense" || t.sub_type === "purchase" || t.sub_type === "investment") && t.status === "paid").reduce((s, t) => s + Number(t.amount), 0);
     const pending = transactions.filter((t) => t.status === "pending").reduce((s, t) => s + Number(t.amount), 0);
     const overdue = transactions.filter((t) => t.status === "overdue").reduce((s, t) => s + Number(t.amount), 0);
-    const crediarioAll = transactions.filter((t) => (t as any).sub_type === "crediario" || (t as any).payment_method === "crediario");
-    const crediarioTotal = crediarioAll.reduce((s, t) => s + Number(t.amount), 0);
+    const crediarioAll = transactions.filter((t) => t.sub_type === "crediario" || t.payment_method === "crediario");
     const crediarioPending = crediarioAll.filter((t) => t.status === "pending" || t.status === "overdue").reduce((s, t) => s + Number(t.amount), 0);
-    return { income, expense, balance: income - expense, pending, overdue, crediarioTotal, crediarioPending };
+    const purchaseTotal = transactions.filter((t) => t.sub_type === "purchase" || t.sub_type === "material" || t.sub_type === "produto" || t.sub_type === "equipamento" || (t.type === "expense" && (t.sub_type === "purchase" || t.description?.toLowerCase().includes("compra")))).reduce((s, t) => s + Number(t.amount), 0);
+    return { income, expense, balance: income - expense, pending, overdue, crediarioPending, purchaseTotal };
   }, [transactions]);
 
-  const filtered = useMemo(() => {
+  // Filtered for Transações tab (non-crediário, non-purchase)
+  const filteredTransacoes = useMemo(() => {
     return transactions?.filter((t) => {
+      // Exclude crediário and purchase from this tab
+      const isCrediario = t.sub_type === "crediario" || t.payment_method === "crediario";
+      const isPurchase = t.sub_type === "purchase" || t.sub_type === "material" || t.sub_type === "produto" || t.sub_type === "equipamento";
+      if (isCrediario || isPurchase) return false;
+
       const s = search.toLowerCase();
-      const matchSearch = !s || t.description.toLowerCase().includes(s) || ((t as any).customer_name || "").toLowerCase().includes(s);
-      const matchType = filterType === "all" || t.type === filterType || (filterType === "crediario" && ((t as any).sub_type === "crediario" || (t as any).payment_method === "crediario"));
+      const matchSearch = !s || t.description.toLowerCase().includes(s) || (t.customer_name || "").toLowerCase().includes(s);
+      const matchType = filterType === "all" || t.type === filterType;
       const matchStatus = filterStatus === "all" || t.status === filterStatus;
       return matchSearch && matchType && matchStatus;
     });
   }, [transactions, search, filterType, filterStatus]);
 
+  // Purchases
+  const purchases = useMemo(() => {
+    if (!transactions) return [];
+    return transactions.filter((t) => {
+      const isPurchase = t.sub_type === "purchase" || t.sub_type === "material" || t.sub_type === "produto" || t.sub_type === "equipamento";
+      if (!isPurchase) return false;
+      const s = search.toLowerCase();
+      return !s || t.description.toLowerCase().includes(s);
+    });
+  }, [transactions, search]);
+
   // Crediário grouped by customer
   const crediarioByCustomer = useMemo(() => {
     if (!transactions) return [];
-    const crediarioTxs = transactions.filter((t) => (t as any).sub_type === "crediario" || (t as any).payment_method === "crediario");
-    const grouped: Record<string, { name: string; phone: string; total: number; pending: number; paid: number; transactions: any[] }> = {};
+    const crediarioTxs = transactions.filter((t) => t.sub_type === "crediario" || t.payment_method === "crediario");
+    const grouped: Record<string, { name: string; phone: string; total: number; pending: number; paid: number; totalInstallments: number; paidInstallments: number; transactions: any[] }> = {};
     crediarioTxs.forEach((t) => {
-      const name = (t as any).customer_name || "Sem nome";
-      if (!grouped[name]) grouped[name] = { name, phone: (t as any).customer_phone || "", total: 0, pending: 0, paid: 0, transactions: [] };
+      const name = t.customer_name || "Sem nome";
+      if (!grouped[name]) grouped[name] = { name, phone: t.customer_phone || "", total: 0, pending: 0, paid: 0, totalInstallments: 0, paidInstallments: 0, transactions: [] };
       grouped[name].total += Number(t.amount);
-      if (t.status === "paid") grouped[name].paid += Number(t.amount);
-      else grouped[name].pending += Number(t.amount);
+      grouped[name].totalInstallments += 1;
+      if (t.status === "paid") {
+        grouped[name].paid += Number(t.amount);
+        grouped[name].paidInstallments += 1;
+      } else {
+        grouped[name].pending += Number(t.amount);
+      }
       grouped[name].transactions.push(t);
     });
     return Object.values(grouped).sort((a, b) => b.pending - a.pending);
@@ -112,6 +139,71 @@ const AdminFinanceiro = () => {
     </motion.div>
   );
 
+  const TransactionRow = ({ t, i }: { t: any; i: number }) => {
+    const isIncome = t.type === "income";
+    return (
+      <motion.div
+        key={t.id}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: i * 0.015 }}
+        className="grid grid-cols-[32px_minmax(0,1fr)_auto] md:grid-cols-[32px_minmax(0,1.5fr)_90px_110px_90px_80px] gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
+        onClick={() => setSelectedTx(t)}
+      >
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${isIncome ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
+          {isIncome ? <ArrowUpRight className="h-3.5 w-3.5 text-emerald-400" /> : <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />}
+        </div>
+        <div className="min-w-0">
+          <p className="text-[13px] font-medium truncate">{t.description}</p>
+          <p className="text-[10px] text-muted-foreground truncate">
+            {t.customer_name && <span className="mr-1.5">👤 {t.customer_name}</span>}
+            {t.sub_type && <span className="capitalize">{t.sub_type}</span>}
+          </p>
+        </div>
+        <span className="hidden md:block text-[11px] text-muted-foreground tabular-nums">
+          {t.due_date ? new Date(t.due_date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "—"}
+        </span>
+        <span className={`hidden md:block text-[13px] font-semibold text-right tabular-nums ${isIncome ? "text-emerald-400" : "text-red-400"}`}>
+          {isIncome ? "+" : "-"} {fmtBRL(Number(t.amount))}
+        </span>
+        <div className="hidden md:flex justify-center" onClick={(e) => e.stopPropagation()}>
+          {t.status === "pending" ? (
+            <Button size="sm" variant="outline" className="text-[10px] h-6 px-2 rounded-md" onClick={() => markPaid.mutate(t.id)}>Pagar</Button>
+          ) : (
+            <Badge className={`text-[10px] border ${statusColors[t.status]}`}>{statusLabels[t.status]}</Badge>
+          )}
+        </div>
+        <div className="hidden md:flex justify-center">
+          <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+      </motion.div>
+    );
+  };
+
+  const TableHeader = () => (
+    <div className="hidden md:grid grid-cols-[32px_minmax(0,1.5fr)_90px_110px_90px_80px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
+      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tipo</span>
+      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Descrição</span>
+      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Vencimento</span>
+      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-right">Valor</span>
+      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Status</span>
+      <span />
+    </div>
+  );
+
+  const EmptyState = ({ icon: Icon, message, action, actionLabel }: any) => (
+    <div className="text-center py-20">
+      <Icon className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+      <p className="text-sm text-muted-foreground">{message}</p>
+      {action && (
+        <Button variant="outline" size="sm" className="mt-4" onClick={action}>
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
+          {actionLabel}
+        </Button>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-5 max-w-[1400px]">
       {/* Header */}
@@ -127,45 +219,55 @@ const AdminFinanceiro = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard label="Receitas" value={stats.income} icon={ArrowUpRight} color="text-emerald-400" bg="bg-emerald-400/10" />
         <StatCard label="Despesas" value={stats.expense} icon={ArrowDownRight} color="text-red-400" bg="bg-red-400/10" />
         <StatCard label="Saldo" value={stats.balance} icon={DollarSign} color={stats.balance >= 0 ? "text-emerald-400" : "text-red-400"} bg={stats.balance >= 0 ? "bg-emerald-400/10" : "bg-red-400/10"} />
         <StatCard label="Pendente" value={stats.pending} icon={Wallet} color="text-amber-400" bg="bg-amber-400/10" />
-        <StatCard label="Atrasado" value={stats.overdue} icon={AlertTriangle} color="text-red-400" bg="bg-red-400/10" />
+        <StatCard label="Compras" value={stats.purchaseTotal} icon={ShoppingCart} color="text-violet-400" bg="bg-violet-400/10" />
         <StatCard label="Crediário" value={stats.crediarioPending} icon={Users} color="text-blue-400" bg="bg-blue-400/10" />
+      </div>
+
+      {/* Quick actions */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { label: "Receita", type: "income", icon: "💰" },
+          { label: "Despesa", type: "expense", icon: "💸" },
+          { label: "Compra", type: "purchase", icon: "🛒" },
+          { label: "Investimento", type: "investment", icon: "📈" },
+          { label: "Crediário", type: "crediario", icon: "📋" },
+        ].map((q) => (
+          <Button key={q.type} variant="outline" size="sm" className="text-xs gap-1.5 h-8" onClick={() => openNew(q.type)}>
+            <span>{q.icon}</span> {q.label}
+          </Button>
+        ))}
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-secondary/30 h-9">
-          <TabsTrigger value="overview" className="text-xs gap-1.5">Transações</TabsTrigger>
-          <TabsTrigger value="crediario" className="text-xs gap-1.5">
-            Crediário
-            {crediarioByCustomer.length > 0 && (
-              <Badge className="ml-1 h-4 text-[9px] bg-blue-500/15 text-blue-400 border-0">{crediarioByCustomer.length}</Badge>
+          <TabsTrigger value="transacoes" className="text-xs gap-1.5">
+            <DollarSign className="h-3 w-3" />
+            Transações
+          </TabsTrigger>
+          <TabsTrigger value="compras" className="text-xs gap-1.5">
+            <ShoppingCart className="h-3 w-3" />
+            Compras
+            {purchases.length > 0 && <Badge className="ml-1 h-4 text-[9px] bg-violet-500/15 text-violet-400 border-0">{purchases.length}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="devedores" className="text-xs gap-1.5">
+            <Users className="h-3 w-3" />
+            Devedores
+            {crediarioByCustomer.filter(c => c.pending > 0).length > 0 && (
+              <Badge className="ml-1 h-4 text-[9px] bg-red-500/15 text-red-400 border-0">
+                {crediarioByCustomer.filter(c => c.pending > 0).length}
+              </Badge>
             )}
           </TabsTrigger>
         </TabsList>
 
-        {/* TAB: Transactions */}
-        <TabsContent value="overview" className="mt-4 space-y-4">
-          {/* Quick actions */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: "Receita", type: "income", icon: "💰" },
-              { label: "Despesa", type: "expense", icon: "💸" },
-              { label: "Compra", type: "purchase", icon: "🛒" },
-              { label: "Investimento", type: "investment", icon: "📈" },
-              { label: "Crediário", type: "crediario", icon: "📋" },
-            ].map((q) => (
-              <Button key={q.type} variant="outline" size="sm" className="text-xs gap-1.5 h-8" onClick={() => openNew(q.type)}>
-                <span>{q.icon}</span> {q.label}
-              </Button>
-            ))}
-          </div>
-
-          {/* Filters */}
+        {/* ========== TAB: Transações (receitas, despesas, investimentos) ========== */}
+        <TabsContent value="transacoes" className="mt-4 space-y-4">
           <div className="flex flex-wrap gap-2">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -177,7 +279,6 @@ const AdminFinanceiro = () => {
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="income">Receitas</SelectItem>
                 <SelectItem value="expense">Despesas</SelectItem>
-                <SelectItem value="crediario">Crediário</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -191,88 +292,81 @@ const AdminFinanceiro = () => {
             </Select>
           </div>
 
-          {/* Transaction list */}
           {isLoading ? (
-            <div className="space-y-2">{[1, 2, 3, 4].map((i) => <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />)}</div>
-          ) : !filtered?.length ? (
-            <div className="text-center py-20">
-              <DollarSign className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">Nenhuma transação encontrada.</p>
-              <Button variant="outline" size="sm" className="mt-4" onClick={() => openNew()}>
-                <Plus className="h-3.5 w-3.5 mr-1.5" />
-                Registrar transação
-              </Button>
-            </div>
+            <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />)}</div>
+          ) : !filteredTransacoes?.length ? (
+            <EmptyState icon={DollarSign} message="Nenhuma transação encontrada." action={() => openNew("income")} actionLabel="Registrar receita" />
           ) : (
             <div className="admin-card overflow-hidden">
-              <div className="hidden md:grid grid-cols-[32px_minmax(0,1.5fr)_90px_110px_90px_80px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tipo</span>
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Descrição</span>
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Vencimento</span>
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-right">Valor</span>
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Status</span>
-                <span />
-              </div>
+              <TableHeader />
               <div className="divide-y divide-border">
-                {filtered.map((t, i) => {
-                  const isIncome = t.type === "income";
-                  return (
-                    <motion.div
-                      key={t.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.015 }}
-                      className="grid grid-cols-[32px_minmax(0,1fr)_auto] md:grid-cols-[32px_minmax(0,1.5fr)_90px_110px_90px_80px] gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
-                      onClick={() => setSelectedTx(t)}
-                    >
-                      <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${isIncome ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
-                        {isIncome ? <ArrowUpRight className="h-3.5 w-3.5 text-emerald-400" /> : <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-medium truncate">{t.description}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">
-                          {(t as any).customer_name && <span className="mr-1.5">👤 {(t as any).customer_name}</span>}
-                          {(t as any).sub_type && <span className="capitalize">{(t as any).sub_type}</span>}
-                        </p>
-                      </div>
-                      <span className="hidden md:block text-[11px] text-muted-foreground tabular-nums">
-                        {t.due_date ? new Date(t.due_date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "—"}
-                      </span>
-                      <span className={`hidden md:block text-[13px] font-semibold text-right tabular-nums ${isIncome ? "text-emerald-400" : "text-red-400"}`}>
-                        {isIncome ? "+" : "-"} {fmtBRL(Number(t.amount))}
-                      </span>
-                      <div className="hidden md:flex justify-center" onClick={(e) => e.stopPropagation()}>
-                        {t.status === "pending" ? (
-                          <Button size="sm" variant="outline" className="text-[10px] h-6 px-2 rounded-md"
-                            onClick={() => markPaid.mutate(t.id)}>
-                            Pagar
-                          </Button>
-                        ) : (
-                          <Badge className={`text-[10px] border ${statusColors[t.status]}`}>{statusLabels[t.status]}</Badge>
-                        )}
-                      </div>
-                      <div className="hidden md:flex justify-center">
-                        <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                {filteredTransacoes.map((t, i) => <TransactionRow key={t.id} t={t} i={i} />)}
               </div>
             </div>
           )}
         </TabsContent>
 
-        {/* TAB: Crediário */}
-        <TabsContent value="crediario" className="mt-4 space-y-4">
-          {crediarioByCustomer.length === 0 ? (
-            <div className="text-center py-20">
-              <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">Nenhum crediário registrado.</p>
-              <Button variant="outline" size="sm" className="mt-4" onClick={() => openNew("crediario")}>
-                <Plus className="h-3.5 w-3.5 mr-1.5" />
-                Registrar crediário
-              </Button>
+        {/* ========== TAB: Compras ========== */}
+        <TabsContent value="compras" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar compra..." className="admin-input pl-9" />
             </div>
+            <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => openNew("purchase")}>
+              <Plus className="h-3.5 w-3.5" />
+              Nova Compra
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />)}</div>
+          ) : !purchases.length ? (
+            <EmptyState icon={ShoppingCart} message="Nenhuma compra registrada. Registre compras de materiais, produtos para revenda e equipamentos." action={() => openNew("purchase")} actionLabel="Registrar compra" />
+          ) : (
+            <div className="space-y-3">
+              {/* Purchase summary */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="admin-card p-3 text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase">Total compras</p>
+                  <p className="text-lg font-bold tabular-nums text-violet-400">{fmtBRL(purchases.reduce((s, t) => s + Number(t.amount), 0))}</p>
+                </div>
+                <div className="admin-card p-3 text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase">Pagas</p>
+                  <p className="text-lg font-bold tabular-nums text-emerald-400">{purchases.filter(t => t.status === "paid").length}</p>
+                </div>
+                <div className="admin-card p-3 text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase">Pendentes</p>
+                  <p className="text-lg font-bold tabular-nums text-amber-400">{purchases.filter(t => t.status === "pending").length}</p>
+                </div>
+              </div>
+
+              <div className="admin-card overflow-hidden">
+                <TableHeader />
+                <div className="divide-y divide-border">
+                  {purchases.map((t, i) => <TransactionRow key={t.id} t={t} i={i} />)}
+                </div>
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* ========== TAB: Devedores ========== */}
+        <TabsContent value="devedores" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {crediarioByCustomer.filter(c => c.pending > 0).length} pessoa(s) com débito pendente — Total: <span className="font-semibold text-amber-400">{fmtBRL(stats.crediarioPending)}</span>
+              </p>
+            </div>
+            <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => openNew("crediario")}>
+              <Plus className="h-3.5 w-3.5" />
+              Novo Crediário
+            </Button>
+          </div>
+
+          {crediarioByCustomer.length === 0 ? (
+            <EmptyState icon={Users} message="Nenhum crediário registrado." action={() => openNew("crediario")} actionLabel="Registrar crediário" />
           ) : (
             <div className="space-y-3">
               {crediarioByCustomer.map((customer, i) => (
@@ -286,19 +380,30 @@ const AdminFinanceiro = () => {
                   {/* Customer header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-500/10 text-blue-400 p-2.5 rounded-lg">
+                      <div className={`p-2.5 rounded-lg ${customer.pending > 0 ? "bg-red-500/10 text-red-400" : "bg-emerald-500/10 text-emerald-400"}`}>
                         <Users className="h-4 w-4" />
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold">{customer.name}</h3>
-                        {customer.phone && <p className="text-[10px] text-muted-foreground">{customer.phone}</p>}
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                          {customer.phone && <span>{customer.phone}</span>}
+                          <span>•</span>
+                          <span>{customer.paidInstallments}/{customer.totalInstallments} parcelas pagas</span>
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-muted-foreground">Pendente</p>
-                      <p className={`text-lg font-bold tabular-nums ${customer.pending > 0 ? "text-amber-400" : "text-emerald-400"}`}>
-                        {fmtBRL(customer.pending)}
-                      </p>
+                      {customer.pending > 0 ? (
+                        <>
+                          <p className="text-[10px] text-muted-foreground">Deve</p>
+                          <p className="text-lg font-bold tabular-nums text-red-400">{fmtBRL(customer.pending)}</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-[10px] text-muted-foreground">Status</p>
+                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">Quitado ✓</Badge>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -308,7 +413,7 @@ const AdminFinanceiro = () => {
                       <span>Pago: {fmtBRL(customer.paid)}</span>
                       <span>Total: {fmtBRL(customer.total)}</span>
                     </div>
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-400 rounded-full transition-all"
                         style={{ width: `${customer.total > 0 ? (customer.paid / customer.total) * 100 : 0}%` }}
@@ -316,34 +421,48 @@ const AdminFinanceiro = () => {
                     </div>
                   </div>
 
-                  {/* Installments */}
-                  <div className="space-y-1">
-                    {customer.transactions.map((t: any) => (
-                      <div
-                        key={t.id}
-                        className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-secondary/30 transition-colors cursor-pointer text-xs"
-                        onClick={() => setSelectedTx(t)}
-                      >
-                        <span className="text-muted-foreground truncate flex-1">{t.description}</span>
-                        <span className="text-muted-foreground tabular-nums mx-2">
-                          {t.due_date ? new Date(t.due_date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "—"}
-                        </span>
-                        <span className="font-medium tabular-nums w-24 text-right">{fmtBRL(Number(t.amount))}</span>
-                        <div className="ml-2 w-16 flex justify-end" onClick={(e) => e.stopPropagation()}>
-                          {t.status === "pending" ? (
-                            <Button size="sm" variant="outline" className="text-[9px] h-5 px-1.5 rounded"
-                              onClick={() => markPaid.mutate(t.id)}>
-                              Pagar
-                            </Button>
-                          ) : (
-                            <Badge className={`text-[9px] border ${statusColors[t.status]}`}>{statusLabels[t.status]}</Badge>
-                          )}
+                  {/* Installments list */}
+                  <div className="space-y-1 bg-secondary/20 rounded-lg p-2">
+                    {customer.transactions
+                      .sort((a: any, b: any) => (a.installment_number || 0) - (b.installment_number || 0))
+                      .map((t: any) => (
+                        <div
+                          key={t.id}
+                          className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-secondary/40 transition-colors cursor-pointer text-xs"
+                          onClick={() => setSelectedTx(t)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {t.status === "paid" ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                            ) : t.status === "overdue" ? (
+                              <AlertTriangle className="h-3.5 w-3.5 text-red-400" />
+                            ) : (
+                              <div className="h-3.5 w-3.5 rounded-full border-2 border-amber-400" />
+                            )}
+                            <span className={`truncate ${t.status === "paid" ? "text-muted-foreground line-through" : ""}`}>
+                              {t.description}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground tabular-nums">
+                              {t.due_date ? new Date(t.due_date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "—"}
+                            </span>
+                            <span className="font-medium tabular-nums w-24 text-right">{fmtBRL(Number(t.amount))}</span>
+                            <div className="w-14 flex justify-end" onClick={(e) => e.stopPropagation()}>
+                              {t.status === "pending" || t.status === "overdue" ? (
+                                <Button size="sm" variant="outline" className="text-[9px] h-5 px-1.5 rounded" onClick={() => markPaid.mutate(t.id)}>
+                                  Pagar
+                                </Button>
+                              ) : (
+                                <Badge className={`text-[9px] border ${statusColors[t.status]}`}>{statusLabels[t.status]}</Badge>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
-                  {/* WhatsApp action */}
+                  {/* WhatsApp */}
                   {customer.phone && customer.pending > 0 && (
                     <div className="pt-2 border-t border-border">
                       <Button
