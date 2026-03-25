@@ -780,8 +780,63 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_quotations: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json | null
+          notes: string | null
+          requested_at: string | null
+          responded_at: string | null
+          status: string
+          supplier_id: string
+          title: string
+          total: number | null
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: Json | null
+          notes?: string | null
+          requested_at?: string | null
+          responded_at?: string | null
+          status?: string
+          supplier_id: string
+          title: string
+          total?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json | null
+          notes?: string | null
+          requested_at?: string | null
+          responded_at?: string | null
+          status?: string
+          supplier_id?: string
+          title?: string
+          total?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_quotations_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
+          category: string | null
+          city: string | null
           contact_name: string | null
           created_at: string
           email: string | null
@@ -789,9 +844,16 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          rating: number | null
+          state: string | null
+          status: string | null
+          tags: string[] | null
           updated_at: string
+          website: string | null
         }
         Insert: {
+          category?: string | null
+          city?: string | null
           contact_name?: string | null
           created_at?: string
           email?: string | null
@@ -799,9 +861,16 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          rating?: number | null
+          state?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
+          category?: string | null
+          city?: string | null
           contact_name?: string | null
           created_at?: string
           email?: string | null
@@ -809,7 +878,12 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          rating?: number | null
+          state?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
