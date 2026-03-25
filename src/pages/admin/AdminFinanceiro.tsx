@@ -228,19 +228,42 @@ const AdminFinanceiro = () => {
         <StatCard label="Crediário" value={stats.crediarioPending} icon={Users} color="text-blue-400" bg="bg-blue-400/10" />
       </div>
 
-      {/* Quick actions */}
-      <div className="flex flex-wrap gap-2">
-        {[
-          { label: "Receita", type: "income", icon: "💰" },
-          { label: "Despesa", type: "expense", icon: "💸" },
-          { label: "Compra", type: "purchase", icon: "🛒" },
-          { label: "Investimento", type: "investment", icon: "📈" },
-          { label: "Crediário", type: "crediario", icon: "📋" },
-        ].map((q) => (
-          <Button key={q.type} variant="outline" size="sm" className="text-xs gap-1.5 h-8" onClick={() => openNew(q.type)}>
-            <span>{q.icon}</span> {q.label}
-          </Button>
-        ))}
+      {/* Ações: lançar vs gerir */}
+      <div className="grid md:grid-cols-2 gap-3">
+        <div className="admin-card p-3 space-y-2">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Lançamentos rápidos</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "Receita", type: "income", icon: "💰" },
+              { label: "Despesa", type: "expense", icon: "💸" },
+              { label: "Compra", type: "purchase", icon: "🛒" },
+              { label: "Investimento", type: "investment", icon: "📈" },
+              { label: "Crediário", type: "crediario", icon: "📋" },
+            ].map((q) => (
+              <Button key={q.type} variant="outline" size="sm" className="text-xs gap-1.5 h-8" onClick={() => openNew(q.type)}>
+                <span>{q.icon}</span> {q.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-card p-3 space-y-2">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Gestão operacional</p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" className="text-xs gap-1.5 h-8" onClick={() => setActiveTab("transacoes")}>
+              <DollarSign className="h-3.5 w-3.5" />
+              Gerir Transações
+            </Button>
+            <Button variant="secondary" size="sm" className="text-xs gap-1.5 h-8" onClick={() => setActiveTab("compras")}>
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Gerir Compras
+            </Button>
+            <Button variant="secondary" size="sm" className="text-xs gap-1.5 h-8" onClick={() => setActiveTab("devedores")}>
+              <Users className="h-3.5 w-3.5" />
+              Gerir Devedores
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}
