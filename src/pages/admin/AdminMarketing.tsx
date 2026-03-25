@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2 } from "lucide-react";
+import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2, Download, ImagePlus, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -616,6 +616,9 @@ const CreatePostTab = () => {
   const [platform, setPlatform] = useState("Instagram");
   const [tone, setTone] = useState("padrao");
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [generatedPost, setGeneratedPost] = useState<{
     caption: string;
     hashtags: string[];
@@ -623,33 +626,87 @@ const CreatePostTab = () => {
     visual_suggestion: string;
     best_time: string;
   } | null>(null);
-  const [history, setHistory] = useState<Array<typeof generatedPost & { platform: string; prompt: string }>>([]);
+  const [history, setHistory] = useState<Array<any>>([]);
+
+  const { data: products } = useQuery({
+    queryKey: ["post-products"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("id, name, price, original_price, foto_frontal, foto_lifestyle, images, banho, pedra, material").eq("stock_status", true).order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const selectedProduct = useMemo(() => products?.find(p => p.id === selectedProductId), [products, selectedProductId]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return toast.error("Descreva o que deseja para o post");
     setLoading(true);
     setGeneratedPost(null);
+    setGeneratedImage(null);
 
     try {
+      // Generate text
       const { data, error } = await supabase.functions.invoke("generate-post", {
         body: { prompt, platform, tone },
       });
-
       if (error) throw error;
-      if (data?.error) {
-        toast.error(data.error);
-        return;
-      }
+      if (data?.error) { toast.error(data.error); return; }
 
       const post = data.post;
       setGeneratedPost(post);
-      setHistory(prev => [{ ...post, platform, prompt }, ...prev].slice(0, 10));
+      setHistory(prev => [{ ...post, platform, prompt, image: null }, ...prev].slice(0, 10));
       toast.success("Post gerado com a identidade SOLLARIS! ✨");
+
+      // Generate image automatically
+      setImageLoading(true);
+      try {
+        const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
+          body: { prompt, platform, productId: selectedProductId || undefined, caption: post.caption },
+        });
+        if (imgErr) throw imgErr;
+        if (imgData?.error) { toast.error(imgData.error); return; }
+        if (imgData?.image_url) {
+          setGeneratedImage(imgData.image_url);
+          setHistory(prev => {
+            const updated = [...prev];
+            if (updated[0]) updated[0] = { ...updated[0], image: imgData.image_url };
+            return updated;
+          });
+          toast.success("Imagem do post gerada! 🎨");
+        }
+      } catch (imgE: any) {
+        console.error("Image gen error:", imgE);
+        toast.error("Texto gerado, mas houve um erro na imagem. Tente gerar novamente.");
+      } finally {
+        setImageLoading(false);
+      }
     } catch (err: any) {
       console.error(err);
       toast.error("Erro ao gerar post. Tente novamente.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRegenerateImage = async () => {
+    if (!generatedPost) return;
+    setImageLoading(true);
+    try {
+      const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
+        body: { prompt, platform, productId: selectedProductId || undefined, caption: generatedPost.caption },
+      });
+      if (imgErr) throw imgErr;
+      if (imgData?.error) { toast.error(imgData.error); return; }
+      if (imgData?.image_url) {
+        setGeneratedImage(imgData.image_url);
+        toast.success("Nova imagem gerada! 🎨");
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Erro ao regerar imagem.");
+    } finally {
+      setImageLoading(false);
     }
   };
 
@@ -664,7 +721,17 @@ const CreatePostTab = () => {
     copyToClipboard(full);
   };
 
+  const downloadImage = () => {
+    if (!generatedImage) return;
+    const a = document.createElement("a");
+    a.href = generatedImage;
+    a.download = `sollaris-post-${platform.toLowerCase()}-${Date.now()}.png`;
+    a.target = "_blank";
+    a.click();
+  };
+
   const platformEmoji: Record<string, string> = { Instagram: "📸", TikTok: "🎵", Facebook: "📘", WhatsApp: "💬", LinkedIn: "💼" };
+  const productThumb = (p: any) => p.foto_frontal || p.foto_lifestyle || (p.images && p.images[0]) || "";
 
   return (
     <div className="space-y-4">
@@ -675,7 +742,7 @@ const CreatePostTab = () => {
             <Sparkles className="h-4 w-4 text-accent" />
             Gerador de Posts com IA — Identidade SOLLARIS
           </CardTitle>
-          <p className="text-xs text-muted-foreground">Descreva sua ideia e a IA cria um post profissional com a identidade visual e tom de voz da marca</p>
+          <p className="text-xs text-muted-foreground">Descreva sua ideia, selecione um produto do estoque e a IA cria texto + imagem profissional</p>
         </CardHeader>
         <CardContent className="space-y-3">
           <Textarea
@@ -685,6 +752,49 @@ const CreatePostTab = () => {
             rows={3}
             className="resize-none"
           />
+
+          {/* Product selector */}
+          <div className="space-y-2">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+              <Package className="h-3 w-3" /> Produto do estoque (opcional — a IA usa foto e preço reais)
+            </p>
+            <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um produto do estoque..." />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="none">Sem produto específico</SelectItem>
+                {products?.map(p => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name} — {fmtBRL(p.price)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Product preview */}
+            {selectedProduct && (
+              <div className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/50 border border-accent/10">
+                {productThumb(selectedProduct) && (
+                  <img src={productThumb(selectedProduct)} alt={selectedProduct.name} className="h-14 w-14 rounded-lg object-cover border border-accent/20" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">{selectedProduct.name}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-accent">{fmtBRL(selectedProduct.price)}</span>
+                    {selectedProduct.original_price && (
+                      <span className="text-[10px] text-muted-foreground line-through">{fmtBRL(selectedProduct.original_price)}</span>
+                    )}
+                  </div>
+                  <div className="flex gap-1 mt-0.5">
+                    {selectedProduct.banho && <Badge variant="secondary" className="text-[9px]">{selectedProduct.banho}</Badge>}
+                    {selectedProduct.pedra && <Badge variant="secondary" className="text-[9px]">{selectedProduct.pedra}</Badge>}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-wrap gap-2">
             <Select value={platform} onValueChange={setPlatform}>
               <SelectTrigger className="w-[160px]">
@@ -712,8 +822,8 @@ const CreatePostTab = () => {
                 <SelectItem value="celebracao">🥂 Celebração</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={handleGenerate} disabled={loading} className="ml-auto">
-              {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Gerando...</> : <><Sparkles className="h-4 w-4 mr-1" />Gerar Post</>}
+            <Button onClick={handleGenerate} disabled={loading || imageLoading} className="ml-auto">
+              {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Gerando...</> : <><Sparkles className="h-4 w-4 mr-1" />Gerar Post + Imagem</>}
             </Button>
           </div>
 
@@ -740,7 +850,7 @@ const CreatePostTab = () => {
       </Card>
 
       {/* Loading state */}
-      {loading && (
+      {(loading || imageLoading) && !generatedPost && (
         <Card>
           <CardContent className="p-8 flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-accent" />
@@ -753,58 +863,113 @@ const CreatePostTab = () => {
       {/* Generated post */}
       {generatedPost && !loading && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-          {/* Main caption */}
-          <Card className="border-accent/30">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <span>{platformEmoji[platform]}</span>
-                  Post para {platform}
-                </CardTitle>
-                <Button size="sm" variant="outline" onClick={copyFullPost}>
-                  <Copy className="h-3 w-3 mr-1" />Copiar Tudo
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="relative">
-                <div className="p-4 rounded-lg bg-secondary/50 whitespace-pre-wrap text-sm leading-relaxed">
-                  {generatedPost.caption}
+          {/* Image + Caption side by side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {/* Generated Image */}
+            <Card className="border-accent/30">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <ImagePlus className="h-4 w-4 text-accent" />
+                    Imagem do Post
+                  </CardTitle>
+                  <div className="flex gap-1.5">
+                    {generatedImage && (
+                      <Button size="sm" variant="outline" onClick={downloadImage}>
+                        <Download className="h-3 w-3 mr-1" />Baixar
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" onClick={handleRegenerateImage} disabled={imageLoading}>
+                      {imageLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Sparkles className="h-3 w-3 mr-1" />Regerar</>}
+                    </Button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => copyToClipboard(generatedPost.caption)}
-                  className="absolute top-2 right-2 p-1.5 rounded-md bg-background/80 hover:bg-background transition-colors"
-                  title="Copiar legenda"
-                >
-                  <Copy className="h-3 w-3" />
-                </button>
-              </div>
+              </CardHeader>
+              <CardContent>
+                {imageLoading && !generatedImage ? (
+                  <div className="aspect-square rounded-lg bg-secondary/50 flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="h-8 w-8 animate-spin text-accent" />
+                    <p className="text-xs text-muted-foreground">Gerando imagem com IA...</p>
+                    <p className="text-[10px] text-muted-foreground">Identidade SOLLARIS • Cores da marca • Foto do produto</p>
+                  </div>
+                ) : generatedImage ? (
+                  <div className="relative group">
+                    <img
+                      src={generatedImage}
+                      alt="Post gerado"
+                      className="w-full rounded-lg border border-accent/20"
+                    />
+                    {imageLoading && (
+                      <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="aspect-square rounded-lg bg-secondary/50 flex flex-col items-center justify-center gap-2">
+                    <Image className="h-8 w-8 text-muted-foreground/40" />
+                    <p className="text-xs text-muted-foreground">Imagem não gerada</p>
+                    <Button size="sm" variant="outline" onClick={handleRegenerateImage}>
+                      <Sparkles className="h-3 w-3 mr-1" />Gerar Imagem
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              {/* Hashtags */}
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Hashtags</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {generatedPost.hashtags.map((h, i) => (
-                    <Badge
-                      key={i}
-                      variant="secondary"
-                      className="text-[10px] cursor-pointer hover:bg-accent/20 transition-colors"
-                      onClick={() => copyToClipboard(h.startsWith("#") ? h : `#${h}`)}
-                    >
-                      <Hash className="h-2.5 w-2.5 mr-0.5" />
-                      {h.replace(/^#/, "")}
-                    </Badge>
-                  ))}
+            {/* Caption */}
+            <Card className="border-accent/30">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <span>{platformEmoji[platform]}</span>
+                    Post para {platform}
+                  </CardTitle>
+                  <Button size="sm" variant="outline" onClick={copyFullPost}>
+                    <Copy className="h-3 w-3 mr-1" />Copiar Tudo
+                  </Button>
                 </div>
-                <button
-                  onClick={() => copyToClipboard(generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "))}
-                  className="text-[10px] text-accent hover:underline mt-1.5"
-                >
-                  Copiar todas as hashtags
-                </button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="relative">
+                  <div className="p-4 rounded-lg bg-secondary/50 whitespace-pre-wrap text-sm leading-relaxed max-h-[300px] overflow-y-auto">
+                    {generatedPost.caption}
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(generatedPost.caption)}
+                    className="absolute top-2 right-2 p-1.5 rounded-md bg-background/80 hover:bg-background transition-colors"
+                    title="Copiar legenda"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </button>
+                </div>
+
+                {/* Hashtags */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Hashtags</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {generatedPost.hashtags.map((h, i) => (
+                      <Badge
+                        key={i}
+                        variant="secondary"
+                        className="text-[10px] cursor-pointer hover:bg-accent/20 transition-colors"
+                        onClick={() => copyToClipboard(h.startsWith("#") ? h : `#${h}`)}
+                      >
+                        <Hash className="h-2.5 w-2.5 mr-0.5" />
+                        {h.replace(/^#/, "")}
+                      </Badge>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "))}
+                    className="text-[10px] text-accent hover:underline mt-1.5"
+                  >
+                    Copiar todas as hashtags
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Tips grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -845,9 +1010,13 @@ const CreatePostTab = () => {
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Histórico de Posts Gerados</h3>
           <div className="space-y-2">
             {history.map((h, i) => (
-              <Card key={i} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) setGeneratedPost({ caption: h.caption, hashtags: h.hashtags, platform_tips: h.platform_tips, visual_suggestion: h.visual_suggestion, best_time: h.best_time }); setPlatform(h?.platform || "Instagram"); }}>
+              <Card key={i} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) { setGeneratedPost({ caption: h.caption, hashtags: h.hashtags, platform_tips: h.platform_tips, visual_suggestion: h.visual_suggestion, best_time: h.best_time }); setPlatform(h?.platform || "Instagram"); if (h.image) setGeneratedImage(h.image); } }}>
                 <CardContent className="p-3 flex items-center gap-3">
-                  <span className="text-lg">{platformEmoji[h?.platform || "Instagram"]}</span>
+                  {h?.image ? (
+                    <img src={h.image} alt="" className="h-10 w-10 rounded-lg object-cover border border-accent/20" />
+                  ) : (
+                    <span className="text-lg">{platformEmoji[h?.platform || "Instagram"]}</span>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">{h?.prompt}</p>
                     <p className="text-[10px] text-muted-foreground truncate">{h?.caption?.slice(0, 80)}...</p>
