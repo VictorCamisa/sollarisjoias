@@ -662,7 +662,7 @@ const CreatePostTab = () => {
       setImageLoading(true);
       try {
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-          body: { prompt, platform, productId: selectedProductId || undefined, caption: post.caption },
+          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption },
         });
         if (imgErr) throw imgErr;
         if (imgData?.error) { toast.error(imgData.error); return; }
@@ -694,7 +694,7 @@ const CreatePostTab = () => {
     setImageLoading(true);
     try {
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-        body: { prompt, platform, productId: selectedProductId || undefined, caption: generatedPost.caption },
+        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption },
       });
       if (imgErr) throw imgErr;
       if (imgData?.error) { toast.error(imgData.error); return; }
