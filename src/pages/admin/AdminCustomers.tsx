@@ -22,7 +22,8 @@ interface Profile {
   address: string | null; notes: string | null; created_at: string; updated_at: string;
 }
 interface Order {
-  id: string; total: number; status: string; items: any; created_at: string; customer_name: string; customer_phone: string;
+  id: string; total: number; status: string; items: any; created_at: string;
+  customer_name: string; customer_phone: string; customer_id: string | null;
 }
 
 const fmtBRL = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
