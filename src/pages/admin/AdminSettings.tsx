@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useSettings } from "@/hooks/useStore";
 import { toast } from "sonner";
-import { Settings } from "lucide-react";
+import { Settings, Smartphone, Wifi, WifiOff, Plus, Trash2, RefreshCw, QrCode } from "lucide-react";
 
 const AdminSettings = () => {
   const queryClient = useQueryClient();
@@ -16,20 +17,43 @@ const AdminSettings = () => {
   const [pixDiscount, setPixDiscount] = useState("5");
   const [monthlyGoal, setMonthlyGoal] = useState("15000");
 
+  // Evolution API instance
+  const [instanceName, setInstanceName] = useState("");
+  const [instanceStatus, setInstanceStatus] = useState<"disconnected" | "connecting" | "connected" | "unknown">("unknown");
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [connectedInstance, setConnectedInstance] = useState<string | null>(null);
+
   useEffect(() => {
     if (settings) {
       setWhatsapp(settings.whatsapp_number);
       setStoreName(settings.store_name);
       setPixDiscount(String(settings.pix_discount_percent ?? 5));
       setMonthlyGoal(String((settings as any).monthly_goal ?? 15000));
+      // Load saved instance name from settings if exists
+      const saved = (settings as any).evolution_instance;
+      if (saved) {
+        setConnectedInstance(saved);
+        setInstanceName(saved);
+      }
     }
   }, [settings]);
+
+  // Check status of connected instance on load
+  useEffect(() => {
+    if (connectedInstance) {
+      checkInstanceStatus(connectedInstance);
+    }
+  }, [connectedInstance]);
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!settings) return;
       const { error } = await supabase.from("settings").update({
-        whatsapp_number: whatsapp, store_name: storeName,
+        whatsapp_number: whatsapp,
+        store_name: storeName,
         pix_discount_percent: parseFloat(pixDiscount) || 5,
         monthly_goal: parseFloat(monthlyGoal) || 15000,
       } as any).eq("id", settings.id);
@@ -41,6 +65,116 @@ const AdminSettings = () => {
     },
     onError: (err: any) => toast.error(err.message),
   });
+
+  const checkInstanceStatus = async (name: string) => {
+    setIsCheckingStatus(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("evolution-instance", {
+        body: { action: "status", instanceName: name },
+      });
+      if (error) throw error;
+      const state = data?.instance?.state || data?.state;
+      if (state === "open" || state === "connected") {
+        setInstanceStatus("connected");
+        setQrCode(null);
+      } else if (state === "connecting") {
+        setInstanceStatus("connecting");
+      } else {
+        setInstanceStatus("disconnected");
+      }
+    } catch (err) {
+      console.error("Status check error:", err);
+      setInstanceStatus("unknown");
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
+
+  const createInstance = async () => {
+    if (!instanceName.trim()) {
+      toast.error("Digite o nome da instância");
+      return;
+    }
+    setIsCreating(true);
+    setQrCode(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("evolution-instance", {
+        body: { action: "create", instanceName: instanceName.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success("Instância criada! Escaneie o QR Code para conectar.");
+      setConnectedInstance(instanceName.trim());
+
+      // Save instance name to settings
+      if (settings) {
+        await supabase.from("settings").update({
+          evolution_instance: instanceName.trim(),
+        } as any).eq("id", settings.id);
+      }
+
+      // Try to get QR code
+      if (data?.qrcode) {
+        setQrCode(data.qrcode);
+        setInstanceStatus("connecting");
+      } else {
+        // Fetch QR code separately
+        await fetchQrCode(instanceName.trim());
+      }
+    } catch (err: any) {
+      console.error("Create instance error:", err);
+      toast.error(err.message || "Erro ao criar instância");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const fetchQrCode = async (name: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("evolution-instance", {
+        body: { action: "qrcode", instanceName: name },
+      });
+      if (error) throw error;
+      const base64 = data?.base64 || data?.qrcode?.base64 || data?.code;
+      if (base64) {
+        setQrCode(base64.startsWith("data:") ? base64 : `data:image/png;base64,${base64}`);
+        setInstanceStatus("connecting");
+      }
+    } catch (err) {
+      console.error("QR code error:", err);
+    }
+  };
+
+  const deleteInstance = async () => {
+    if (!connectedInstance) return;
+    setIsDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("evolution-instance", {
+        body: { action: "delete", instanceName: connectedInstance },
+      });
+      if (error) throw error;
+      toast.success("Instância desconectada");
+      setConnectedInstance(null);
+      setInstanceStatus("unknown");
+      setQrCode(null);
+      setInstanceName("");
+
+      if (settings) {
+        await supabase.from("settings").update({
+          evolution_instance: null,
+        } as any).eq("id", settings.id);
+      }
+    } catch (err: any) {
+      console.error("Delete instance error:", err);
+      toast.error(err.message || "Erro ao desconectar");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -57,6 +191,7 @@ const AdminSettings = () => {
         <p className="text-xs text-muted-foreground mt-0.5">Configurações gerais da loja</p>
       </div>
 
+      {/* General Settings */}
       <div className="bg-card border border-border rounded-xl p-5 space-y-4">
         <div>
           <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome da Loja</Label>
@@ -81,6 +216,121 @@ const AdminSettings = () => {
         <Button onClick={() => mutation.mutate()} className="rounded-lg h-9 w-full text-xs" disabled={mutation.isPending}>
           {mutation.isPending ? "Salvando..." : "Salvar Configurações"}
         </Button>
+      </div>
+
+      {/* WhatsApp Instance (Evolution API) */}
+      <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <Smartphone className="h-4 w-4 text-green-500" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold">Instância WhatsApp</h3>
+              <p className="text-[10px] text-muted-foreground">Evolution API — Conexão automática</p>
+            </div>
+          </div>
+          {connectedInstance && (
+            <Badge
+              className={`text-[10px] ${
+                instanceStatus === "connected"
+                  ? "bg-green-500/15 text-green-400 border-green-500/20"
+                  : instanceStatus === "connecting"
+                  ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20"
+                  : "bg-red-500/15 text-red-400 border-red-500/20"
+              }`}
+            >
+              {instanceStatus === "connected" ? (
+                <><Wifi className="h-3 w-3 mr-1" /> Conectado</>
+              ) : instanceStatus === "connecting" ? (
+                <><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> Conectando</>
+              ) : (
+                <><WifiOff className="h-3 w-3 mr-1" /> Desconectado</>
+              )}
+            </Badge>
+          )}
+        </div>
+
+        {!connectedInstance ? (
+          <>
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome da Instância</Label>
+              <Input
+                value={instanceName}
+                onChange={(e) => setInstanceName(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))}
+                className="rounded-lg h-9 mt-1"
+                placeholder="sollaris-principal"
+              />
+              <p className="text-[9px] text-muted-foreground mt-1">Apenas letras, números, - e _</p>
+            </div>
+            <Button
+              onClick={createInstance}
+              className="rounded-lg h-9 w-full text-xs bg-green-600 hover:bg-green-700"
+              disabled={isCreating || !instanceName.trim()}
+            >
+              {isCreating ? (
+                <><RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Criando instância...</>
+              ) : (
+                <><Plus className="h-3.5 w-3.5 mr-1.5" /> Criar e Conectar Instância</>
+              )}
+            </Button>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Instância:</span>
+              <code className="bg-muted px-2 py-0.5 rounded text-[11px] font-mono">{connectedInstance}</code>
+            </div>
+
+            {/* QR Code display */}
+            {qrCode && instanceStatus !== "connected" && (
+              <div className="flex flex-col items-center gap-3 py-3">
+                <div className="bg-white p-3 rounded-xl">
+                  <img src={qrCode} alt="QR Code WhatsApp" className="w-48 h-48 object-contain" />
+                </div>
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Abra o WhatsApp → Aparelhos conectados → Escanear QR Code
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs h-8 rounded-lg"
+                onClick={() => checkInstanceStatus(connectedInstance)}
+                disabled={isCheckingStatus}
+              >
+                {isCheckingStatus ? (
+                  <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                )}
+                Verificar Status
+              </Button>
+              {instanceStatus !== "connected" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs h-8 rounded-lg"
+                  onClick={() => fetchQrCode(connectedInstance)}
+                >
+                  <QrCode className="h-3 w-3 mr-1" /> Novo QR Code
+                </Button>
+              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                className="text-xs h-8 rounded-lg"
+                onClick={deleteInstance}
+                disabled={isDeleting}
+              >
+                {isDeleting ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
