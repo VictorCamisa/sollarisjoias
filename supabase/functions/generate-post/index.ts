@@ -1,0 +1,128 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+const SYSTEM_PROMPT = `Você é a copywriter oficial da SOLLARIS JOIAS — uma marca de joias premium brasileira que segue a filosofia "Curadoria com Intenção". 
+
+IDENTIDADE DA MARCA:
+- Nome: SOLLARIS (sempre em maiúsculas)
+- Filosofia: "Curadoria, não varejo" — cada peça é selecionada com intenção e significado
+- Público: Classes A e B, mulheres sofisticadas que valorizam exclusividade
+- Tom de voz: Sofisticado, editorial, exclusivo, como uma revista de luxo
+- Cores da marca: Preto Obsidiana, Branco, Dourado Champagne
+- Valores: Autenticidade, elegância atemporal, empoderamento feminino, exclusividade
+
+DIRETRIZES PARA POSTS:
+1. Nunca use linguagem genérica ou excessivamente comercial ("compre agora!", "promoção imperdível!")
+2. Use linguagem aspiracional e emocional — venda experiências e sentimentos, não apenas produtos
+3. Inclua emojis com moderação e sofisticação (máximo 3-4 por post)
+4. Sempre inclua hashtags relevantes e de marca (#SOLLARIS #SollarisJoias)
+5. Adapte o tom para cada plataforma mantendo a essência da marca
+6. Mencione materiais e acabamentos quando relevante (banho de ouro, pedras naturais, etc.)
+7. Use frases curtas e impactantes, com pausas estratégicas
+8. Inclua sempre um CTA sutil e elegante
+
+FORMATO DE RESPOSTA (JSON):
+{
+  "caption": "texto completo da legenda/post",
+  "hashtags": ["lista", "de", "hashtags"],
+  "platform_tips": "dicas específicas para a plataforma escolhida",
+  "visual_suggestion": "sugestão de visual/foto para acompanhar o post",
+  "best_time": "melhor horário sugerido para postar"
+}`;
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const { prompt, platform, tone } = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const userMessage = `Crie um post para ${platform || "Instagram"} com o seguinte tema/ideia: "${prompt}"${tone ? `. Tom desejado: ${tone}` : ""}. Responda APENAS com o JSON no formato especificado.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_branded_post",
+              description: "Generate a branded social media post for SOLLARIS JOIAS",
+              parameters: {
+                type: "object",
+                properties: {
+                  caption: { type: "string", description: "Full post caption/text" },
+                  hashtags: { type: "array", items: { type: "string" }, description: "Relevant hashtags" },
+                  platform_tips: { type: "string", description: "Platform-specific tips" },
+                  visual_suggestion: { type: "string", description: "Visual/photo suggestion" },
+                  best_time: { type: "string", description: "Best time to post" },
+                },
+                required: ["caption", "hashtags", "platform_tips", "visual_suggestion", "best_time"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "generate_branded_post" } },
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Limite de requisições atingido. Tente novamente em alguns segundos." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Créditos insuficientes. Adicione créditos na sua conta." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const t = await response.text();
+      console.error("AI gateway error:", response.status, t);
+      return new Response(JSON.stringify({ error: "Erro ao gerar post" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    let post;
+
+    if (toolCall?.function?.arguments) {
+      post = JSON.parse(toolCall.function.arguments);
+    } else {
+      // Fallback: try to parse content as JSON
+      const content = data.choices?.[0]?.message?.content || "";
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        post = JSON.parse(jsonMatch[0]);
+      } else {
+        post = { caption: content, hashtags: ["#SOLLARIS", "#SollarisJoias"], platform_tips: "", visual_suggestion: "", best_time: "" };
+      }
+    }
+
+    return new Response(JSON.stringify({ post }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("generate-post error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
