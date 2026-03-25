@@ -38,6 +38,7 @@ import AutomacoesConhecimento from "./pages/admin/automacoes/AutomacoesConhecime
 import AutomacoesIA from "./pages/admin/automacoes/AutomacoesIA";
 import AutomacoesCampanhas from "./pages/admin/automacoes/AutomacoesCampanhas";
 import AutomacoesAgendamentos from "./pages/admin/automacoes/AutomacoesAgendamentos";
+import BrainNalu from "./pages/admin/BrainNalu";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -85,6 +86,7 @@ const App = () => (
                   <Route path="agendamentos" element={<AutomacoesAgendamentos />} />
                 </Route>
                 <Route path="configuracoes" element={<AdminSettings />} />
+                <Route path="brain-nalu" element={<BrainNalu />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
