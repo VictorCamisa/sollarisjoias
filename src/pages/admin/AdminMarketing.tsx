@@ -614,7 +614,7 @@ const SeoTab = () => {
 const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState("Instagram");
-  const [tone, setTone] = useState("");
+  const [tone, setTone] = useState("padrao");
   const [loading, setLoading] = useState(false);
   const [generatedPost, setGeneratedPost] = useState<{
     caption: string;
@@ -703,7 +703,7 @@ const CreatePostTab = () => {
                 <SelectValue placeholder="Tom (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Padrão SOLLARIS</SelectItem>
+                <SelectItem value="padrao">✨ Padrão SOLLARIS</SelectItem>
                 <SelectItem value="inspiracional">✨ Inspiracional</SelectItem>
                 <SelectItem value="educativo">📚 Educativo</SelectItem>
                 <SelectItem value="storytelling">📖 Storytelling</SelectItem>
