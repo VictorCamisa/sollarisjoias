@@ -159,13 +159,19 @@ export type Database = {
           amount: number
           category_id: string | null
           created_at: string
+          customer_name: string | null
+          customer_phone: string | null
           description: string
           due_date: string | null
           id: string
+          installment_number: number | null
+          installments: number | null
           notes: string | null
           order_id: string | null
           paid_date: string | null
+          payment_method: string | null
           status: string
+          sub_type: string | null
           type: string
           updated_at: string
         }
@@ -173,13 +179,19 @@ export type Database = {
           amount?: number
           category_id?: string | null
           created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
           description: string
           due_date?: string | null
           id?: string
+          installment_number?: number | null
+          installments?: number | null
           notes?: string | null
           order_id?: string | null
           paid_date?: string | null
+          payment_method?: string | null
           status?: string
+          sub_type?: string | null
           type: string
           updated_at?: string
         }
@@ -187,13 +199,19 @@ export type Database = {
           amount?: number
           category_id?: string | null
           created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
           description?: string
           due_date?: string | null
           id?: string
+          installment_number?: number | null
+          installments?: number | null
           notes?: string | null
           order_id?: string | null
           paid_date?: string | null
+          payment_method?: string | null
           status?: string
+          sub_type?: string | null
           type?: string
           updated_at?: string
         }
