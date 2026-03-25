@@ -58,7 +58,7 @@ serve(async (req) => {
 
       // 2. Set webhook
       const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
-      const webhookUrl = `${SUPABASE_URL}/functions/v1/sales-ai-chat`;
+      const webhookUrl = `${SUPABASE_URL}/functions/v1/whatsapp-webhook`;
 
       const webhookResp = await fetch(`${baseUrl}/webhook/set/${name}`, {
         method: "POST",
