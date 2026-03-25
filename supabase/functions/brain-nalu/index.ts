@@ -12,14 +12,14 @@ const TOOLS = [
     type: "function",
     function: {
       name: "query_orders",
-      description: "Consulta pedidos. Pode filtrar por status, nome do cliente, período. Retorna lista de pedidos com itens e totais.",
+      description: "Consulta pedidos. Pode filtrar por status, nome do cliente, período.",
       parameters: {
         type: "object",
         properties: {
-          status: { type: "string", description: "Filtrar por status: pending, confirmed, shipped, delivered, cancelled" },
-          customer_name: { type: "string", description: "Nome do cliente para buscar" },
-          limit: { type: "number", description: "Número máximo de resultados (padrão 10)" },
-          period: { type: "string", description: "Período: today, week, month, all" },
+          status: { type: "string", description: "pending, confirmed, shipped, delivered, cancelled" },
+          customer_name: { type: "string" },
+          limit: { type: "number" },
+          period: { type: "string", description: "today, week, month, all" },
         },
       },
     },
@@ -32,23 +32,11 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          customer_name: { type: "string", description: "Nome do cliente" },
-          customer_phone: { type: "string", description: "Telefone do cliente" },
-          customer_email: { type: "string", description: "Email do cliente (opcional)" },
-          items: {
-            type: "array",
-            description: "Itens do pedido",
-            items: {
-              type: "object",
-              properties: {
-                product_name: { type: "string" },
-                quantity: { type: "number" },
-                price: { type: "number" },
-              },
-              required: ["product_name", "quantity", "price"],
-            },
-          },
-          notes: { type: "string", description: "Observações do pedido" },
+          customer_name: { type: "string" },
+          customer_phone: { type: "string" },
+          customer_email: { type: "string" },
+          items: { type: "array", items: { type: "object", properties: { product_name: { type: "string" }, quantity: { type: "number" }, price: { type: "number" } }, required: ["product_name", "quantity", "price"] } },
+          notes: { type: "string" },
         },
         required: ["customer_name", "customer_phone", "items"],
       },
@@ -58,12 +46,12 @@ const TOOLS = [
     type: "function",
     function: {
       name: "query_leads",
-      description: "Consulta leads do CRM. Pode filtrar por status, origem, interesse.",
+      description: "Consulta leads do CRM.",
       parameters: {
         type: "object",
         properties: {
-          status: { type: "string", description: "Status: novo, em_contato, qualificado, convertido, perdido" },
-          source: { type: "string", description: "Origem do lead" },
+          status: { type: "string" },
+          source: { type: "string" },
           limit: { type: "number" },
         },
       },
@@ -77,14 +65,14 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          name: { type: "string", description: "Nome do lead" },
-          phone: { type: "string", description: "Telefone" },
-          email: { type: "string", description: "Email" },
-          source: { type: "string", description: "Origem: instagram, whatsapp, site, indicacao, manual" },
-          interest: { type: "string", description: "Interesse (ex: anéis, colares)" },
-          occasion: { type: "string", description: "Ocasião (ex: casamento, aniversário)" },
-          budget: { type: "number", description: "Orçamento" },
-          notes: { type: "string", description: "Observações" },
+          name: { type: "string" },
+          phone: { type: "string" },
+          email: { type: "string" },
+          source: { type: "string" },
+          interest: { type: "string" },
+          occasion: { type: "string" },
+          budget: { type: "number" },
+          notes: { type: "string" },
         },
         required: ["name"],
       },
@@ -94,13 +82,13 @@ const TOOLS = [
     type: "function",
     function: {
       name: "update_lead_status",
-      description: "Atualiza o status de um lead existente.",
+      description: "Atualiza o status de um lead.",
       parameters: {
         type: "object",
         properties: {
-          lead_id: { type: "string", description: "ID do lead" },
-          status: { type: "string", description: "Novo status: novo, em_contato, qualificado, convertido, perdido" },
-          notes: { type: "string", description: "Notas sobre a mudança" },
+          lead_id: { type: "string" },
+          status: { type: "string" },
+          notes: { type: "string" },
         },
         required: ["lead_id", "status"],
       },
@@ -114,14 +102,14 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          title: { type: "string", description: "Título do compromisso" },
-          client_name: { type: "string", description: "Nome do cliente" },
-          client_phone: { type: "string", description: "Telefone" },
-          scheduled_at: { type: "string", description: "Data e hora no formato ISO (ex: 2026-03-26T14:00:00)" },
-          duration_minutes: { type: "number", description: "Duração em minutos (padrão 60)" },
-          type: { type: "string", description: "Tipo: consultoria, entrega, reuniao, follow_up" },
-          location: { type: "string", description: "Local" },
-          notes: { type: "string", description: "Observações" },
+          title: { type: "string" },
+          client_name: { type: "string" },
+          client_phone: { type: "string" },
+          scheduled_at: { type: "string" },
+          duration_minutes: { type: "number" },
+          type: { type: "string" },
+          location: { type: "string" },
+          notes: { type: "string" },
         },
         required: ["title", "client_name", "scheduled_at"],
       },
@@ -131,12 +119,12 @@ const TOOLS = [
     type: "function",
     function: {
       name: "query_appointments",
-      description: "Consulta agendamentos. Pode filtrar por período e status.",
+      description: "Consulta agendamentos.",
       parameters: {
         type: "object",
         properties: {
           period: { type: "string", description: "today, week, month, all" },
-          status: { type: "string", description: "agendado, confirmado, realizado, cancelado" },
+          status: { type: "string" },
         },
       },
     },
@@ -145,13 +133,13 @@ const TOOLS = [
     type: "function",
     function: {
       name: "query_products",
-      description: "Consulta produtos do catálogo. Pode buscar por nome, categoria, faixa de preço.",
+      description: "Consulta produtos do catálogo.",
       parameters: {
         type: "object",
         properties: {
-          search: { type: "string", description: "Buscar por nome do produto" },
-          category: { type: "string", description: "Filtrar por categoria: aneis, brincos, colares, pulseiras, tornozeleiras" },
-          in_stock: { type: "boolean", description: "Apenas em estoque" },
+          search: { type: "string" },
+          category: { type: "string" },
+          in_stock: { type: "boolean" },
           limit: { type: "number" },
         },
       },
@@ -161,7 +149,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "query_financial_summary",
-      description: "Consulta resumo financeiro: receitas, despesas, saldo, transações pendentes.",
+      description: "Consulta resumo financeiro.",
       parameters: {
         type: "object",
         properties: {
@@ -179,10 +167,10 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          title: { type: "string", description: "Título da tarefa" },
-          description: { type: "string", description: "Descrição" },
-          priority: { type: "string", description: "low, medium, high" },
-          due_date: { type: "string", description: "Data limite ISO" },
+          title: { type: "string" },
+          description: { type: "string" },
+          priority: { type: "string" },
+          due_date: { type: "string" },
         },
         required: ["title"],
       },
@@ -190,7 +178,6 @@ const TOOLS = [
   },
 ];
 
-// ─── Tool Execution ───
 async function executeTool(name: string, args: Record<string, any>, supabase: any): Promise<string> {
   try {
     switch (name) {
@@ -198,36 +185,19 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
         let query = supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(args.limit || 10);
         if (args.status) query = query.eq("status", args.status);
         if (args.customer_name) query = query.ilike("customer_name", `%${args.customer_name}%`);
-        if (args.period === "today") {
-          const today = new Date().toISOString().split("T")[0];
-          query = query.gte("created_at", today);
-        } else if (args.period === "week") {
-          const d = new Date(); d.setDate(d.getDate() - 7);
-          query = query.gte("created_at", d.toISOString());
-        } else if (args.period === "month") {
-          const d = new Date(); d.setMonth(d.getMonth() - 1);
-          query = query.gte("created_at", d.toISOString());
-        }
+        if (args.period === "today") { query = query.gte("created_at", new Date().toISOString().split("T")[0]); }
+        else if (args.period === "week") { const d = new Date(); d.setDate(d.getDate() - 7); query = query.gte("created_at", d.toISOString()); }
+        else if (args.period === "month") { const d = new Date(); d.setMonth(d.getMonth() - 1); query = query.gte("created_at", d.toISOString()); }
         const { data, error } = await query;
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ orders: data, count: data?.length || 0 });
       }
-
       case "create_order": {
         const total = args.items.reduce((sum: number, i: any) => sum + i.price * i.quantity, 0);
-        const { data, error } = await supabase.from("orders").insert({
-          customer_name: args.customer_name,
-          customer_phone: args.customer_phone,
-          customer_email: args.customer_email || null,
-          items: args.items,
-          total,
-          notes: args.notes || null,
-          status: "pending",
-        }).select().single();
+        const { data, error } = await supabase.from("orders").insert({ customer_name: args.customer_name, customer_phone: args.customer_phone, customer_email: args.customer_email || null, items: args.items, total, notes: args.notes || null, status: "pending" }).select().single();
         if (error) return JSON.stringify({ error: error.message });
-        return JSON.stringify({ success: true, order: data, message: `Pedido criado com sucesso! Total: R$ ${total.toFixed(2)}` });
+        return JSON.stringify({ success: true, order: data, message: `Pedido criado! Total: R$ ${total.toFixed(2)}` });
       }
-
       case "query_leads": {
         let query = supabase.from("sales_leads").select("*").order("created_at", { ascending: false }).limit(args.limit || 10);
         if (args.status) query = query.eq("status", args.status);
@@ -236,108 +206,58 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ leads: data, count: data?.length || 0 });
       }
-
       case "create_lead": {
-        const { data, error } = await supabase.from("sales_leads").insert({
-          name: args.name,
-          phone: args.phone || null,
-          email: args.email || null,
-          source: args.source || "manual",
-          interest: args.interest || null,
-          occasion: args.occasion || null,
-          budget: args.budget || null,
-          notes: args.notes || null,
-          status: "novo",
-        }).select().single();
+        const { data, error } = await supabase.from("sales_leads").insert({ name: args.name, phone: args.phone || null, email: args.email || null, source: args.source || "manual", interest: args.interest || null, occasion: args.occasion || null, budget: args.budget || null, notes: args.notes || null, status: "novo" }).select().single();
         if (error) return JSON.stringify({ error: error.message });
-        return JSON.stringify({ success: true, lead: data, message: `Lead "${args.name}" criado com sucesso!` });
+        return JSON.stringify({ success: true, lead: data, message: `Lead "${args.name}" criado!` });
       }
-
       case "update_lead_status": {
         const updates: any = { status: args.status };
         if (args.notes) updates.notes = args.notes;
         const { data, error } = await supabase.from("sales_leads").update(updates).eq("id", args.lead_id).select().single();
         if (error) return JSON.stringify({ error: error.message });
-        return JSON.stringify({ success: true, lead: data, message: `Lead atualizado para status "${args.status}"` });
+        return JSON.stringify({ success: true, lead: data });
       }
-
       case "create_appointment": {
-        const { data, error } = await supabase.from("sales_appointments").insert({
-          title: args.title,
-          client_name: args.client_name,
-          client_phone: args.client_phone || null,
-          scheduled_at: args.scheduled_at,
-          duration_minutes: args.duration_minutes || 60,
-          type: args.type || "consultoria",
-          location: args.location || null,
-          notes: args.notes || null,
-          status: "agendado",
-        }).select().single();
+        const { data, error } = await supabase.from("sales_appointments").insert({ title: args.title, client_name: args.client_name, client_phone: args.client_phone || null, scheduled_at: args.scheduled_at, duration_minutes: args.duration_minutes || 60, type: args.type || "consultoria", location: args.location || null, notes: args.notes || null, status: "agendado" }).select().single();
         if (error) return JSON.stringify({ error: error.message });
-        return JSON.stringify({ success: true, appointment: data, message: `Agendamento "${args.title}" criado!` });
+        return JSON.stringify({ success: true, appointment: data });
       }
-
       case "query_appointments": {
         let query = supabase.from("sales_appointments").select("*").order("scheduled_at", { ascending: true }).limit(20);
         if (args.status) query = query.eq("status", args.status);
-        if (args.period === "today") {
-          const today = new Date().toISOString().split("T")[0];
-          const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-          query = query.gte("scheduled_at", today).lt("scheduled_at", tomorrow);
-        } else if (args.period === "week") {
-          const d = new Date(); const end = new Date(); end.setDate(end.getDate() + 7);
-          query = query.gte("scheduled_at", d.toISOString()).lt("scheduled_at", end.toISOString());
-        }
+        if (args.period === "today") { const t = new Date().toISOString().split("T")[0]; const tm = new Date(Date.now() + 86400000).toISOString().split("T")[0]; query = query.gte("scheduled_at", t).lt("scheduled_at", tm); }
+        else if (args.period === "week") { const d = new Date(); const e = new Date(); e.setDate(e.getDate() + 7); query = query.gte("scheduled_at", d.toISOString()).lt("scheduled_at", e.toISOString()); }
         const { data, error } = await query;
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ appointments: data, count: data?.length || 0 });
       }
-
       case "query_products": {
         let query = supabase.from("products").select("*, categories(name, slug)").order("name").limit(args.limit || 15);
         if (args.search) query = query.ilike("name", `%${args.search}%`);
         if (args.in_stock) query = query.eq("stock_status", true);
-        if (args.category) {
-          const { data: cat } = await supabase.from("categories").select("id").eq("slug", args.category).single();
-          if (cat) query = query.eq("category_id", cat.id);
-        }
+        if (args.category) { const { data: cat } = await supabase.from("categories").select("id").eq("slug", args.category).single(); if (cat) query = query.eq("category_id", cat.id); }
         const { data, error } = await query;
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ products: data?.map((p: any) => ({ id: p.id, name: p.name, price: p.price, sku: p.sku, stock: p.stock_quantity, category: p.categories?.name })), count: data?.length || 0 });
       }
-
       case "query_financial_summary": {
         let query = supabase.from("financial_transactions").select("*");
         if (args.type && args.type !== "all") query = query.eq("type", args.type);
-        if (args.period === "month") {
-          const d = new Date(); d.setMonth(d.getMonth() - 1);
-          query = query.gte("created_at", d.toISOString());
-        } else if (args.period === "week") {
-          const d = new Date(); d.setDate(d.getDate() - 7);
-          query = query.gte("created_at", d.toISOString());
-        } else if (args.period === "today") {
-          query = query.gte("created_at", new Date().toISOString().split("T")[0]);
-        }
+        if (args.period === "month") { const d = new Date(); d.setMonth(d.getMonth() - 1); query = query.gte("created_at", d.toISOString()); }
+        else if (args.period === "week") { const d = new Date(); d.setDate(d.getDate() - 7); query = query.gte("created_at", d.toISOString()); }
+        else if (args.period === "today") { query = query.gte("created_at", new Date().toISOString().split("T")[0]); }
         const { data, error } = await query;
         if (error) return JSON.stringify({ error: error.message });
         const income = (data || []).filter((t: any) => t.type === "income").reduce((s: number, t: any) => s + Number(t.amount), 0);
         const expense = (data || []).filter((t: any) => t.type === "expense").reduce((s: number, t: any) => s + Number(t.amount), 0);
-        const pending = (data || []).filter((t: any) => t.status === "pending").length;
-        return JSON.stringify({ income, expense, balance: income - expense, total_transactions: data?.length || 0, pending_count: pending });
+        return JSON.stringify({ income, expense, balance: income - expense, total_transactions: data?.length || 0, pending_count: (data || []).filter((t: any) => t.status === "pending").length });
       }
-
       case "create_task": {
-        const { data, error } = await supabase.from("tasks").insert({
-          title: args.title,
-          description: args.description || null,
-          priority: args.priority || "medium",
-          due_date: args.due_date || null,
-          status: "todo",
-        }).select().single();
+        const { data, error } = await supabase.from("tasks").insert({ title: args.title, description: args.description || null, priority: args.priority || "medium", due_date: args.due_date || null, status: "todo" }).select().single();
         if (error) return JSON.stringify({ error: error.message });
-        return JSON.stringify({ success: true, task: data, message: `Tarefa "${args.title}" criada!` });
+        return JSON.stringify({ success: true, task: data });
       }
-
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
@@ -346,11 +266,58 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
   }
 }
 
+// Build a memory summary from recent conversations
+async function buildMemoryContext(supabase: any, currentConversationId?: string): Promise<string> {
+  // Get last 10 conversations (excluding current) with their messages
+  let convQuery = supabase
+    .from("brain_conversations")
+    .select("id, title, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(10);
+
+  if (currentConversationId) {
+    convQuery = convQuery.neq("id", currentConversationId);
+  }
+
+  const { data: conversations } = await convQuery;
+  if (!conversations || conversations.length === 0) return "";
+
+  // Get last 3 messages from each of the last 5 conversations for context
+  const summaries: string[] = [];
+  const recentConvs = conversations.slice(0, 5);
+
+  for (const conv of recentConvs) {
+    const { data: msgs } = await supabase
+      .from("brain_messages")
+      .select("role, content, created_at")
+      .eq("conversation_id", conv.id)
+      .order("created_at", { ascending: false })
+      .limit(4);
+
+    if (msgs && msgs.length > 0) {
+      const date = new Date(conv.updated_at).toLocaleDateString("pt-BR");
+      const preview = msgs.reverse().map((m: any) => `${m.role === "user" ? "Ana" : "Nalu"}: ${m.content.substring(0, 200)}`).join("\n");
+      summaries.push(`📅 ${date} — "${conv.title}"\n${preview}`);
+    }
+  }
+
+  if (summaries.length === 0) return "";
+
+  return `\n\n## Memória — Conversas Recentes\nEstas foram suas últimas conversas com a Ana. Use esse contexto para ter continuidade, lembrar de problemas anteriores, decisões tomadas e compromissos feitos:\n\n${summaries.join("\n\n---\n\n")}`;
+}
+
+// Generate a title from the first user message
+async function generateTitle(firstMessage: string): Promise<string> {
+  const msg = firstMessage.substring(0, 100);
+  if (msg.length <= 40) return msg;
+  return msg.substring(0, 40) + "...";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages } = await req.json();
+    const { messages, conversation_id, save_messages } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -358,6 +325,9 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Build memory context from past conversations
+    const memoryContext = await buildMemoryContext(supabase, conversation_id);
 
     const systemPrompt = `Você é a **Brain Nalu**, a assistente executiva pessoal da Ana Luísa, CEO da Sollaris — uma joalheria de semijoias premium.
 
@@ -378,26 +348,32 @@ Você tem acesso REAL ao sistema da Sollaris e pode:
 5. **Financeiro**: Ver resumos financeiros, receitas e despesas
 6. **Tarefas**: Criar tarefas e lembretes
 
-## Regras Importantes
-- SEMPRE use as ferramentas disponíveis para buscar dados reais — nunca invente números
-- Ao criar algo, confirme os dados com a Ana antes de executar
-- Formate valores monetários como R$ X.XXX,XX
-- Datas no formato brasileiro (DD/MM/AAAA)
-- Se algo der erro, explique de forma simples e sugira alternativa
+## Memória e Contexto
+Você tem acesso ao histórico de conversas passadas. Use essa memória para:
+- Dar continuidade a assuntos anteriores sem que a Ana precise repetir
+- Lembrar de decisões, problemas reportados e compromissos feitos
+- Conectar informações de diferentes conversas para insights mais ricos
+- Se a Ana mencionar algo que foi discutido antes, referencie naturalmente
+${memoryContext}
+
+## Regras
+- SEMPRE use as ferramentas para buscar dados reais — nunca invente
+- Confirme dados com a Ana antes de executar ações
+- Formate valores como R$ X.XXX,XX
+- Datas no formato DD/MM/AAAA
+- Se algo der erro, explique de forma simples
 - Responda SEMPRE em português brasileiro
 
 ## Contexto
 - Data atual: ${new Date().toLocaleDateString("pt-BR")}
 - A Sollaris trabalha com semijoias em ouro 18k, prata 925 e pedras naturais
-- O horário comercial é de segunda a sábado, 9h às 18h`;
+- Horário comercial: segunda a sábado, 9h às 18h`;
 
-    // Build conversation with tool calls loop
     const allMessages = [
       { role: "system", content: systemPrompt },
       ...messages,
     ];
 
-    // We'll do up to 5 rounds of tool calling
     let finalResponse = "";
     for (let round = 0; round < 5; round++) {
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -419,62 +395,34 @@ Você tem acesso REAL ao sistema da Sollaris e pode:
         const status = aiResponse.status;
         const errText = await aiResponse.text();
         console.error("AI error:", status, errText);
-        if (status === 429) {
-          return new Response(JSON.stringify({ error: "Rate limit excedido. Tente novamente em alguns segundos." }), {
-            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        if (status === 402) {
-          return new Response(JSON.stringify({ error: "Créditos insuficientes." }), {
-            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        return new Response(JSON.stringify({ error: "Erro no gateway de IA" }), {
-          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        if (status === 429) return new Response(JSON.stringify({ error: "Rate limit. Tente em alguns segundos." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (status === 402) return new Response(JSON.stringify({ error: "Créditos insuficientes." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ error: "Erro no gateway de IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
       const result = await aiResponse.json();
       const choice = result.choices?.[0];
-
       if (!choice) break;
 
-      // If the model wants to call tools
       if (choice.finish_reason === "tool_calls" || choice.message?.tool_calls?.length > 0) {
         const assistantMsg = choice.message;
         allMessages.push(assistantMsg);
-
         const toolCalls = assistantMsg.tool_calls || [];
-        const toolResults: { tool_call_id: string; name: string; result: string }[] = [];
-
         for (const tc of toolCalls) {
           const fnName = tc.function.name;
           let fnArgs: Record<string, any> = {};
           try { fnArgs = JSON.parse(tc.function.arguments); } catch { /* empty */ }
           console.log(`Executing tool: ${fnName}`, fnArgs);
           const result = await executeTool(fnName, fnArgs, supabase);
-          toolResults.push({ tool_call_id: tc.id, name: fnName, result });
+          allMessages.push({ role: "tool", tool_call_id: tc.id, content: result } as any);
         }
-
-        // Add tool results to conversation
-        for (const tr of toolResults) {
-          allMessages.push({
-            role: "tool",
-            tool_call_id: tr.tool_call_id,
-            content: tr.result,
-          } as any);
-        }
-
-        // Continue loop to get the final text response
         continue;
       }
 
-      // Final text response
       finalResponse = choice.message?.content || "";
       break;
     }
 
-    // Return final response with tool actions metadata
     const toolActions: string[] = [];
     for (const msg of allMessages) {
       if ((msg as any).tool_calls) {
@@ -484,17 +432,44 @@ Você tem acesso REAL ao sistema da Sollaris e pode:
       }
     }
 
-    return new Response(JSON.stringify({
-      response: finalResponse,
-      actions_executed: toolActions,
-    }), {
+    // Save messages to database if conversation_id provided
+    if (save_messages && conversation_id) {
+      const userMsg = messages[messages.length - 1];
+      if (userMsg) {
+        await supabase.from("brain_messages").insert({
+          conversation_id,
+          role: "user",
+          content: userMsg.content,
+          actions: [],
+        });
+      }
+      if (finalResponse) {
+        await supabase.from("brain_messages").insert({
+          conversation_id,
+          role: "assistant",
+          content: finalResponse,
+          actions: toolActions,
+        });
+      }
+      // Update conversation title from first user message
+      const { data: msgCount } = await supabase
+        .from("brain_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", conversation_id);
+
+      if ((msgCount as any)?.length <= 2 || !msgCount) {
+        const title = await generateTitle(messages[0]?.content || "Nova conversa");
+        await supabase.from("brain_conversations").update({ title }).eq("id", conversation_id);
+      }
+    }
+
+    return new Response(JSON.stringify({ response: finalResponse, actions_executed: toolActions }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("brain-nalu error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
