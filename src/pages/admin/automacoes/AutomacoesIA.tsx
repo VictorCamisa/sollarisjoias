@@ -178,35 +178,120 @@ const AutomacoesIA = () => {
     setConfig({ ...config, schedule_days: days });
   };
 
-  // Simulated AI response (replace with real OpenAI/Claude call when ready)
   const sendMessage = async () => {
     if (!input.trim()) return;
     const userMsg = input.trim();
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    const newMessages: Message[] = [...messages, { role: "user", content: userMsg }];
+    setMessages(newMessages);
     setIsTyping(true);
 
-    // Build context from knowledge base
-    const context = knowledgeDocs.slice(0, 5).map((d: any) => `[${d.title}]: ${d.content.slice(0, 200)}`).join("\n");
+    try {
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sales-ai-chat`;
 
-    // Simulate response (in production: call edge function or OpenAI API)
-    setTimeout(() => {
-      const responses: Record<string, string> = {
-        "oi": "Olá! Bem-vinda à Sollaris 💎 Como posso te ajudar hoje? Está procurando alguma peça especial?",
-        "aliança": "As alianças são nossas peças mais especiais! Trabalhamos com ouro 18k amarelo, branco e rosé. Para casamentos, recomendamos uma consultoria presencial para você escolher o modelo perfeito juntos. Quer agendar?",
-        "preço": "Nossos preços variam de acordo com o material e design. Temos peças a partir de R$ 350 até joias exclusivas personalizadas. Qual é a ocasião e o orçamento aproximado?",
-      };
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+          scenario_key: config.scenario_key,
+          temperature: config.temperature,
+          system_prompt_override: config.system_prompt,
+        }),
+      });
 
-      const lower = userMsg.toLowerCase();
-      let reply = responses[lower] || `Entendi! Você perguntou sobre "${userMsg}". `;
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ error: "Erro desconhecido" }));
+        toast.error(err.error || `Erro ${resp.status}`);
+        setIsTyping(false);
+        return;
+      }
 
-      if (lower.includes("anel")) reply = "Amei a escolha! 💍 Temos anéis em ouro 18k, prata 925 e com pedras naturais. Quer saber o seu número? Posso indicar como medir em casa.";
-      else if (lower.includes("presente")) reply = "Que presente especial! Para ajudar melhor: é para quem? Você tem ideia do estilo da pessoa — mais clássico, moderno ou delicado?";
-      else if (!responses[lower]) reply += "Posso te ajudar com informações sobre nossas joias, agendamentos ou qualquer dúvida sobre a Sollaris. Como prefere continuar?";
+      if (!resp.body) {
+        toast.error("Resposta vazia da IA");
+        setIsTyping(false);
+        return;
+      }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantSoFar = "";
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") { streamDone = true; break; }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantSoFar += content;
+              const currentText = assistantSoFar;
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant") {
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: currentText } : m);
+                }
+                return [...prev, { role: "assistant", content: currentText }];
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Flush remaining
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantSoFar += content;
+              const currentText = assistantSoFar;
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant") {
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: currentText } : m);
+                }
+                return [...prev, { role: "assistant", content: currentText }];
+              });
+            }
+          } catch { /* ignore */ }
+        }
+      }
+    } catch (err) {
+      console.error("AI chat error:", err);
+      toast.error("Erro ao conectar com a IA");
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   useEffect(() => {
@@ -535,7 +620,7 @@ const AutomacoesIA = () => {
             </div>
           </div>
           <div className="flex items-center justify-between mt-2">
-            <p className="text-[10px] text-muted-foreground">Simulação local · Conecte sua API de IA para respostas reais</p>
+            <p className="text-[10px] text-muted-foreground">Simulação com IA real · Perfil: {SCENARIOS.find((s) => s.key === config.scenario_key)?.label}</p>
             <button onClick={() => setMessages([])} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
               <RefreshCw className="h-2.5 w-2.5" /> Limpar chat
             </button>
