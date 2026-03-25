@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare } from "lucide-react";
+import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -610,6 +610,259 @@ const SeoTab = () => {
   );
 };
 
+// ─── AI Post Creator Tab ───
+const CreatePostTab = () => {
+  const [prompt, setPrompt] = useState("");
+  const [platform, setPlatform] = useState("Instagram");
+  const [tone, setTone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [generatedPost, setGeneratedPost] = useState<{
+    caption: string;
+    hashtags: string[];
+    platform_tips: string;
+    visual_suggestion: string;
+    best_time: string;
+  } | null>(null);
+  const [history, setHistory] = useState<Array<typeof generatedPost & { platform: string; prompt: string }>>([]);
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return toast.error("Descreva o que deseja para o post");
+    setLoading(true);
+    setGeneratedPost(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-post", {
+        body: { prompt, platform, tone },
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      const post = data.post;
+      setGeneratedPost(post);
+      setHistory(prev => [{ ...post, platform, prompt }, ...prev].slice(0, 10));
+      toast.success("Post gerado com a identidade SOLLARIS! ✨");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erro ao gerar post. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copiado para a área de transferência!");
+  };
+
+  const copyFullPost = () => {
+    if (!generatedPost) return;
+    const full = `${generatedPost.caption}\n\n${generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")}`;
+    copyToClipboard(full);
+  };
+
+  const platformEmoji: Record<string, string> = { Instagram: "📸", TikTok: "🎵", Facebook: "📘", WhatsApp: "💬", LinkedIn: "💼" };
+
+  return (
+    <div className="space-y-4">
+      {/* Input area */}
+      <Card className="border-accent/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-accent" />
+            Gerador de Posts com IA — Identidade SOLLARIS
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Descreva sua ideia e a IA cria um post profissional com a identidade visual e tom de voz da marca</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Textarea
+            placeholder="Ex: Post sobre o lançamento da nova coleção de anéis com pedra turmalina rosa, focando na exclusividade e no significado da pedra..."
+            value={prompt}
+            onChange={e => setPrompt(e.target.value)}
+            rows={3}
+            className="resize-none"
+          />
+          <div className="flex flex-wrap gap-2">
+            <Select value={platform} onValueChange={setPlatform}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Instagram">📸 Instagram</SelectItem>
+                <SelectItem value="TikTok">🎵 TikTok</SelectItem>
+                <SelectItem value="Facebook">📘 Facebook</SelectItem>
+                <SelectItem value="WhatsApp">💬 WhatsApp</SelectItem>
+                <SelectItem value="LinkedIn">💼 LinkedIn</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={tone} onValueChange={setTone}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Tom (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Padrão SOLLARIS</SelectItem>
+                <SelectItem value="inspiracional">✨ Inspiracional</SelectItem>
+                <SelectItem value="educativo">📚 Educativo</SelectItem>
+                <SelectItem value="storytelling">📖 Storytelling</SelectItem>
+                <SelectItem value="promocional-sutil">🎁 Promocional Sutil</SelectItem>
+                <SelectItem value="bastidores">🎬 Bastidores</SelectItem>
+                <SelectItem value="celebracao">🥂 Celebração</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleGenerate} disabled={loading} className="ml-auto">
+              {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Gerando...</> : <><Sparkles className="h-4 w-4 mr-1" />Gerar Post</>}
+            </Button>
+          </div>
+
+          {/* Quick ideas */}
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              "Lançamento de nova coleção",
+              "Dica de presente para namorada",
+              "Significado de uma pedra preciosa",
+              "Bastidores da curadoria",
+              "Depoimento de cliente",
+              "Peça mais vendida do mês",
+            ].map(idea => (
+              <button
+                key={idea}
+                onClick={() => setPrompt(idea)}
+                className="text-[10px] px-2.5 py-1 rounded-full bg-secondary hover:bg-secondary/70 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Lightbulb className="h-2.5 w-2.5 inline mr-1" />{idea}
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Loading state */}
+      {loading && (
+        <Card>
+          <CardContent className="p-8 flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+            <p className="text-sm text-muted-foreground">Criando post com a identidade SOLLARIS...</p>
+            <p className="text-[10px] text-muted-foreground">Tom de voz editorial • Filosofia de curadoria • Estética premium</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Generated post */}
+      {generatedPost && !loading && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+          {/* Main caption */}
+          <Card className="border-accent/30">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <span>{platformEmoji[platform]}</span>
+                  Post para {platform}
+                </CardTitle>
+                <Button size="sm" variant="outline" onClick={copyFullPost}>
+                  <Copy className="h-3 w-3 mr-1" />Copiar Tudo
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="relative">
+                <div className="p-4 rounded-lg bg-secondary/50 whitespace-pre-wrap text-sm leading-relaxed">
+                  {generatedPost.caption}
+                </div>
+                <button
+                  onClick={() => copyToClipboard(generatedPost.caption)}
+                  className="absolute top-2 right-2 p-1.5 rounded-md bg-background/80 hover:bg-background transition-colors"
+                  title="Copiar legenda"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+
+              {/* Hashtags */}
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Hashtags</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {generatedPost.hashtags.map((h, i) => (
+                    <Badge
+                      key={i}
+                      variant="secondary"
+                      className="text-[10px] cursor-pointer hover:bg-accent/20 transition-colors"
+                      onClick={() => copyToClipboard(h.startsWith("#") ? h : `#${h}`)}
+                    >
+                      <Hash className="h-2.5 w-2.5 mr-0.5" />
+                      {h.replace(/^#/, "")}
+                    </Badge>
+                  ))}
+                </div>
+                <button
+                  onClick={() => copyToClipboard(generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "))}
+                  className="text-[10px] text-accent hover:underline mt-1.5"
+                >
+                  Copiar todas as hashtags
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tips grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Image className="h-4 w-4 text-accent" />
+                  <p className="text-xs font-semibold">Sugestão Visual</p>
+                </div>
+                <p className="text-xs text-muted-foreground">{generatedPost.visual_suggestion}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="h-4 w-4 text-amber-400" />
+                  <p className="text-xs font-semibold">Dicas da Plataforma</p>
+                </div>
+                <p className="text-xs text-muted-foreground">{generatedPost.platform_tips}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-blue-400" />
+                  <p className="text-xs font-semibold">Melhor Horário</p>
+                </div>
+                <p className="text-xs text-muted-foreground">{generatedPost.best_time}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </motion.div>
+      )}
+
+      {/* History */}
+      {history.length > 0 && (
+        <div>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Histórico de Posts Gerados</h3>
+          <div className="space-y-2">
+            {history.map((h, i) => (
+              <Card key={i} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) setGeneratedPost({ caption: h.caption, hashtags: h.hashtags, platform_tips: h.platform_tips, visual_suggestion: h.visual_suggestion, best_time: h.best_time }); setPlatform(h?.platform || "Instagram"); }}>
+                <CardContent className="p-3 flex items-center gap-3">
+                  <span className="text-lg">{platformEmoji[h?.platform || "Instagram"]}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">{h?.prompt}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{h?.caption?.slice(0, 80)}...</p>
+                  </div>
+                  <Badge variant="secondary" className="text-[10px] shrink-0">{h?.platform}</Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Main Component ───
 const AdminMarketing = () => {
   const [activeTab, setActiveTab] = useState("email");
@@ -626,6 +879,7 @@ const AdminMarketing = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-secondary/50 w-full justify-start gap-1 flex-wrap h-auto p-1">
+          <TabsTrigger value="criar-post" className="text-xs gap-1.5"><Sparkles className="h-3.5 w-3.5" />Criar Post</TabsTrigger>
           <TabsTrigger value="email" className="text-xs gap-1.5"><Mail className="h-3.5 w-3.5" />E-mail</TabsTrigger>
           <TabsTrigger value="social" className="text-xs gap-1.5"><Instagram className="h-3.5 w-3.5" />Redes Sociais</TabsTrigger>
           <TabsTrigger value="ads" className="text-xs gap-1.5"><MousePointerClick className="h-3.5 w-3.5" />Anúncios</TabsTrigger>
@@ -633,6 +887,7 @@ const AdminMarketing = () => {
           <TabsTrigger value="seo" className="text-xs gap-1.5"><TrendingUp className="h-3.5 w-3.5" />SEO</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="criar-post"><CreatePostTab /></TabsContent>
         <TabsContent value="email"><EmailCampaignsTab /></TabsContent>
         <TabsContent value="social"><SocialMediaTab /></TabsContent>
         <TabsContent value="ads"><AdsTab /></TabsContent>
