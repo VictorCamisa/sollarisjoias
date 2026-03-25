@@ -74,7 +74,7 @@ const AdminFornecedores = () => {
     <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Fornecedores</h1>
+          <h1 className="text-xl font-semibold">Fornecedores</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{suppliers?.length ?? 0} cadastrados</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm({ name: "", contact_name: "", phone: "", email: "", notes: "" }); } }}>
@@ -82,7 +82,7 @@ const AdminFornecedores = () => {
             <Button size="sm" className="rounded-lg gap-2 h-9 text-xs"><Plus className="h-3.5 w-3.5" /> Novo fornecedor</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle className="font-serif">{editingId ? "Editar" : "Novo"} Fornecedor</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle >{editingId ? "Editar" : "Novo"} Fornecedor</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome da empresa</Label>

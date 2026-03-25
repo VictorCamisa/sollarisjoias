@@ -89,7 +89,7 @@ const AdminFinanceiro = () => {
     <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Financeiro</h1>
+          <h1 className="text-xl font-semibold">Financeiro</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Controle de receitas e despesas</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -97,7 +97,7 @@ const AdminFinanceiro = () => {
             <Button size="sm" className="rounded-lg gap-2 h-9 text-xs"><Plus className="h-3.5 w-3.5" /> Nova transação</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle className="font-serif">Nova Transação</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle >Nova Transação</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>

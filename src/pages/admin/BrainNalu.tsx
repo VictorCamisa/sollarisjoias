@@ -318,7 +318,7 @@ const BrainNalu = () => {
                     )}
                     <div className={`px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${msg.role === "user" ? "bg-accent text-accent-foreground rounded-br-md" : "bg-card border border-border/60 rounded-bl-md"}`}>
                       {msg.role === "assistant" ? (
-                        <div className="prose prose-sm prose-invert max-w-none [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:pl-4 [&_ol]:pl-4 [&_li]:mb-0.5 [&_strong]:text-accent [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-xs [&_code]:text-[11px] [&_code]:bg-secondary/60 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded">
+                        <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:pl-4 [&_ol]:pl-4 [&_li]:mb-0.5 [&_strong]:text-primary [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-xs [&_code]:text-[11px] [&_code]:bg-secondary/60 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_h1]:font-sans [&_h2]:font-sans [&_h3]:font-sans">
                           <ReactMarkdown>{msg.content}</ReactMarkdown>
                         </div>
                       ) : msg.content}

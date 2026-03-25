@@ -16,7 +16,7 @@ const AdminNewsletter = () => {
   return (
     <div className="space-y-5 max-w-[1400px]">
       <div>
-        <h1 className="text-xl font-serif font-semibold">Newsletter</h1>
+        <h1 className="text-xl font-semibold">Newsletter</h1>
         <p className="text-xs text-muted-foreground mt-0.5">{subscribers?.length ?? 0} inscritos</p>
       </div>
 

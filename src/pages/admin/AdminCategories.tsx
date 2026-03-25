@@ -65,7 +65,7 @@ const AdminCategories = () => {
     <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Categorias</h1>
+          <h1 className="text-xl font-semibold">Categorias</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{categories?.length ?? 0} categorias</p>
         </div>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setEditingId(null); setName(""); } }}>
@@ -73,7 +73,7 @@ const AdminCategories = () => {
             <Button className="rounded-lg gap-2 h-9 text-xs" size="sm"><Plus className="h-3.5 w-3.5" /> Nova Categoria</Button>
           </DialogTrigger>
           <DialogContent className="max-w-sm">
-            <DialogHeader><DialogTitle className="font-serif">{editingId ? "Editar" : "Nova"} Categoria</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle >{editingId ? "Editar" : "Nova"} Categoria</DialogTitle></DialogHeader>
             <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(); }} className="space-y-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</Label>

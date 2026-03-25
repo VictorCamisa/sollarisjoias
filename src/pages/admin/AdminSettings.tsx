@@ -53,7 +53,7 @@ const AdminSettings = () => {
   return (
     <div className="max-w-lg space-y-6">
       <div>
-        <h1 className="text-xl font-serif font-semibold">Configurações</h1>
+        <h1 className="text-xl font-semibold">Configurações</h1>
         <p className="text-xs text-muted-foreground mt-0.5">Configurações gerais da loja</p>
       </div>
 
