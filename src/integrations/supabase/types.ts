@@ -782,6 +782,7 @@ export type Database = {
       }
       supplier_quotations: {
         Row: {
+          category: string | null
           created_at: string
           id: string
           items: Json | null
@@ -789,13 +790,15 @@ export type Database = {
           requested_at: string | null
           responded_at: string | null
           status: string
-          supplier_id: string
+          supplier_id: string | null
+          supplier_name_external: string | null
           title: string
           total: number | null
           updated_at: string
           valid_until: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
           id?: string
           items?: Json | null
@@ -803,13 +806,15 @@ export type Database = {
           requested_at?: string | null
           responded_at?: string | null
           status?: string
-          supplier_id: string
+          supplier_id?: string | null
+          supplier_name_external?: string | null
           title: string
           total?: number | null
           updated_at?: string
           valid_until?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
           id?: string
           items?: Json | null
@@ -817,7 +822,8 @@ export type Database = {
           requested_at?: string | null
           responded_at?: string | null
           status?: string
-          supplier_id?: string
+          supplier_id?: string | null
+          supplier_name_external?: string | null
           title?: string
           total?: number | null
           updated_at?: string
