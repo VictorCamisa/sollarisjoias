@@ -615,6 +615,8 @@ const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState("Instagram");
   const [tone, setTone] = useState("padrao");
+  const [postStyle, setPostStyle] = useState<"dark" | "light" | "auto">("auto");
+  const [postCount, setPostCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
@@ -661,13 +663,15 @@ const CreatePostTab = () => {
       // Generate image automatically
       setImageLoading(true);
       try {
+        const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption },
+          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle },
         });
         if (imgErr) throw imgErr;
         if (imgData?.error) { toast.error(imgData.error); return; }
         if (imgData?.image_url) {
           setGeneratedImage(imgData.image_url);
+          setPostCount(prev => prev + 1);
           setHistory(prev => {
             const updated = [...prev];
             if (updated[0]) updated[0] = { ...updated[0], image: imgData.image_url };
@@ -693,8 +697,9 @@ const CreatePostTab = () => {
     if (!generatedPost) return;
     setImageLoading(true);
     try {
+      const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption },
+        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle },
       });
       if (imgErr) throw imgErr;
       if (imgData?.error) { toast.error(imgData.error); return; }
@@ -820,6 +825,16 @@ const CreatePostTab = () => {
                 <SelectItem value="promocional-sutil">🎁 Promocional Sutil</SelectItem>
                 <SelectItem value="bastidores">🎬 Bastidores</SelectItem>
                 <SelectItem value="celebracao">🥂 Celebração</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={postStyle} onValueChange={(v: "dark" | "light" | "auto") => setPostStyle(v)}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">🔄 Alternar Dark/Light</SelectItem>
+                <SelectItem value="dark">🌑 Obsidiana (escuro)</SelectItem>
+                <SelectItem value="light">🤍 Champagne (claro)</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={handleGenerate} disabled={loading || imageLoading} className="ml-auto">
