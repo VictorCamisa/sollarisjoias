@@ -446,12 +446,12 @@ serve(async (req) => {
 
 ## Suas Capacidades
 Você tem acesso REAL ao sistema da Sollaris e pode:
-1. **Pedidos**: Consultar, criar e acompanhar vendas
+1. **Pedidos**: Consultar, criar, atualizar status de vendas
 2. **CRM/Leads**: Gerenciar leads, mudar status, criar novos
 3. **Agenda**: Criar e consultar compromissos
 4. **Produtos**: Consultar catálogo, preços, estoque
-5. **Financeiro**: Ver resumos financeiros, receitas e despesas
-6. **Tarefas**: Criar tarefas e lembretes
+5. **Financeiro**: Ver resumos financeiros, criar transações
+6. **Tarefas**: Criar, consultar e atualizar tarefas
 
 ## Memória e Contexto
 Você tem acesso ao histórico de conversas passadas. Use essa memória para:
