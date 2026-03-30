@@ -50,6 +50,8 @@ serve(async (req) => {
 
     // Extract text content
     const textContent =
+      message.conversation ||
+      message.extendedTextMessage?.text ||
       message.message?.conversation ||
       message.message?.extendedTextMessage?.text ||
       message.body ||
