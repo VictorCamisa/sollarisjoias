@@ -329,6 +329,40 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ success: true, task: data });
       }
+      case "query_tasks": {
+        let query = supabase.from("tasks").select("*").order("created_at", { ascending: false }).limit(args.limit || 20);
+        if (args.status) query = query.eq("status", args.status);
+        if (args.priority) query = query.eq("priority", args.priority);
+        if (args.period === "today") { query = query.gte("due_date", new Date().toISOString().split("T")[0]); query = query.lt("due_date", new Date(Date.now() + 86400000).toISOString().split("T")[0]); }
+        else if (args.period === "week") { const d = new Date(); const e = new Date(); e.setDate(e.getDate() + 7); query = query.gte("due_date", d.toISOString().split("T")[0]).lt("due_date", e.toISOString().split("T")[0]); }
+        else if (args.period === "month") { const d = new Date(); const e = new Date(); e.setMonth(e.getMonth() + 1); query = query.gte("due_date", d.toISOString().split("T")[0]).lt("due_date", e.toISOString().split("T")[0]); }
+        const { data, error } = await query;
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ tasks: data, count: data?.length || 0 });
+      }
+      case "update_task": {
+        const updates: any = {};
+        if (args.status) updates.status = args.status;
+        if (args.priority) updates.priority = args.priority;
+        if (args.title) updates.title = args.title;
+        if (args.description) updates.description = args.description;
+        if (args.due_date) updates.due_date = args.due_date;
+        const { data, error } = await supabase.from("tasks").update(updates).eq("id", args.task_id).select().single();
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ success: true, task: data });
+      }
+      case "create_financial_transaction": {
+        const { data, error } = await supabase.from("financial_transactions").insert({ type: args.type, description: args.description, amount: args.amount, payment_method: args.payment_method || "pix", due_date: args.due_date || null, customer_name: args.customer_name || null, notes: args.notes || null, status: "pending" }).select().single();
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ success: true, transaction: data });
+      }
+      case "update_order_status": {
+        const upd: any = { status: args.status };
+        if (args.notes) upd.notes = args.notes;
+        const { data, error } = await supabase.from("orders").update(upd).eq("id", args.order_id).select().single();
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ success: true, order: data });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
