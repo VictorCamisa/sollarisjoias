@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,10 +17,8 @@ serve(async (req) => {
     const body = await req.json();
     console.log("Webhook received:", JSON.stringify(body).substring(0, 500));
 
-    // Evolution API sends different event types
     const event = body.event || body.action;
 
-    // Only process incoming text messages
     if (event !== "messages.upsert" && event !== "MESSAGES_UPSERT") {
       console.log("Ignoring event:", event);
       return new Response(JSON.stringify({ ignored: true, event }), {
@@ -27,28 +26,30 @@ serve(async (req) => {
       });
     }
 
-    // Extract message data from Evolution API payload
     const messageData = body.data || body;
     const message = messageData.message || messageData;
     const key = message.key || messageData.key || {};
 
-    // Ignore messages sent by us (fromMe)
     if (key.fromMe) {
-      console.log("Ignoring own message");
       return new Response(JSON.stringify({ ignored: true, reason: "fromMe" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Ignore group messages — only respond to direct messages
     if (key.remoteJid?.includes("@g.us")) {
-      console.log("Ignoring group message");
       return new Response(JSON.stringify({ ignored: true, reason: "group" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Extract text content
+    // ── Detect if message is audio ──
+    const audioMessage =
+      message.audioMessage ||
+      message.message?.audioMessage ||
+      null;
+    const isAudioMessage = !!audioMessage;
+
+    // ── Extract text content (for text messages) ──
     const textContent =
       message.conversation ||
       message.extendedTextMessage?.text ||
@@ -58,9 +59,9 @@ serve(async (req) => {
       messageData.body ||
       null;
 
-    if (!textContent) {
-      console.log("No text content, ignoring");
-      return new Response(JSON.stringify({ ignored: true, reason: "no_text" }), {
+    if (!textContent && !isAudioMessage) {
+      console.log("No text or audio content, ignoring");
+      return new Response(JSON.stringify({ ignored: true, reason: "no_content" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -69,18 +70,55 @@ serve(async (req) => {
     const senderPhone = senderJid?.replace("@s.whatsapp.net", "") || "unknown";
     const instanceName = body.instance || body.instanceName || messageData.instance;
 
-    console.log(`Message from ${senderPhone}: "${textContent.substring(0, 100)}"`);
-
-    // ── Call Brain Nalu ──
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
+    const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Find or create a conversation for this phone number
+    if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY) {
+      console.error("Evolution API credentials missing");
+      return new Response(JSON.stringify({ error: "Evolution API not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const baseUrl = EVOLUTION_API_URL.replace(/\/+$/, "");
+    const resolvedInstance = instanceName || await getInstanceName(supabase);
+
+    // ── If audio, transcribe first ──
+    let userText = textContent || "";
+
+    if (isAudioMessage) {
+      console.log("Audio message detected, transcribing...");
+      try {
+        userText = await transcribeAudio(
+          key.id || messageData.key?.id,
+          senderJid,
+          resolvedInstance,
+          baseUrl,
+          EVOLUTION_API_KEY
+        );
+        console.log(`Transcription: "${userText.substring(0, 100)}"`);
+      } catch (e) {
+        console.error("Transcription error:", e);
+        userText = "[Áudio não pôde ser transcrito]";
+      }
+    }
+
+    if (!userText || userText.trim() === "") {
+      return new Response(JSON.stringify({ ignored: true, reason: "empty_content" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log(`Message from ${senderPhone}: "${userText.substring(0, 100)}" (audio: ${isAudioMessage})`);
+
+    // ── Conversation history ──
     const convTitle = `WhatsApp: ${senderPhone}`;
     let conversationId: string;
 
-    // Check for existing conversation with this phone
     const { data: existingConvs } = await supabase
       .from("brain_conversations")
       .select("id")
@@ -90,7 +128,6 @@ serve(async (req) => {
 
     if (existingConvs && existingConvs.length > 0) {
       conversationId = existingConvs[0].id;
-      // Update timestamp
       await supabase.from("brain_conversations").update({ updated_at: new Date().toISOString() }).eq("id", conversationId);
     } else {
       const { data: newConv } = await supabase
@@ -101,7 +138,6 @@ serve(async (req) => {
       conversationId = newConv!.id;
     }
 
-    // Get recent message history for this conversation
     const { data: history } = await supabase
       .from("brain_messages")
       .select("role, content")
@@ -114,10 +150,9 @@ serve(async (req) => {
       content: m.content,
     }));
 
-    // Add current message
-    previousMessages.push({ role: "user", content: textContent });
+    previousMessages.push({ role: "user", content: userText });
 
-    // Call Brain Nalu edge function
+    // ── Call Brain Nalu ──
     const brainResponse = await fetch(`${SUPABASE_URL}/functions/v1/brain-nalu`, {
       method: "POST",
       headers: {
@@ -142,44 +177,46 @@ serve(async (req) => {
 
     console.log(`Brain reply: "${replyText.substring(0, 100)}"`);
 
-    // ── Send reply via Evolution API ──
-    const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
-    const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
+    // ── Send reply: audio if received audio, text otherwise ──
+    if (isAudioMessage) {
+      console.log("Generating audio reply with ElevenLabs TTS...");
+      try {
+        const audioBase64 = await textToSpeech(replyText);
+        
+        // Send audio via Evolution API
+        const sendResp = await fetch(`${baseUrl}/message/sendWhatsAppAudio/${resolvedInstance}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: EVOLUTION_API_KEY,
+          },
+          body: JSON.stringify({
+            number: senderPhone,
+            audio: `data:audio/mpeg;base64,${audioBase64}`,
+          }),
+        });
 
-    if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY) {
-      console.error("Evolution API credentials missing");
-      return new Response(JSON.stringify({ error: "Evolution API not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const baseUrl = EVOLUTION_API_URL.replace(/\/+$/, "");
-    const resolvedInstance = instanceName || await getInstanceName(supabase);
-
-    const sendResp = await fetch(`${baseUrl}/message/sendText/${resolvedInstance}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: EVOLUTION_API_KEY,
-      },
-      body: JSON.stringify({
-        number: senderPhone,
-        text: replyText,
-      }),
-    });
-
-    const sendData = await sendResp.json();
-    if (!sendResp.ok) {
-      console.error("Evolution send error:", sendData);
+        const sendData = await sendResp.json();
+        if (!sendResp.ok) {
+          console.error("Evolution send audio error:", sendData);
+          // Fallback: send as text
+          await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
+        } else {
+          console.log("Audio reply sent successfully to", senderPhone);
+        }
+      } catch (e) {
+        console.error("TTS error, falling back to text:", e);
+        await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
+      }
     } else {
-      console.log("Reply sent successfully to", senderPhone);
+      await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
     }
 
     return new Response(JSON.stringify({
       success: true,
       sender: senderPhone,
       replied: true,
+      mode: isAudioMessage ? "audio" : "text",
       actions: brainData.actions_executed || [],
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -194,8 +231,134 @@ serve(async (req) => {
   }
 });
 
-// Helper to get instance name from settings if not in webhook payload
+// ── Helper: send text reply ──
+async function sendTextReply(baseUrl: string, instance: string, apiKey: string, phone: string, text: string) {
+  const sendResp = await fetch(`${baseUrl}/message/sendText/${instance}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: apiKey },
+    body: JSON.stringify({ number: phone, text }),
+  });
+  const sendData = await sendResp.json();
+  if (!sendResp.ok) {
+    console.error("Evolution send text error:", sendData);
+  } else {
+    console.log("Text reply sent successfully to", phone);
+  }
+}
+
+// ── Helper: get instance name from settings ──
 async function getInstanceName(supabase: any): Promise<string> {
   const { data } = await supabase.from("settings").select("evolution_instance").limit(1).single();
   return data?.evolution_instance || "default";
+}
+
+// ── Transcribe audio using ElevenLabs STT ──
+async function transcribeAudio(
+  messageId: string,
+  senderJid: string,
+  instance: string,
+  evolutionBaseUrl: string,
+  evolutionApiKey: string
+): Promise<string> {
+  const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+  if (!ELEVENLABS_API_KEY) throw new Error("ELEVENLABS_API_KEY not set");
+
+  // Download audio base64 from Evolution API
+  const downloadResp = await fetch(
+    `${evolutionBaseUrl}/chat/getBase64FromMediaMessage/${instance}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: evolutionApiKey },
+      body: JSON.stringify({
+        message: { key: { remoteJid: senderJid, id: messageId } },
+        convertToMp4: false,
+      }),
+    }
+  );
+
+  if (!downloadResp.ok) {
+    const errText = await downloadResp.text();
+    console.error("Evolution download audio error:", downloadResp.status, errText);
+    throw new Error(`Failed to download audio: ${downloadResp.status}`);
+  }
+
+  const downloadData = await downloadResp.json();
+  const audioBase64 = downloadData.base64 || downloadData.data?.base64;
+
+  if (!audioBase64) {
+    console.error("No base64 in download response:", JSON.stringify(downloadData).substring(0, 300));
+    throw new Error("No audio base64 received");
+  }
+
+  // Decode base64 to binary
+  const binaryStr = atob(audioBase64);
+  const bytes = new Uint8Array(binaryStr.length);
+  for (let i = 0; i < binaryStr.length; i++) {
+    bytes[i] = binaryStr.charCodeAt(i);
+  }
+
+  // Create form data for ElevenLabs STT
+  const formData = new FormData();
+  const audioBlob = new Blob([bytes], { type: "audio/ogg" });
+  formData.append("file", audioBlob, "audio.ogg");
+  formData.append("model_id", "scribe_v2");
+  formData.append("language_code", "por");
+
+  const sttResp = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+    method: "POST",
+    headers: { "xi-api-key": ELEVENLABS_API_KEY },
+    body: formData,
+  });
+
+  if (!sttResp.ok) {
+    const errText = await sttResp.text();
+    console.error("ElevenLabs STT error:", sttResp.status, errText);
+    throw new Error(`STT failed: ${sttResp.status}`);
+  }
+
+  const sttData = await sttResp.json();
+  return sttData.text || "";
+}
+
+// ── Text to Speech using ElevenLabs ──
+async function textToSpeech(text: string): Promise<string> {
+  const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+  const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID");
+
+  if (!ELEVENLABS_API_KEY || !ELEVENLABS_VOICE_ID) {
+    throw new Error("ElevenLabs credentials not configured");
+  }
+
+  // Truncate text if too long for TTS (5000 char limit)
+  const truncatedText = text.length > 4500 ? text.substring(0, 4500) + "..." : text;
+
+  const ttsResp = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}?output_format=mp3_44100_128`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": ELEVENLABS_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: truncatedText,
+        model_id: "eleven_multilingual_v2",
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75,
+          style: 0.3,
+          use_speaker_boost: true,
+        },
+      }),
+    }
+  );
+
+  if (!ttsResp.ok) {
+    const errText = await ttsResp.text();
+    console.error("ElevenLabs TTS error:", ttsResp.status, errText);
+    throw new Error(`TTS failed: ${ttsResp.status}`);
+  }
+
+  const audioBuffer = await ttsResp.arrayBuffer();
+  return base64Encode(audioBuffer);
 }
