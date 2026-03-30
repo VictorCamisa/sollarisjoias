@@ -169,10 +169,81 @@ const TOOLS = [
         properties: {
           title: { type: "string" },
           description: { type: "string" },
-          priority: { type: "string" },
-          due_date: { type: "string" },
+          priority: { type: "string", description: "low, medium, high" },
+          due_date: { type: "string", description: "ISO date string" },
         },
         required: ["title"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "query_tasks",
+      description: "Consulta tarefas existentes. Pode filtrar por status, prioridade ou período.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", description: "todo, in_progress, done" },
+          priority: { type: "string", description: "low, medium, high" },
+          period: { type: "string", description: "today, week, month, all" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_task",
+      description: "Atualiza uma tarefa existente (status, prioridade, etc).",
+      parameters: {
+        type: "object",
+        properties: {
+          task_id: { type: "string" },
+          status: { type: "string", description: "todo, in_progress, done" },
+          priority: { type: "string" },
+          title: { type: "string" },
+          description: { type: "string" },
+          due_date: { type: "string" },
+        },
+        required: ["task_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_financial_transaction",
+      description: "Cria uma transação financeira (receita ou despesa).",
+      parameters: {
+        type: "object",
+        properties: {
+          type: { type: "string", description: "income ou expense" },
+          description: { type: "string" },
+          amount: { type: "number" },
+          payment_method: { type: "string" },
+          due_date: { type: "string" },
+          customer_name: { type: "string" },
+          notes: { type: "string" },
+        },
+        required: ["type", "description", "amount"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_order_status",
+      description: "Atualiza o status de um pedido.",
+      parameters: {
+        type: "object",
+        properties: {
+          order_id: { type: "string" },
+          status: { type: "string", description: "pending, confirmed, shipped, delivered, cancelled" },
+          notes: { type: "string" },
+        },
+        required: ["order_id", "status"],
       },
     },
   },
