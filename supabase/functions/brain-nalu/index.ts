@@ -169,10 +169,81 @@ const TOOLS = [
         properties: {
           title: { type: "string" },
           description: { type: "string" },
-          priority: { type: "string" },
-          due_date: { type: "string" },
+          priority: { type: "string", description: "low, medium, high" },
+          due_date: { type: "string", description: "ISO date string" },
         },
         required: ["title"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "query_tasks",
+      description: "Consulta tarefas existentes. Pode filtrar por status, prioridade ou período.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", description: "todo, in_progress, done" },
+          priority: { type: "string", description: "low, medium, high" },
+          period: { type: "string", description: "today, week, month, all" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_task",
+      description: "Atualiza uma tarefa existente (status, prioridade, etc).",
+      parameters: {
+        type: "object",
+        properties: {
+          task_id: { type: "string" },
+          status: { type: "string", description: "todo, in_progress, done" },
+          priority: { type: "string" },
+          title: { type: "string" },
+          description: { type: "string" },
+          due_date: { type: "string" },
+        },
+        required: ["task_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_financial_transaction",
+      description: "Cria uma transação financeira (receita ou despesa).",
+      parameters: {
+        type: "object",
+        properties: {
+          type: { type: "string", description: "income ou expense" },
+          description: { type: "string" },
+          amount: { type: "number" },
+          payment_method: { type: "string" },
+          due_date: { type: "string" },
+          customer_name: { type: "string" },
+          notes: { type: "string" },
+        },
+        required: ["type", "description", "amount"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_order_status",
+      description: "Atualiza o status de um pedido.",
+      parameters: {
+        type: "object",
+        properties: {
+          order_id: { type: "string" },
+          status: { type: "string", description: "pending, confirmed, shipped, delivered, cancelled" },
+          notes: { type: "string" },
+        },
+        required: ["order_id", "status"],
       },
     },
   },
@@ -258,6 +329,40 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ success: true, task: data });
       }
+      case "query_tasks": {
+        let query = supabase.from("tasks").select("*").order("created_at", { ascending: false }).limit(args.limit || 20);
+        if (args.status) query = query.eq("status", args.status);
+        if (args.priority) query = query.eq("priority", args.priority);
+        if (args.period === "today") { query = query.gte("due_date", new Date().toISOString().split("T")[0]); query = query.lt("due_date", new Date(Date.now() + 86400000).toISOString().split("T")[0]); }
+        else if (args.period === "week") { const d = new Date(); const e = new Date(); e.setDate(e.getDate() + 7); query = query.gte("due_date", d.toISOString().split("T")[0]).lt("due_date", e.toISOString().split("T")[0]); }
+        else if (args.period === "month") { const d = new Date(); const e = new Date(); e.setMonth(e.getMonth() + 1); query = query.gte("due_date", d.toISOString().split("T")[0]).lt("due_date", e.toISOString().split("T")[0]); }
+        const { data, error } = await query;
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ tasks: data, count: data?.length || 0 });
+      }
+      case "update_task": {
+        const updates: any = {};
+        if (args.status) updates.status = args.status;
+        if (args.priority) updates.priority = args.priority;
+        if (args.title) updates.title = args.title;
+        if (args.description) updates.description = args.description;
+        if (args.due_date) updates.due_date = args.due_date;
+        const { data, error } = await supabase.from("tasks").update(updates).eq("id", args.task_id).select().single();
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ success: true, task: data });
+      }
+      case "create_financial_transaction": {
+        const { data, error } = await supabase.from("financial_transactions").insert({ type: args.type, description: args.description, amount: args.amount, payment_method: args.payment_method || "pix", due_date: args.due_date || null, customer_name: args.customer_name || null, notes: args.notes || null, status: "pending" }).select().single();
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ success: true, transaction: data });
+      }
+      case "update_order_status": {
+        const upd: any = { status: args.status };
+        if (args.notes) upd.notes = args.notes;
+        const { data, error } = await supabase.from("orders").update(upd).eq("id", args.order_id).select().single();
+        if (error) return JSON.stringify({ error: error.message });
+        return JSON.stringify({ success: true, order: data });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
@@ -341,12 +446,12 @@ serve(async (req) => {
 
 ## Suas Capacidades
 Você tem acesso REAL ao sistema da Sollaris e pode:
-1. **Pedidos**: Consultar, criar e acompanhar vendas
+1. **Pedidos**: Consultar, criar, atualizar status de vendas
 2. **CRM/Leads**: Gerenciar leads, mudar status, criar novos
 3. **Agenda**: Criar e consultar compromissos
 4. **Produtos**: Consultar catálogo, preços, estoque
-5. **Financeiro**: Ver resumos financeiros, receitas e despesas
-6. **Tarefas**: Criar tarefas e lembretes
+5. **Financeiro**: Ver resumos financeiros, criar transações
+6. **Tarefas**: Criar, consultar e atualizar tarefas
 
 ## Memória e Contexto
 Você tem acesso ao histórico de conversas passadas. Use essa memória para:
