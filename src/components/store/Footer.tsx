@@ -43,9 +43,14 @@ const Footer = () => {
 
         <div className="gold-line mt-12 mb-6" />
 
-        <p className="font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground text-center">
-          © {new Date().getFullYear()} Sollaris. Todos os direitos reservados.
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground">
+            © {new Date().getFullYear()} Sollaris. Todos os direitos reservados.
+          </p>
+          <Link to="/admin" className="font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+            Admin
+          </Link>
+        </div>
       </div>
     </footer>
   );
