@@ -166,8 +166,8 @@ const BrainNalu = () => {
       // Refresh sidebar
       loadConversations();
     } catch (err: any) {
-      console.error("Brain Nalu error:", err);
-      toast.error(err?.message || "Erro ao conectar com a Brain Nalu");
+      console.error("Brain Sollaris error:", err);
+      toast.error(err?.message || "Erro ao conectar com a Brain Sollaris");
       setMessages((prev) => [
         ...prev,
         { id: crypto.randomUUID(), role: "assistant", content: `❌ ${err?.message || "Erro"}. Tente novamente.`, timestamp: new Date() },
@@ -262,7 +262,7 @@ const BrainNalu = () => {
               <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-background" />
             </div>
             <div>
-              <h1 className="text-sm font-semibold tracking-tight">Brain Nalu</h1>
+              <h1 className="text-sm font-semibold tracking-tight">Brain Sollaris</h1>
               <p className="text-[10px] text-muted-foreground">
                 Assistente com memória · <span className="text-green-400">Online</span>
               </p>
@@ -367,7 +367,7 @@ const BrainNalu = () => {
             </Button>
           </div>
           <p className="text-[9px] text-muted-foreground/40 text-center mt-2">
-            Brain Nalu com memória persistente · Lembra de todas as conversas
+            Brain Sollaris com memória persistente · Lembra de todas as conversas
           </p>
         </div>
       </div>

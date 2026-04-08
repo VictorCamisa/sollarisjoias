@@ -38,6 +38,7 @@ export const NewOrderDialog = ({
     phone: "",
     email: "",
     notes: "",
+    payment_method: "pix",
   });
 
   const { data: products } = useQuery({

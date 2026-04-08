@@ -48,7 +48,7 @@ const navGroups = [
   {
     label: "Inteligência",
     items: [
-      { to: "/admin/brain-nalu", icon: Brain, label: "Brain Nalu" },
+      { to: "/admin/brain-nalu", icon: Brain, label: "Brain Sollaris" },
     ],
   },
 ];
