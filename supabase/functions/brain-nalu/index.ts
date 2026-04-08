@@ -401,7 +401,7 @@ async function buildMemoryContext(supabase: any, currentConversationId?: string)
 
     if (msgs && msgs.length > 0) {
       const date = new Date(conv.updated_at).toLocaleDateString("pt-BR");
-      const preview = msgs.reverse().map((m: any) => `${m.role === "user" ? "Ana" : "Nalu"}: ${m.content.substring(0, 200)}`).join("\n");
+      const preview = msgs.reverse().map((m: any) => `${m.role === "user" ? "Ana" : "Sollaris"}: ${m.content.substring(0, 200)}`).join("\n");
       summaries.push(`📅 ${date} — "${conv.title}"\n${preview}`);
     }
   }
@@ -434,7 +434,7 @@ serve(async (req) => {
     // Build memory context from past conversations
     const memoryContext = await buildMemoryContext(supabase, conversation_id);
 
-    const systemPrompt = `Você é a **Brain Nalu**, a assistente executiva pessoal da Ana Luísa, CEO da Sollaris — uma joalheria de semijoias premium.
+    const systemPrompt = `Você é a **Brain Sollaris**, a assistente executiva pessoal da Ana Luísa, CEO da Sollaris — uma joalheria de semijoias premium.
 
 ## Sua Personalidade
 - Você é inteligente, eficiente, calorosa e proativa

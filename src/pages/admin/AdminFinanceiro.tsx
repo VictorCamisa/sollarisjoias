@@ -222,7 +222,7 @@ const AdminFinanceiro = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard label="Receitas" value={stats.income} icon={ArrowUpRight} color="text-emerald-400" bg="bg-emerald-400/10" />
         <StatCard label="Despesas" value={stats.expense} icon={ArrowDownRight} color="text-red-400" bg="bg-red-400/10" />
-        <StatCard label="Saldo" value={stats.balance} icon={DollarSign} color={stats.balance >= 0 ? "text-emerald-400" : "text-red-400"} bg={stats.balance >= 0 ? "bg-emerald-400/10" : "bg-red-400/10"} />
+        <StatCard label="Resultado" value={stats.balance} icon={DollarSign} color={stats.balance >= 0 ? "text-emerald-400" : "text-red-400"} bg={stats.balance >= 0 ? "bg-emerald-400/10" : "bg-red-400/10"} />
         <StatCard label="Pendente" value={stats.pending} icon={Wallet} color="text-amber-400" bg="bg-amber-400/10" />
         <StatCard label="Compras" value={stats.purchaseTotal} icon={ShoppingCart} color="text-violet-400" bg="bg-violet-400/10" />
         <StatCard label="Crediário" value={stats.crediarioPending} icon={Users} color="text-blue-400" bg="bg-blue-400/10" />
@@ -331,8 +331,8 @@ const AdminFinanceiro = () => {
 
         {/* ========== TAB: Compras ========== */}
         <TabsContent value="compras" className="mt-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="relative flex-1 min-w-[200px] max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar compra..." className="admin-input pl-9" />
             </div>
@@ -349,20 +349,30 @@ const AdminFinanceiro = () => {
           ) : (
             <div className="space-y-3">
               {/* Purchase summary */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="admin-card p-3 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase">Total compras</p>
-                  <p className="text-lg font-bold tabular-nums text-violet-400">{fmtBRL(purchases.reduce((s, t) => s + Number(t.amount), 0))}</p>
-                </div>
-                <div className="admin-card p-3 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase">Pagas</p>
-                  <p className="text-lg font-bold tabular-nums text-emerald-400">{purchases.filter(t => t.status === "paid").length}</p>
-                </div>
-                <div className="admin-card p-3 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase">Pendentes</p>
-                  <p className="text-lg font-bold tabular-nums text-amber-400">{purchases.filter(t => t.status === "pending").length}</p>
-                </div>
-              </div>
+              {(() => {
+                const now = new Date();
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                const monthPurchases = purchases.filter(t => t.created_at >= monthStart);
+                const monthTotal = monthPurchases.reduce((s, t) => s + Number(t.amount), 0);
+                const allTotal = purchases.reduce((s, t) => s + Number(t.amount), 0);
+                return (
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="admin-card p-3 text-center">
+                      <p className="text-[10px] text-muted-foreground uppercase">Compras (mês)</p>
+                      <p className="text-lg font-bold tabular-nums text-violet-400">{fmtBRL(monthTotal)}</p>
+                      <p className="text-[9px] text-muted-foreground">Total geral: {fmtBRL(allTotal)}</p>
+                    </div>
+                    <div className="admin-card p-3 text-center">
+                      <p className="text-[10px] text-muted-foreground uppercase">Pagas</p>
+                      <p className="text-lg font-bold tabular-nums text-emerald-400">{purchases.filter(t => t.status === "paid").length}</p>
+                    </div>
+                    <div className="admin-card p-3 text-center">
+                      <p className="text-[10px] text-muted-foreground uppercase">Pendentes</p>
+                      <p className="text-lg font-bold tabular-nums text-amber-400">{purchases.filter(t => t.status === "pending").length}</p>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="admin-card overflow-hidden">
                 <TableHeader />
