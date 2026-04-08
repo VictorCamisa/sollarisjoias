@@ -127,7 +127,7 @@ export const NewOrderDialog = ({
   const resetAndClose = () => {
     setStep("products");
     setCart([]);
-    setCustomer({ name: "", phone: "", email: "", notes: "" });
+    setCustomer({ name: "", phone: "", email: "", notes: "", payment_method: "pix" });
     setProductSearch("");
     onOpenChange(false);
   };
