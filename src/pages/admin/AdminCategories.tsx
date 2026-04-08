@@ -132,10 +132,10 @@ const AdminCategories = () => {
         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar categoria..." className="admin-input pl-9" />
       </div>
 
-      {/* Categories grid */}
+      {/* Categories list */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-28 bg-card/50 rounded-lg animate-pulse" />)}
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => <div key={i} className="h-12 bg-card/50 rounded-lg animate-pulse" />)}
         </div>
       ) : !filtered?.length ? (
         <div className="text-center py-20">
@@ -151,67 +151,52 @@ const AdminCategories = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.map((c, i) => {
-            const count = productCounts?.[c.id] || 0;
-            return (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-                className="admin-card p-4 flex flex-col gap-3 group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                      <Layers className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold">{c.name}</h3>
-                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">/{c.slug}</p>
-                    </div>
+        <div className="admin-card overflow-hidden">
+          <div className="hidden md:grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_80px_80px_60px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Nome</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Slug</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Produtos</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Status</span>
+            <span />
+          </div>
+          <div className="divide-y divide-border">
+            {filtered.map((c, i) => {
+              const count = productCounts?.[c.id] || 0;
+              return (
+                <motion.div
+                  key={c.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.02 }}
+                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_80px_80px_60px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    <span className="text-[13px] font-medium truncate">{c.name}</span>
                   </div>
-                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => { setEditingId(c.id); setName(c.name); setOpen(true); }}
-                    >
+                  <span className="text-[11px] text-muted-foreground font-mono truncate">/{c.slug}</span>
+                  <span className="text-[12px] text-muted-foreground text-center tabular-nums">{count}</span>
+                  <div className="flex justify-center">
+                    {count > 0 ? (
+                      <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Ativa</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[9px] bg-orange-500/10 text-orange-400 border-orange-500/20">Vazia</Badge>
+                    )}
+                  </div>
+                  <div className="flex gap-0.5 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-7 w-7"
+                      onClick={() => { setEditingId(c.id); setName(c.name); setOpen(true); }}>
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive hover:text-destructive"
-                      onClick={() => { if (confirm(`Excluir "${c.name}"?`)) deleteMutation.mutate(c.id); }}
-                    >
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                      onClick={() => { if (confirm(`Excluir "${c.name}"?`)) deleteMutation.mutate(c.id); }}>
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <div className="flex items-center gap-1.5">
-                    <Package className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {count} {count === 1 ? "produto" : "produtos"}
-                    </span>
-                  </div>
-                  {count === 0 && (
-                    <Badge variant="outline" className="text-[9px] bg-orange-500/10 text-orange-400 border-orange-500/20">
-                      Vazia
-                    </Badge>
-                  )}
-                  {count > 0 && (
-                    <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                      Ativa
-                    </Badge>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       )}
 

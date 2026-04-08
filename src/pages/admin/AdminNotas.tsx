@@ -75,7 +75,7 @@ const AdminNotas = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Notas</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{notes?.length ?? 0} notas</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Bloco de anotações internas — lembretes, ideias e registros operacionais</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
