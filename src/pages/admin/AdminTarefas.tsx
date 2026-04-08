@@ -138,7 +138,7 @@ const AdminTarefas = () => {
                 <Select value={form.assigned_to} onValueChange={(v) => setForm({ ...form, assigned_to: v })}>
                   <SelectTrigger className="rounded-lg h-9 mt-1"><SelectValue placeholder="Selecionar..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ninguém</SelectItem>
+                    <SelectItem value="none">Ninguém</SelectItem>
                     {adminProfiles?.map((p) => (
                       <SelectItem key={p.id} value={p.id}>{p.full_name || "Sem nome"}</SelectItem>
                     ))}
