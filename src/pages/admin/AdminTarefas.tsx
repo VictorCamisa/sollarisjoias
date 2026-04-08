@@ -205,6 +205,11 @@ const AdminTarefas = () => {
                 </div>
                 <div className="hidden sm:flex items-center gap-2">
                   <Badge variant="outline" className={`text-[10px] ${p.color}`}>{p.label}</Badge>
+                  {(task as any).assigned_to && (
+                    <Badge variant="secondary" className="text-[9px]">
+                      {adminProfiles?.find((ap) => ap.id === (task as any).assigned_to)?.full_name?.split(" ")[0] || "—"}
+                    </Badge>
+                  )}
                   {task.due_date && (
                     <span className="text-[10px] text-muted-foreground">
                       {new Date(task.due_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
