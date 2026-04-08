@@ -59,7 +59,7 @@ const AdminTarefas = () => {
       const { error } = await supabase.from("tasks").insert({
         title: form.title, description: form.description || null,
         due_date: form.due_date || null, priority: form.priority, created_by: user?.id,
-        assigned_to: form.assigned_to || null,
+        assigned_to: form.assigned_to && form.assigned_to !== "none" ? form.assigned_to : null,
       } as any);
       if (error) throw error;
     },
