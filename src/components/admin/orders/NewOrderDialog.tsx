@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Search, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -110,6 +111,7 @@ export const NewOrderDialog = ({
         customer_phone: customer.phone,
         customer_email: customer.email || null,
         notes: customer.notes || null,
+        payment_method: customer.payment_method,
         items,
         total,
         status: "pending",
@@ -325,6 +327,23 @@ export const NewOrderDialog = ({
                 placeholder="email@exemplo.com"
                 className="admin-input"
               />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Forma de Pagamento *
+              </label>
+              <Select value={customer.payment_method} onValueChange={(v) => setCustomer((c) => ({ ...c, payment_method: v }))}>
+                <SelectTrigger className="admin-input">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pix">PIX</SelectItem>
+                  <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                  <SelectItem value="credito">Cartão Crédito</SelectItem>
+                  <SelectItem value="debito">Cartão Débito</SelectItem>
+                  <SelectItem value="crediario">Crediário</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">
