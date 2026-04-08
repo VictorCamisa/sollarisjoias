@@ -293,6 +293,7 @@ export type Database = {
           id: string
           items: Json
           notes: string | null
+          payment_method: string | null
           status: string
           total: number
           updated_at: string
@@ -306,6 +307,7 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
+          payment_method?: string | null
           status?: string
           total?: number
           updated_at?: string
@@ -319,6 +321,7 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
+          payment_method?: string | null
           status?: string
           total?: number
           updated_at?: string
@@ -752,6 +755,7 @@ export type Database = {
       }
       settings: {
         Row: {
+          bank_balance: number | null
           created_at: string
           evolution_instance: string | null
           id: string
@@ -762,6 +766,7 @@ export type Database = {
           whatsapp_number: string
         }
         Insert: {
+          bank_balance?: number | null
           created_at?: string
           evolution_instance?: string | null
           id?: string
@@ -772,6 +777,7 @@ export type Database = {
           whatsapp_number?: string
         }
         Update: {
+          bank_balance?: number | null
           created_at?: string
           evolution_instance?: string | null
           id?: string
@@ -898,6 +904,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          assigned_to: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -909,6 +916,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -920,6 +928,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
