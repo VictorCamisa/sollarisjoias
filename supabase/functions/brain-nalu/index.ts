@@ -250,6 +250,21 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "query_marketing_posts",
+      description: "Busca posts de marketing já gerados. Use para enviar o último post, listar posts recentes, ou buscar por tema/estilo.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "number", description: "Quantidade de posts para retornar (padrão: 1)" },
+          style: { type: "string", description: "Filtrar por estilo: dark ou light" },
+          status: { type: "string", description: "Filtrar por status: rascunho, publicado, agendado" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "update_order_status",
       description: "Atualiza o status de um pedido.",
       parameters: {
@@ -467,6 +482,35 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
             : "Erro ao gerar o post.",
         });
       }
+      case "query_marketing_posts": {
+        let query = supabase
+          .from("marketing_posts")
+          .select("id, prompt, caption, hashtags, image_url, style, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(args.limit || 1);
+
+        if (args.style) query = query.eq("style", args.style);
+        if (args.status) query = query.eq("status", args.status);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          return JSON.stringify({ success: true, message: "Nenhum post encontrado.", posts: [] });
+        }
+
+        // Format response with image markdown so whatsapp-webhook can detect and send
+        const posts = data.map((p: any) => ({
+          caption: p.caption,
+          hashtags: p.hashtags,
+          image_url: p.image_url,
+          style: p.style,
+          status: p.status,
+          created_at: p.created_at,
+        }));
+
+        return JSON.stringify({ success: true, posts, message: `Encontrei ${data.length} post(s).` });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
@@ -564,6 +608,12 @@ Quando a Ana pedir para criar um post:
 - Use a ferramenta generate_marketing_post com o tema que ela pediu
 - Depois de gerar, mostre a legenda e inclua o link da imagem no formato: ![Post](URL)
 - Se ela mencionar um produto específico, busque pelo nome para vincular ao post
+
+Quando a Ana pedir para VER ou ENVIAR um post já gerado (ex: "me manda o último post", "mostra o post que fizemos"):
+- Use a ferramenta query_marketing_posts para buscar
+- SEMPRE inclua a imagem no formato markdown: ![Post](URL_DA_IMAGEM)
+- Isso é OBRIGATÓRIO para que a imagem seja enviada pelo WhatsApp
+- Mostre também a legenda e hashtags
 
 ## Memória e Contexto
 Você tem acesso ao histórico de conversas passadas. Use essa memória para:
