@@ -437,6 +437,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          cargo: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -446,6 +447,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          cargo?: string | null
           created_at?: string
           full_name?: string | null
           id: string
@@ -455,6 +457,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          cargo?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
