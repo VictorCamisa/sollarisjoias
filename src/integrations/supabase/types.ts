@@ -265,6 +265,68 @@ export type Database = {
           },
         ]
       }
+      marketing_posts: {
+        Row: {
+          best_time: string | null
+          caption: string
+          created_at: string
+          created_by: string | null
+          hashtags: string[] | null
+          id: string
+          image_url: string | null
+          platform: string
+          platform_tips: string | null
+          product_id: string | null
+          prompt: string
+          status: string
+          style: string | null
+          updated_at: string
+          visual_suggestion: string | null
+        }
+        Insert: {
+          best_time?: string | null
+          caption: string
+          created_at?: string
+          created_by?: string | null
+          hashtags?: string[] | null
+          id?: string
+          image_url?: string | null
+          platform?: string
+          platform_tips?: string | null
+          product_id?: string | null
+          prompt: string
+          status?: string
+          style?: string | null
+          updated_at?: string
+          visual_suggestion?: string | null
+        }
+        Update: {
+          best_time?: string | null
+          caption?: string
+          created_at?: string
+          created_by?: string | null
+          hashtags?: string[] | null
+          id?: string
+          image_url?: string | null
+          platform?: string
+          platform_tips?: string | null
+          product_id?: string | null
+          prompt?: string
+          status?: string
+          style?: string | null
+          updated_at?: string
+          visual_suggestion?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_posts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
