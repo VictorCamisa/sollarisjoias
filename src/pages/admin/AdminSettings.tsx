@@ -379,8 +379,20 @@ const AdminSettings = () => {
           </Dialog>
         </div>
 
-        {usersLoading ? (
-          <div className="flex justify-center py-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <Select value={cargoFilter} onValueChange={setCargoFilter}>
+              <SelectTrigger className="w-40 h-8 text-xs rounded-lg">
+                <SelectValue placeholder="Filtrar por cargo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os cargos</SelectItem>
+                {uniqueCargos.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
             <div className="h-5 w-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
           </div>
         ) : (
