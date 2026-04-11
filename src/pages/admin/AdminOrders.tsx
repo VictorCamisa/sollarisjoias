@@ -141,12 +141,15 @@ const AdminOrders = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.015 }}
-                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_100px_minmax(0,1.5fr)_100px_130px_40px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
+                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_60px_100px_minmax(0,1.5fr)_100px_130px_40px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
                   onClick={() => setSelectedOrder(order)}
                 >
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium truncate">{order.customer_name}</p>
                     <p className="text-[10px] text-muted-foreground">{order.customer_phone}</p>
+                  </div>
+                  <div className="hidden md:flex justify-center">
+                    <span className="text-[10px]">{(order as any).sale_channel === "presencial" ? "🏪" : "🌐"}</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground tabular-nums">
                     {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
