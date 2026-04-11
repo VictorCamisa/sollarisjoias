@@ -180,6 +180,35 @@ const AdminSettings = () => {
     onError: (err: any) => toast.error(err.message),
   });
 
+  const updateCargoMutation = useMutation({
+    mutationFn: async () => {
+      if (!editingCargoUser) return;
+      const { data, error } = await supabase.functions.invoke("admin-manage-user", {
+        body: { action: "update", userId: editingCargoUser.id, cargo: editCargoValue },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["system-users"] });
+      toast.success("Cargo atualizado!");
+      setEditingCargoUser(null);
+      setEditCargoValue("");
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+
+  const getUserDisplayName = (user: SystemUser) => {
+    if (user.full_name) return user.full_name;
+    return user.email.split("@")[0];
+  };
+
+  const uniqueCargos = Array.from(new Set((systemUsers || []).map(u => u.cargo).filter(Boolean)));
+
+  const filteredUsers = (systemUsers || []).filter(u =>
+    cargoFilter === "all" ? true : u.cargo === cargoFilter
+  );
+
   const checkInstanceStatus = async (name: string) => {
     setIsCheckingStatus(true);
     try {
