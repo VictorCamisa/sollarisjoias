@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
+import { extname } from "https://deno.land/std@0.168.0/path/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -181,29 +182,18 @@ serve(async (req) => {
     if (isAudioMessage) {
       console.log("Generating audio reply with ElevenLabs TTS...");
       try {
-        const audioBase64 = await textToSpeech(replyText);
-        
-        // Send audio via Evolution API using native WhatsApp audio endpoint
-        const sendResp = await fetch(`${baseUrl}/message/sendWhatsAppAudio/${resolvedInstance}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: EVOLUTION_API_KEY,
-          },
-          body: JSON.stringify({
-            number: senderPhone,
-            audio: audioBase64,
-            encoding: true,
-          }),
-        });
+        const audio = await textToSpeech(replyText);
+        const sentAsAudio = await sendAudioReply(
+          baseUrl,
+          resolvedInstance,
+          EVOLUTION_API_KEY,
+          senderPhone,
+          audio
+        );
 
-        const sendData = await sendResp.json();
-        if (!sendResp.ok) {
-          console.error("Evolution send audio error:", sendData);
-          // Fallback: send as text
+        if (!sentAsAudio) {
+          console.warn("All audio delivery attempts failed, falling back to text");
           await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
-        } else {
-          console.log("Audio reply sent successfully to", senderPhone);
         }
       } catch (e) {
         console.error("TTS error, falling back to text:", e);
@@ -232,6 +222,84 @@ serve(async (req) => {
   }
 });
 
+// ── Helper: parse JSON/text response safely ──
+async function parseApiResponse(resp: Response) {
+  const raw = await resp.text();
+  try {
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return raw;
+  }
+}
+
+// ── Helper: send audio reply with fallback strategies ──
+async function sendAudioReply(baseUrl: string, instance: string, apiKey: string, phone: string, audio: GeneratedAudio) {
+  const attempts = [
+    {
+      label: "sendWhatsAppAudio/base64",
+      url: `${baseUrl}/message/sendWhatsAppAudio/${instance}`,
+      body: {
+        number: phone,
+        audio: audio.base64,
+        encoding: true,
+      },
+    },
+    {
+      label: "sendWhatsAppAudio/data-uri",
+      url: `${baseUrl}/message/sendWhatsAppAudio/${instance}`,
+      body: {
+        number: phone,
+        audio: audio.dataUri,
+        encoding: true,
+      },
+    },
+    {
+      label: "sendMedia/base64",
+      url: `${baseUrl}/message/sendMedia/${instance}`,
+      body: {
+        number: phone,
+        mediatype: "audio",
+        mimetype: audio.mimeType,
+        media: audio.base64,
+        fileName: audio.fileName,
+      },
+    },
+    {
+      label: "sendMedia/data-uri",
+      url: `${baseUrl}/message/sendMedia/${instance}`,
+      body: {
+        number: phone,
+        mediatype: "audio",
+        mimetype: audio.mimeType,
+        media: audio.dataUri,
+        fileName: audio.fileName,
+      },
+    },
+  ];
+
+  for (const attempt of attempts) {
+    try {
+      const sendResp = await fetch(attempt.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: apiKey },
+        body: JSON.stringify(attempt.body),
+      });
+
+      const sendData = await parseApiResponse(sendResp);
+      if (sendResp.ok) {
+        console.log(`Audio reply sent successfully to ${phone} via ${attempt.label}`);
+        return true;
+      }
+
+      console.error(`Evolution audio attempt failed (${attempt.label}):`, sendData);
+    } catch (error) {
+      console.error(`Unexpected error on audio attempt (${attempt.label}):`, error);
+    }
+  }
+
+  return false;
+}
+
 // ── Helper: send text reply ──
 async function sendTextReply(baseUrl: string, instance: string, apiKey: string, phone: string, text: string) {
   const sendResp = await fetch(`${baseUrl}/message/sendText/${instance}`, {
@@ -239,7 +307,7 @@ async function sendTextReply(baseUrl: string, instance: string, apiKey: string, 
     headers: { "Content-Type": "application/json", apikey: apiKey },
     body: JSON.stringify({ number: phone, text }),
   });
-  const sendData = await sendResp.json();
+  const sendData = await parseApiResponse(sendResp);
   if (!sendResp.ok) {
     console.error("Evolution send text error:", sendData);
   } else {
@@ -321,8 +389,15 @@ async function transcribeAudio(
   return sttData.text || "";
 }
 
+type GeneratedAudio = {
+  base64: string;
+  dataUri: string;
+  mimeType: string;
+  fileName: string;
+};
+
 // ── Text to Speech using ElevenLabs ──
-async function textToSpeech(text: string): Promise<string> {
+async function textToSpeech(text: string): Promise<GeneratedAudio> {
   const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
   const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID");
 
@@ -361,5 +436,15 @@ async function textToSpeech(text: string): Promise<string> {
   }
 
   const audioBuffer = await ttsResp.arrayBuffer();
-  return base64Encode(audioBuffer);
+  const base64 = base64Encode(audioBuffer);
+  const contentType = ttsResp.headers.get("content-type") || "audio/mpeg";
+  const mimeType = contentType.split(";")[0].trim() || "audio/mpeg";
+  const extension = extname(new URL(ttsResp.url).searchParams.get("output_format")?.includes("mpeg") ? "reply.mp3" : "reply.mp3") || ".mp3";
+
+  return {
+    base64,
+    dataUri: `data:${mimeType};base64,${base64}`,
+    mimeType,
+    fileName: `reply${extension || ".mp3"}`,
+  };
 }
