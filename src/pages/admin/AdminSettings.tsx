@@ -9,7 +9,7 @@ import { useSettings } from "@/hooks/useStore";
 import { toast } from "sonner";
 import {
   Settings, Smartphone, Wifi, WifiOff, Plus, Trash2, RefreshCw, QrCode,
-  Users, UserPlus, Shield, Ban, CheckCircle, KeyRound, X,
+  Users, UserPlus, Shield, Ban, CheckCircle, KeyRound, X, Pencil, Filter,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
