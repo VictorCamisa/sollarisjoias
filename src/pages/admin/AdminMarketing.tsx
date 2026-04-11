@@ -861,6 +861,30 @@ const CreatePostTab = () => {
   });
 
   const selectedProduct = useMemo(() => products?.find(p => p.id === selectedProductId), [products, selectedProductId]);
+  const activeBrandAssetsPayload = useMemo(
+    () => (brandAssets || []).map(({ type, title, content, file_url }) => ({ type, title, content, file_url })),
+    [brandAssets]
+  );
+  const brandContext = useMemo(
+    () => activeBrandAssetsPayload.map((asset) => {
+      const parts = [`[${asset.type.toUpperCase()}] ${asset.title}`];
+      if (asset.content) parts.push(asset.content);
+      if (asset.file_url) parts.push(`Arquivo visual: ${asset.file_url}`);
+      return parts.join(" — ");
+    }).join("\n"),
+    [activeBrandAssetsPayload]
+  );
+  const selectedProductContext = useMemo(() => {
+    if (!selectedProduct) return "";
+
+    return [
+      `Produto: ${selectedProduct.name}`,
+      `Preço: ${fmtBRL(Number(selectedProduct.price || 0))}${selectedProduct.original_price ? ` (de ${fmtBRL(Number(selectedProduct.original_price))})` : ""}`,
+      selectedProduct.material ? `Material: ${selectedProduct.material}` : null,
+      selectedProduct.banho ? `Banho: ${selectedProduct.banho}` : null,
+      selectedProduct.pedra ? `Pedra: ${selectedProduct.pedra}` : null,
+    ].filter(Boolean).join("\n");
+  }, [selectedProduct]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return toast.error("Descreva o que deseja para o post");
@@ -868,18 +892,10 @@ const CreatePostTab = () => {
     setGeneratedPost(null);
     setGeneratedImage(null);
 
-    // Build brand context from assets
-    const brandContext = (brandAssets || []).map(a => {
-      let line = `[${a.type.toUpperCase()}] ${a.title}`;
-      if (a.content) line += `: ${a.content}`;
-      if (a.file_url) line += ` (arquivo: ${a.file_url})`;
-      return line;
-    }).join("\n");
-
     try {
       // Generate text
       const { data, error } = await supabase.functions.invoke("generate-post", {
-        body: { prompt, platform, tone, brandContext },
+        body: { prompt, platform, tone, brandContext, brandAssets: activeBrandAssetsPayload, productContext: selectedProductContext },
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); return; }
@@ -910,7 +926,15 @@ const CreatePostTab = () => {
       try {
         const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle, brandContext },
+          body: {
+            prompt,
+            platform,
+            productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined,
+            caption: post.caption,
+            style: resolvedStyle,
+            brandContext,
+            brandAssets: activeBrandAssetsPayload,
+          },
         });
         if (imgErr) throw imgErr;
         if (imgData?.error) { toast.error(imgData.error); return; }
@@ -944,13 +968,16 @@ const CreatePostTab = () => {
     setImageLoading(true);
     try {
       const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
-      const brandContext = (brandAssets || []).map(a => {
-        let line = `[${a.type.toUpperCase()}] ${a.title}`;
-        if (a.content) line += `: ${a.content}`;
-        return line;
-      }).join("\n");
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle, brandContext },
+        body: {
+          prompt,
+          platform,
+          productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined,
+          caption: generatedPost.caption,
+          style: resolvedStyle,
+          brandContext,
+          brandAssets: activeBrandAssetsPayload,
+        },
       });
       if (imgErr) throw imgErr;
       if (imgData?.error) { toast.error(imgData.error); return; }
