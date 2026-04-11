@@ -54,6 +54,9 @@ const AdminSettings = () => {
   const [newUser, setNewUser] = useState({ email: "", password: "", full_name: "", cargo: "", role: "admin" });
   const [resetPwdUser, setResetPwdUser] = useState<SystemUser | null>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [cargoFilter, setCargoFilter] = useState("all");
+  const [editingCargoUser, setEditingCargoUser] = useState<SystemUser | null>(null);
+  const [editCargoValue, setEditCargoValue] = useState("");
 
   useEffect(() => {
     if (settings) {
