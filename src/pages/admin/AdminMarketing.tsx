@@ -1087,6 +1087,9 @@ const CreatePostTab = () => {
         </CardContent>
       </Card>
 
+      {/* Brand Assets Panel */}
+      {showBrandAssets && <BrandAssetsPanel onClose={() => setShowBrandAssets(false)} />}
+
       {/* Loading state */}
       {(loading || imageLoading) && !generatedPost && (
         <Card>
