@@ -70,6 +70,39 @@ export type Database = {
           },
         ]
       }
+      brand_assets: {
+        Row: {
+          content: string | null
+          created_at: string
+          file_url: string | null
+          id: string
+          is_active: boolean
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
