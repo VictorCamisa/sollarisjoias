@@ -334,6 +334,28 @@ async function sendTextReply(baseUrl: string, instance: string, apiKey: string, 
   }
 }
 
+// ── Helper: send image reply ──
+async function sendImageReply(baseUrl: string, instance: string, apiKey: string, phone: string, imageUrl: string, caption: string) {
+  const sendResp = await fetch(`${baseUrl}/message/sendMedia/${instance}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: apiKey },
+    body: JSON.stringify({
+      number: phone,
+      mediatype: "image",
+      mimetype: "image/png",
+      media: imageUrl,
+      caption: caption || "",
+      fileName: "post-sollaris.png",
+    }),
+  });
+  const sendData = await parseApiResponse(sendResp);
+  if (!sendResp.ok) {
+    console.error("Evolution send image error:", sendData);
+  } else {
+    console.log("Image reply sent successfully to", phone);
+  }
+}
+
 // ── Helper: get instance name from settings ──
 async function getInstanceName(supabase: any): Promise<string> {
   const { data } = await supabase.from("settings").select("evolution_instance").limit(1).single();
