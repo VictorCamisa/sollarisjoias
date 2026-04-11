@@ -234,6 +234,22 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "generate_marketing_post",
+      description: "Gera um post completo para Instagram da SOLLARIS: cria a legenda + imagem editorial. Pergunte o estilo (claro ou escuro) se não for especificado.",
+      parameters: {
+        type: "object",
+        properties: {
+          prompt: { type: "string", description: "Tema/assunto do post (ex: 'lançamento colar pérolas', 'promoção dia das mães')" },
+          style: { type: "string", description: "dark ou light", enum: ["dark", "light"] },
+          product_name: { type: "string", description: "Nome do produto para buscar no catálogo (opcional)" },
+        },
+        required: ["prompt", "style"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "update_order_status",
       description: "Atualiza o status de um pedido.",
       parameters: {
@@ -363,6 +379,94 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
         if (error) return JSON.stringify({ error: error.message });
         return JSON.stringify({ success: true, order: data });
       }
+      case "generate_marketing_post": {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+        // Find product if specified
+        let productId: string | undefined;
+        if (args.product_name) {
+          const { data: products } = await supabase
+            .from("products")
+            .select("id, name")
+            .ilike("name", `%${args.product_name}%`)
+            .limit(1);
+          if (products && products.length > 0) {
+            productId = products[0].id;
+          }
+        }
+
+        // Generate caption
+        let caption = "";
+        let hashtags: string[] = [];
+        try {
+          const captionResp = await fetch(`${supabaseUrl}/functions/v1/generate-post`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({ prompt: args.prompt, platform: "instagram" }),
+          });
+          if (captionResp.ok) {
+            const captionData = await captionResp.json();
+            caption = captionData.post?.caption || "";
+            hashtags = captionData.post?.hashtags || [];
+          }
+        } catch (e) {
+          console.error("Caption generation error:", e);
+        }
+
+        // Generate image
+        let imageUrl = "";
+        try {
+          const imageResp = await fetch(`${supabaseUrl}/functions/v1/generate-post-image`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              prompt: args.prompt,
+              style: args.style || "dark",
+              productId,
+            }),
+          });
+          if (imageResp.ok) {
+            const imageData = await imageResp.json();
+            imageUrl = imageData.image_url || "";
+          }
+        } catch (e) {
+          console.error("Image generation error:", e);
+        }
+
+        // Save to marketing_posts
+        if (caption || imageUrl) {
+          await supabase.from("marketing_posts").insert({
+            platform: "instagram",
+            prompt: args.prompt,
+            caption: caption || args.prompt,
+            hashtags,
+            style: args.style,
+            image_url: imageUrl || null,
+            product_id: productId || null,
+            status: "draft",
+          } as any);
+        }
+
+        return JSON.stringify({
+          success: true,
+          caption,
+          hashtags,
+          image_url: imageUrl,
+          product_found: !!productId,
+          message: imageUrl
+            ? `Post gerado! Imagem: ${imageUrl}`
+            : caption
+            ? "Legenda gerada, mas houve erro na imagem."
+            : "Erro ao gerar o post.",
+        });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
@@ -452,6 +556,14 @@ Você tem acesso REAL ao sistema da Sollaris e pode:
 4. **Produtos**: Consultar catálogo, preços, estoque
 5. **Financeiro**: Ver resumos financeiros, criar transações
 6. **Tarefas**: Criar, consultar e atualizar tarefas
+7. **Marketing**: Gerar posts completos para Instagram (legenda + imagem editorial)
+
+## Marketing / Posts
+Quando a Ana pedir para criar um post:
+- Pergunte APENAS o estilo: "claro" (light) ou "escuro" (dark) — se ela não especificou
+- Use a ferramenta generate_marketing_post com o tema que ela pediu
+- Depois de gerar, mostre a legenda e inclua o link da imagem no formato: ![Post](URL)
+- Se ela mencionar um produto específico, busque pelo nome para vincular ao post
 
 ## Memória e Contexto
 Você tem acesso ao histórico de conversas passadas. Use essa memória para:
