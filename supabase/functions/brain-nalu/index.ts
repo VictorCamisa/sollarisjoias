@@ -482,6 +482,35 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
             : "Erro ao gerar o post.",
         });
       }
+      case "query_marketing_posts": {
+        let query = supabase
+          .from("marketing_posts")
+          .select("id, prompt, caption, hashtags, image_url, style, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(args.limit || 1);
+
+        if (args.style) query = query.eq("style", args.style);
+        if (args.status) query = query.eq("status", args.status);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          return JSON.stringify({ success: true, message: "Nenhum post encontrado.", posts: [] });
+        }
+
+        // Format response with image markdown so whatsapp-webhook can detect and send
+        const posts = data.map((p: any) => ({
+          caption: p.caption,
+          hashtags: p.hashtags,
+          image_url: p.image_url,
+          style: p.style,
+          status: p.status,
+          created_at: p.created_at,
+        }));
+
+        return JSON.stringify({ success: true, posts, message: `Encontrei ${data.length} post(s).` });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
