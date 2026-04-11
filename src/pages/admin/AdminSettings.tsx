@@ -9,7 +9,7 @@ import { useSettings } from "@/hooks/useStore";
 import { toast } from "sonner";
 import {
   Settings, Smartphone, Wifi, WifiOff, Plus, Trash2, RefreshCw, QrCode,
-  Users, UserPlus, Shield, Ban, CheckCircle, KeyRound, X,
+  Users, UserPlus, Shield, Ban, CheckCircle, KeyRound, X, Pencil, Filter,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
@@ -54,6 +54,9 @@ const AdminSettings = () => {
   const [newUser, setNewUser] = useState({ email: "", password: "", full_name: "", cargo: "", role: "admin" });
   const [resetPwdUser, setResetPwdUser] = useState<SystemUser | null>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [cargoFilter, setCargoFilter] = useState("all");
+  const [editingCargoUser, setEditingCargoUser] = useState<SystemUser | null>(null);
+  const [editCargoValue, setEditCargoValue] = useState("");
 
   useEffect(() => {
     if (settings) {
@@ -176,6 +179,35 @@ const AdminSettings = () => {
     },
     onError: (err: any) => toast.error(err.message),
   });
+
+  const updateCargoMutation = useMutation({
+    mutationFn: async () => {
+      if (!editingCargoUser) return;
+      const { data, error } = await supabase.functions.invoke("admin-manage-user", {
+        body: { action: "update", userId: editingCargoUser.id, cargo: editCargoValue },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["system-users"] });
+      toast.success("Cargo atualizado!");
+      setEditingCargoUser(null);
+      setEditCargoValue("");
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+
+  const getUserDisplayName = (user: SystemUser) => {
+    if (user.full_name) return user.full_name;
+    return user.email.split("@")[0];
+  };
+
+  const uniqueCargos = Array.from(new Set((systemUsers || []).map(u => u.cargo).filter(Boolean)));
+
+  const filteredUsers = (systemUsers || []).filter(u =>
+    cargoFilter === "all" ? true : u.cargo === cargoFilter
+  );
 
   const checkInstanceStatus = async (name: string) => {
     setIsCheckingStatus(true);
@@ -347,11 +379,25 @@ const AdminSettings = () => {
           </Dialog>
         </div>
 
-        {usersLoading ? (
-          <div className="flex justify-center py-6">
-            <div className="h-5 w-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <Select value={cargoFilter} onValueChange={setCargoFilter}>
+              <SelectTrigger className="w-40 h-8 text-xs rounded-lg">
+                <SelectValue placeholder="Filtrar por cargo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os cargos</SelectItem>
+                {uniqueCargos.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        ) : (
+          {usersLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-5 w-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+            </div>
+          ) : (
           <div className="border border-border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
@@ -359,23 +405,28 @@ const AdminSettings = () => {
                   <TableHead className="text-[10px] uppercase">Nome</TableHead>
                   <TableHead className="text-[10px] uppercase">Email</TableHead>
                   <TableHead className="text-[10px] uppercase">Cargo</TableHead>
-                  <TableHead className="text-[10px] uppercase">Perfil</TableHead>
                   <TableHead className="text-[10px] uppercase">Status</TableHead>
                   <TableHead className="text-[10px] uppercase text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(systemUsers || []).map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="text-xs font-medium">{user.full_name || "—"}</TableCell>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setResetPwdUser(user)}>
+                    <TableCell className="text-xs font-medium">{getUserDisplayName(user)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{user.email}</TableCell>
-                    <TableCell className="text-xs">{user.cargo || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === "admin" ? "default" : "secondary"} className="text-[10px]">
-                        {user.role === "admin" ? (
-                          <><Shield className="h-3 w-3 mr-1" />Admin</>
-                        ) : "Usuário"}
-                      </Badge>
+                    <TableCell className="text-xs">
+                      <div className="flex items-center gap-1">
+                        {user.cargo || "—"}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0"
+                          title="Editar cargo"
+                          onClick={(e) => { e.stopPropagation(); setEditingCargoUser(user); setEditCargoValue(user.cargo || ""); }}
+                        >
+                          <Pencil className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {isBanned(user) ? (
@@ -387,16 +438,7 @@ const AdminSettings = () => {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0"
-                          title="Redefinir senha"
-                          onClick={() => setResetPwdUser(user)}
-                        >
-                          <KeyRound className="h-3.5 w-3.5" />
-                        </Button>
+                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -415,7 +457,7 @@ const AdminSettings = () => {
                           className="h-7 w-7 p-0 text-destructive"
                           title="Excluir usuário"
                           onClick={() => {
-                            if (confirm(`Tem certeza que deseja excluir ${user.full_name || user.email}?`)) {
+                            if (confirm(`Tem certeza que deseja excluir ${getUserDisplayName(user)}?`)) {
                               deleteUserMutation.mutate(user.id);
                             }
                           }}
@@ -426,9 +468,9 @@ const AdminSettings = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-                {(!systemUsers || systemUsers.length === 0) && (
+                {filteredUsers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-xs text-muted-foreground py-6">
+                    <TableCell colSpan={5} className="text-center text-xs text-muted-foreground py-6">
                       Nenhum usuário encontrado
                     </TableCell>
                   </TableRow>
@@ -447,7 +489,7 @@ const AdminSettings = () => {
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <p className="text-xs text-muted-foreground">
-              Redefinir senha de <strong>{resetPwdUser?.full_name || resetPwdUser?.email}</strong>
+              Redefinir senha de <strong>{resetPwdUser ? getUserDisplayName(resetPwdUser) : ""}</strong>
             </p>
             <div>
               <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nova Senha</Label>
@@ -465,7 +507,31 @@ const AdminSettings = () => {
         </DialogContent>
       </Dialog>
 
-      {/* General Settings */}
+      {/* Edit cargo dialog */}
+      <Dialog open={!!editingCargoUser} onOpenChange={(open) => { if (!open) { setEditingCargoUser(null); setEditCargoValue(""); } }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Editar Cargo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <p className="text-xs text-muted-foreground">
+              Alterar cargo de <strong>{editingCargoUser ? getUserDisplayName(editingCargoUser) : ""}</strong>
+            </p>
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Cargo</Label>
+              <Input value={editCargoValue} onChange={(e) => setEditCargoValue(e.target.value)}
+                className="rounded-lg h-9 mt-1" placeholder="Ex: Vendedora, CEO, Assistente" />
+            </div>
+            <Button
+              onClick={() => updateCargoMutation.mutate()}
+              className="w-full h-9 text-xs rounded-lg"
+              disabled={updateCargoMutation.isPending}
+            >
+              {updateCargoMutation.isPending ? "Salvando..." : "Salvar Cargo"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="bg-card border border-border rounded-xl p-5 space-y-4">
         <div>
           <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome da Loja</Label>
