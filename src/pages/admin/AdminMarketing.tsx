@@ -814,8 +814,8 @@ const BrandAssetsPanel = ({ onClose }: { onClose: () => void }) => {
 // ─── AI Post Creator Tab ───
 const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
-  const [platform, setPlatform] = useState("Instagram");
-  const [tone, setTone] = useState("padrao");
+  const platform = "Instagram";
+  const tone = "padrao";
   const [postStyle, setPostStyle] = useState<"dark" | "light" | "auto">("auto");
   const [postCount, setPostCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -1117,33 +1117,7 @@ const CreatePostTab = () => {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Select value={platform} onValueChange={setPlatform}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Instagram">📸 Instagram</SelectItem>
-                <SelectItem value="TikTok">🎵 TikTok</SelectItem>
-                <SelectItem value="Facebook">📘 Facebook</SelectItem>
-                <SelectItem value="WhatsApp">💬 WhatsApp</SelectItem>
-                <SelectItem value="LinkedIn">💼 LinkedIn</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Tom (opcional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="padrao">✨ Padrão SOLLARIS</SelectItem>
-                <SelectItem value="inspiracional">✨ Inspiracional</SelectItem>
-                <SelectItem value="educativo">📚 Educativo</SelectItem>
-                <SelectItem value="storytelling">📖 Storytelling</SelectItem>
-                <SelectItem value="promocional-sutil">🎁 Promocional Sutil</SelectItem>
-                <SelectItem value="bastidores">🎬 Bastidores</SelectItem>
-                <SelectItem value="celebracao">🥂 Celebração</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={postStyle} onValueChange={(v: "dark" | "light" | "auto") => setPostStyle(v)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue />
