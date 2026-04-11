@@ -643,17 +643,55 @@ const BrandAssetsPanel = ({ onClose }: { onClose: () => void }) => {
   });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `brand/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
-    if (error) { toast.error("Erro ao fazer upload"); setUploading(false); return; }
-    const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
-    setNewAsset(a => ({ ...a, file_url: pub.publicUrl }));
-    toast.success("Arquivo enviado!");
-    setUploading(false);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const isReference = newAsset.type === "reference";
+    const fileList = Array.from(files).slice(0, 20);
+
+    if (!isReference || fileList.length === 1) {
+      // Single file upload (non-reference or single file)
+      const file = fileList[0];
+      setUploading(true);
+      const ext = file.name.split(".").pop();
+      const path = `brand/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+      if (error) { toast.error("Erro ao fazer upload"); setUploading(false); return; }
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      setNewAsset(a => ({ ...a, file_url: pub.publicUrl }));
+      toast.success("Arquivo enviado!");
+      setUploading(false);
+    } else {
+      // Batch reference upload
+      setUploading(true);
+      let success = 0;
+      for (const file of fileList) {
+        const ext = file.name.split(".").pop();
+        const path = `brand/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+        const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+        if (error) { console.error("Upload error:", error); continue; }
+        const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+        const title = newAsset.title.trim() || `Referência ${file.name}`;
+        await supabase.from("brand_assets").insert({
+          type: "reference",
+          title,
+          content: newAsset.content || null,
+          file_url: pub.publicUrl,
+        } as any);
+        success++;
+      }
+      if (success > 0) {
+        toast.success(`${success} referência(s) adicionada(s)!`);
+        queryClient.invalidateQueries({ queryKey: ["brand-assets"] });
+        queryClient.invalidateQueries({ queryKey: ["brand-assets-active"] });
+        setNewAsset({ type: "reference", title: "", content: "", file_url: "" });
+      } else {
+        toast.error("Nenhum arquivo enviado com sucesso");
+      }
+      setUploading(false);
+    }
+    // Reset input so same files can be re-selected
+    e.target.value = "";
   };
 
   const handleAdd = async () => {
@@ -748,9 +786,12 @@ const BrandAssetsPanel = ({ onClose }: { onClose: () => void }) => {
               <Button variant="outline" size="sm" className="text-xs" asChild disabled={uploading}>
                 <span>{uploading ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Enviando...</> : <><ImagePlus className="h-3 w-3 mr-1" />Upload Arquivo</>}</span>
               </Button>
-              <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx" onChange={handleUpload} />
+              <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx" multiple={newAsset.type === "reference"} onChange={handleUpload} />
             </label>
-            {newAsset.file_url && (
+            {newAsset.type === "reference" && (
+              <span className="text-[10px] text-muted-foreground">Até 20 arquivos por vez</span>
+            )}
+            {newAsset.file_url && newAsset.type !== "reference" && (
               <Badge variant="secondary" className="text-[10px] truncate max-w-[200px]">
                 ✅ Arquivo anexado
               </Badge>
