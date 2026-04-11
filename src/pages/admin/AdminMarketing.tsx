@@ -1006,7 +1006,6 @@ const CreatePostTab = () => {
             prompt,
             platform,
             productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined,
-            caption: post.caption,
             style: resolvedStyle,
             brandContext,
             brandAssets: activeBrandAssetsPayload,
