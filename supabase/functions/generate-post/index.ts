@@ -38,11 +38,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, platform, tone } = await req.json();
+    const { prompt, platform, tone, brandContext } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
-    const userMessage = `Crie um post para ${platform || "Instagram"} com o seguinte tema/ideia: "${prompt}"${tone ? `. Tom desejado: ${tone}` : ""}. Responda APENAS com o JSON no formato especificado.`;
+    const brandSection = brandContext
+      ? `\n\nDIRETRIZES EXTRAS DA MARCA (fornecidas pelo cliente — siga rigorosamente):\n${brandContext}`
+      : "";
+
+    const userMessage = `Crie um post para ${platform || "Instagram"} com o seguinte tema/ideia: "${prompt}"${tone ? `. Tom desejado: ${tone}` : ""}. Responda APENAS com o JSON no formato especificado.${brandSection}`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
