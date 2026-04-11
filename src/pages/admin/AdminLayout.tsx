@@ -15,7 +15,7 @@ const navGroups = [
     label: "Principal",
     items: [
       { to: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
-      { to: "/admin/pedidos", icon: ShoppingCart, label: "Pedidos" },
+      { to: "/admin/pedidos", icon: ShoppingCart, label: "Vendas" },
       { to: "/admin/produtos", icon: Package, label: "Produtos" },
       { to: "/admin/categorias", icon: FolderOpen, label: "Categorias" },
     ],
