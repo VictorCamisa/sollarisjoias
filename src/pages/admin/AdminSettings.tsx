@@ -393,9 +393,11 @@ const AdminSettings = () => {
               </SelectContent>
             </Select>
           </div>
-            <div className="h-5 w-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-          </div>
-        ) : (
+          {usersLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-5 w-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+            </div>
+          ) : (
           <div className="border border-border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
@@ -403,23 +405,28 @@ const AdminSettings = () => {
                   <TableHead className="text-[10px] uppercase">Nome</TableHead>
                   <TableHead className="text-[10px] uppercase">Email</TableHead>
                   <TableHead className="text-[10px] uppercase">Cargo</TableHead>
-                  <TableHead className="text-[10px] uppercase">Perfil</TableHead>
                   <TableHead className="text-[10px] uppercase">Status</TableHead>
                   <TableHead className="text-[10px] uppercase text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(systemUsers || []).map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="text-xs font-medium">{user.full_name || "—"}</TableCell>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setResetPwdUser(user)}>
+                    <TableCell className="text-xs font-medium">{getUserDisplayName(user)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{user.email}</TableCell>
-                    <TableCell className="text-xs">{user.cargo || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === "admin" ? "default" : "secondary"} className="text-[10px]">
-                        {user.role === "admin" ? (
-                          <><Shield className="h-3 w-3 mr-1" />Admin</>
-                        ) : "Usuário"}
-                      </Badge>
+                    <TableCell className="text-xs">
+                      <div className="flex items-center gap-1">
+                        {user.cargo || "—"}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0"
+                          title="Editar cargo"
+                          onClick={(e) => { e.stopPropagation(); setEditingCargoUser(user); setEditCargoValue(user.cargo || ""); }}
+                        >
+                          <Pencil className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {isBanned(user) ? (
@@ -431,16 +438,7 @@ const AdminSettings = () => {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0"
-                          title="Redefinir senha"
-                          onClick={() => setResetPwdUser(user)}
-                        >
-                          <KeyRound className="h-3.5 w-3.5" />
-                        </Button>
+                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -459,7 +457,7 @@ const AdminSettings = () => {
                           className="h-7 w-7 p-0 text-destructive"
                           title="Excluir usuário"
                           onClick={() => {
-                            if (confirm(`Tem certeza que deseja excluir ${user.full_name || user.email}?`)) {
+                            if (confirm(`Tem certeza que deseja excluir ${getUserDisplayName(user)}?`)) {
                               deleteUserMutation.mutate(user.id);
                             }
                           }}
@@ -470,9 +468,9 @@ const AdminSettings = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-                {(!systemUsers || systemUsers.length === 0) && (
+                {filteredUsers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-xs text-muted-foreground py-6">
+                    <TableCell colSpan={5} className="text-center text-xs text-muted-foreground py-6">
                       Nenhum usuário encontrado
                     </TableCell>
                   </TableRow>
