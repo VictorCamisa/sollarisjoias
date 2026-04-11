@@ -112,7 +112,7 @@ async function loadActiveBrandAssets(supabase: any) {
 
 async function requestImageEdit(apiKey: string, prompt: string, size: string, imageInputs: Array<{ blob: Blob; filename: string }>) {
   const formData = new FormData();
-  formData.append("model", "gpt-image-1");
+  formData.append("model", "dall-e-2");
   formData.append("prompt", prompt);
   formData.append("size", size);
   formData.append("n", "1");
@@ -360,10 +360,6 @@ OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to pub
     }
 
     if (!response) {
-      if (hasMandatorySourceAssets || generationDirectives.requireSelectedProductFidelity || generationDirectives.requireOfficialLogoFidelity) {
-        return jsonError(422, "Não consegui aplicar com fidelidade o produto real e a logo oficial nesta tentativa. Ajustei o fluxo para priorizar isso; tente novamente com a referência e o produto selecionado.");
-      }
-
       response = await requestImageGeneration(OPENAI_API_KEY, imagePrompt, effectiveFormat.size, "gpt-image-1");
     }
 
