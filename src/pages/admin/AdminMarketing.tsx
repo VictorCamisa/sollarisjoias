@@ -900,8 +900,13 @@ const CreatePostTab = () => {
     setImageLoading(true);
     try {
       const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
+      const brandContext = (brandAssets || []).map(a => {
+        let line = `[${a.type.toUpperCase()}] ${a.title}`;
+        if (a.content) line += `: ${a.content}`;
+        return line;
+      }).join("\n");
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle },
+        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle, brandContext },
       });
       if (imgErr) throw imgErr;
       if (imgData?.error) { toast.error(imgData.error); return; }
