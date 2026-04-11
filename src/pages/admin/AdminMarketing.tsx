@@ -1049,6 +1049,22 @@ const CreatePostTab = () => {
             </Button>
           </div>
 
+          {/* Brand assets indicator + toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => setShowBrandAssets(!showBrandAssets)}>
+                <BookOpen className="h-3.5 w-3.5" />
+                Central de Marca
+                {(brandAssets?.length || 0) > 0 && (
+                  <Badge variant="secondary" className="text-[9px] ml-1">{brandAssets?.length} ativos</Badge>
+                )}
+              </Button>
+              {(brandAssets?.length || 0) > 0 && (
+                <span className="text-[10px] text-muted-foreground">✅ A IA está usando suas diretrizes de marca</span>
+              )}
+            </div>
+          </div>
+
           {/* Quick ideas */}
           <div className="flex flex-wrap gap-1.5">
             {[
