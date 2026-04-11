@@ -38,15 +38,23 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, platform, tone, brandContext } = await req.json();
+    const { prompt, platform, tone, brandContext, productContext } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
-    const brandSection = brandContext
-      ? `\n\nDIRETRIZES EXTRAS DA MARCA (fornecidas pelo cliente — siga rigorosamente):\n${brandContext}`
-      : "";
+    const sections = [
+      `Crie um post para ${platform || "Instagram"} com o seguinte tema/ideia: "${prompt}".`,
+      tone ? `Tom desejado: ${tone}.` : null,
+      productContext
+        ? `PRODUTO REAL DISPONÍVEL:\n${productContext}\nUse apenas essas informações factuais na legenda.`
+        : "Se nenhum produto real foi informado, não invente preço, material, pedra ou acabamento.",
+      brandContext
+        ? `DIRETRIZES EXTRAS DA MARCA (fornecidas pelo cliente — siga rigorosamente):\n${brandContext}`
+        : null,
+      `Prioridades obrigatórias:\n- respeitar o branding da SOLLARIS com precisão\n- soar editorial, sofisticado e premium\n- evitar clichês de varejo, urgência barata e linguagem genérica\n- não inventar informações\n- responder APENAS com o JSON no formato especificado`,
+    ].filter(Boolean);
 
-    const userMessage = `Crie um post para ${platform || "Instagram"} com o seguinte tema/ideia: "${prompt}"${tone ? `. Tom desejado: ${tone}` : ""}. Responda APENAS com o JSON no formato especificado.${brandSection}`;
+    const userMessage = sections.join("\n\n");
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
