@@ -70,12 +70,12 @@ const AdminOrders = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="admin-page-title">Pedidos</h1>
-          <p className="admin-page-subtitle">{filtered?.length ?? 0} pedidos encontrados</p>
+          <h1 className="admin-page-title">Vendas</h1>
+          <p className="admin-page-subtitle">{filtered?.length ?? 0} vendas encontradas</p>
         </div>
         <Button size="sm" onClick={() => setNewOrderOpen(true)} className="gap-1.5">
           <Plus className="h-3.5 w-3.5" />
-          Novo Pedido
+          Nova Venda
         </Button>
       </div>
 
