@@ -61,7 +61,6 @@ serve(async (req) => {
     const {
       prompt,
       productId,
-      caption,
       style = "dark",
       brandAssets = [],
     } = await req.json();
@@ -113,8 +112,8 @@ serve(async (req) => {
 
     const isDark = style === "dark";
     const colorScheme = isDark
-      ? "dark background (#0F0F14), white and champagne gold (#C5A96A) text"
-      : "warm off-white background (#F8F4EF), dark gray and champagne gold (#C5A96A) text";
+      ? "dark background (#0F0F14), champagne gold accents (#C5A96A), rich contrast, luxury mood"
+      : "warm off-white background (#F8F4EF), dark gray details, champagne gold accents (#C5A96A), editorial softness";
 
     // Build the image input array for gpt-image-1
     const imageInputs: Array<{ type: string; image_url?: string; detail?: string }> = [];
@@ -148,30 +147,32 @@ serve(async (req) => {
       console.log(`Added ${imageInputs.length - 2} reference images`);
     }
 
-    // Build the text prompt
-    const textCaption = caption ? `Include this text elegantly: "${caption.slice(0, 150)}"` : "";
-
     const imagePrompt = [
-      `Create a COMPLETE, ready-to-publish Instagram post (1080x1080) for SOLLARIS, a premium Brazilian jewelry brand.`,
+      `Create a COMPLETE, ready-to-publish Instagram post image (1080x1080) for SOLLARIS, a premium Brazilian jewelry brand.`,
       ``,
       `THEME: ${prompt}`,
       `STYLE: ${colorScheme}. Minimalist luxury editorial aesthetic — like Cartier, Bottega Veneta, Tiffany.`,
       ``,
-      productInfo ? `HERO PRODUCT (from attached photo): ${productInfo}. The product photo MUST be the central element.` : "",
-      logoUrl ? `Use the attached SOLLARIS logo in the composition — clean, uppercase, wide spacing.` : `Include "SOLLARIS" in clean uppercase typography with wide letter spacing.`,
-      referenceUrls.length > 0 ? `Match the visual STYLE, layout, and mood of the attached reference images. Adapt to SOLLARIS identity.` : "",
-      textCaption,
+      productInfo ? `HERO PRODUCT (from attached photo): ${productInfo}. The real product image MUST be the central visual element.` : "",
+      logoUrl ? `Use the attached official logo only as a subtle brand mark if it can be reproduced faithfully.` : `No brand wordmark or invented text should appear.`,
+      referenceUrls.length > 0 ? `Match the visual STYLE, composition, materials, lighting, and mood of the attached reference images. Adapt all of it to SOLLARIS identity.` : "",
+      ``,
+      `CRITICAL TEXT RULES:`,
+      `- ABSOLUTELY NO caption text on the image`,
+      `- ABSOLUTELY NO headlines, slogans, CTA, body copy, labels, prices, or decorative words`,
+      `- ABSOLUTELY NO letters, phrases, numbers, characters, typographic blocks, or fake typography`,
+      `- The post image and the caption are separate deliverables`,
+      `- The art must communicate only through composition, product, materials, light, texture, and layout`,
       ``,
       `DESIGN RULES:`,
-      `- Professional graphic design, ready to post — NOT a photo with text overlay`,
+      `- Professional graphic design, ready to post — not a photo with text overlay`,
       `- Rule of thirds, generous negative space`,
-      `- Elegant typography (serif for headlines, sans-serif for body)`,
       `- No clutter, no emojis, no generic templates`,
       `- Magazine-quality composition`,
       brandRules ? `BRAND GUIDELINES: ${brandRules.slice(0, 300)}` : "",
     ].filter(Boolean).join("\n");
 
-    console.log(`Generating with gpt-image-1, ${imageInputs.length} visual inputs, style: ${style}`);
+    console.log(`Generating with gpt-image-1, ${imageInputs.length} visual inputs, style: ${style}, text-on-image disabled`);
 
     // Build the request body for OpenAI Images API
     const requestBody: Record<string, unknown> = {
