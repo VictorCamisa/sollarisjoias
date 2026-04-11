@@ -112,15 +112,15 @@ async function loadActiveBrandAssets(supabase: any) {
 
 async function requestImageEdit(apiKey: string, prompt: string, size: string, imageInputs: Array<{ blob: Blob; filename: string }>) {
   const formData = new FormData();
-  formData.append("model", "gpt-image-1");
+  formData.append("model", "dall-e-2");
   formData.append("prompt", prompt);
-  formData.append("size", size);
+  formData.append("size", "1024x1024");
   formData.append("n", "1");
-  formData.append("response_format", "b64_json");
 
-  imageInputs.forEach((input) => {
-    formData.append("image[]", input.blob, input.filename);
-  });
+  // dall-e-2 edit accepts a single "image" (base image) and optional "mask"
+  if (imageInputs.length > 0) {
+    formData.append("image", imageInputs[0].blob, imageInputs[0].filename);
+  }
 
   return fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
@@ -360,10 +360,6 @@ OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to pub
     }
 
     if (!response) {
-      if (hasMandatorySourceAssets || generationDirectives.requireSelectedProductFidelity || generationDirectives.requireOfficialLogoFidelity) {
-        return jsonError(422, "Não consegui aplicar com fidelidade o produto real e a logo oficial nesta tentativa. Ajustei o fluxo para priorizar isso; tente novamente com a referência e o produto selecionado.");
-      }
-
       response = await requestImageGeneration(OPENAI_API_KEY, imagePrompt, effectiveFormat.size, "gpt-image-1");
     }
 
