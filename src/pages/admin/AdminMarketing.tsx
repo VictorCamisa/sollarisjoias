@@ -841,10 +841,18 @@ const CreatePostTab = () => {
     setGeneratedPost(null);
     setGeneratedImage(null);
 
+    // Build brand context from assets
+    const brandContext = (brandAssets || []).map(a => {
+      let line = `[${a.type.toUpperCase()}] ${a.title}`;
+      if (a.content) line += `: ${a.content}`;
+      if (a.file_url) line += ` (arquivo: ${a.file_url})`;
+      return line;
+    }).join("\n");
+
     try {
       // Generate text
       const { data, error } = await supabase.functions.invoke("generate-post", {
-        body: { prompt, platform, tone },
+        body: { prompt, platform, tone, brandContext },
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); return; }
