@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2, Download, ImagePlus, Package } from "lucide-react";
+import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2, Download, ImagePlus, Package, CheckCircle, Ban, Trash2, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -610,6 +610,190 @@ const SeoTab = () => {
   );
 };
 
+// ─── Brand Assets Panel ───
+const BrandAssetsPanel = ({ onClose }: { onClose: () => void }) => {
+  const queryClient = useQueryClient();
+  const [newAsset, setNewAsset] = useState({ type: "rule", title: "", content: "", file_url: "" });
+  const [uploading, setUploading] = useState(false);
+
+  const { data: assets, isLoading } = useQuery({
+    queryKey: ["brand-assets"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("brand_assets").select("*").order("type").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `brand/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+    if (error) { toast.error("Erro ao fazer upload"); setUploading(false); return; }
+    const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+    setNewAsset(a => ({ ...a, file_url: pub.publicUrl }));
+    toast.success("Arquivo enviado!");
+    setUploading(false);
+  };
+
+  const handleAdd = async () => {
+    if (!newAsset.title.trim()) return toast.error("Título é obrigatório");
+    const { error } = await supabase.from("brand_assets").insert({
+      type: newAsset.type,
+      title: newAsset.title,
+      content: newAsset.content || null,
+      file_url: newAsset.file_url || null,
+    } as any);
+    if (error) return toast.error("Erro ao salvar");
+    toast.success("Ativo de marca adicionado!");
+    setNewAsset({ type: "rule", title: "", content: "", file_url: "" });
+    queryClient.invalidateQueries({ queryKey: ["brand-assets"] });
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("brand_assets").delete().eq("id", id);
+    if (error) return toast.error("Erro ao excluir");
+    toast.success("Removido!");
+    queryClient.invalidateQueries({ queryKey: ["brand-assets"] });
+  };
+
+  const handleToggle = async (id: string, current: boolean) => {
+    const { error } = await supabase.from("brand_assets").update({ is_active: !current } as any).eq("id", id);
+    if (error) return toast.error("Erro ao atualizar");
+    queryClient.invalidateQueries({ queryKey: ["brand-assets"] });
+  };
+
+  const typeLabels: Record<string, { label: string; emoji: string }> = {
+    logo: { label: "Logo", emoji: "🎨" },
+    manual: { label: "Manual de Marca", emoji: "📖" },
+    reference: { label: "Referência Visual", emoji: "📸" },
+    rule: { label: "Regra de Criação", emoji: "📋" },
+    palette: { label: "Paleta de Cores", emoji: "🎨" },
+    typography: { label: "Tipografia", emoji: "✏️" },
+    tone: { label: "Tom de Voz", emoji: "🗣️" },
+  };
+
+  const grouped = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    (assets || []).forEach(a => {
+      if (!groups[a.type]) groups[a.type] = [];
+      groups[a.type].push(a);
+    });
+    return groups;
+  }, [assets]);
+
+  return (
+    <Card className="border-accent/20">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Zap className="h-4 w-4 text-accent" />
+            Central de Marca — Assets & Diretrizes
+          </CardTitle>
+          <Button variant="ghost" size="sm" onClick={onClose}>Fechar</Button>
+        </div>
+        <p className="text-xs text-muted-foreground">Tudo que você adicionar aqui será usado pela IA ao gerar posts. Logo, manual, referências visuais, regras de criação e tom de voz.</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Add new asset */}
+        <div className="p-4 rounded-lg bg-secondary/30 border border-border space-y-3">
+          <p className="text-xs font-semibold">Adicionar novo ativo</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Select value={newAsset.type} onValueChange={v => setNewAsset(a => ({ ...a, type: v }))}>
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(typeLabels).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>{v.emoji} {v.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Título (ex: Logo principal, Regra de hashtags)"
+              value={newAsset.title}
+              onChange={e => setNewAsset(a => ({ ...a, title: e.target.value }))}
+              className="h-9 text-xs"
+            />
+          </div>
+          <Textarea
+            placeholder="Conteúdo / descrição / regras (a IA vai ler este texto)..."
+            value={newAsset.content}
+            onChange={e => setNewAsset(a => ({ ...a, content: e.target.value }))}
+            rows={3}
+            className="text-xs"
+          />
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Button variant="outline" size="sm" className="text-xs" asChild disabled={uploading}>
+                <span>{uploading ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Enviando...</> : <><ImagePlus className="h-3 w-3 mr-1" />Upload Arquivo</>}</span>
+              </Button>
+              <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx" onChange={handleUpload} />
+            </label>
+            {newAsset.file_url && (
+              <Badge variant="secondary" className="text-[10px] truncate max-w-[200px]">
+                ✅ Arquivo anexado
+              </Badge>
+            )}
+            <Button size="sm" className="ml-auto text-xs" onClick={handleAdd} disabled={!newAsset.title.trim()}>
+              <Plus className="h-3 w-3 mr-1" />Adicionar
+            </Button>
+          </div>
+        </div>
+
+        {/* Existing assets */}
+        {isLoading ? (
+          <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-accent" /></div>
+        ) : Object.keys(grouped).length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-xs text-muted-foreground">Nenhum ativo cadastrado. Adicione sua logo, manual de marca e regras de criação para que a IA produza posts incríveis.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {Object.entries(grouped).map(([type, items]) => (
+              <div key={type}>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">
+                  {typeLabels[type]?.emoji} {typeLabels[type]?.label || type}
+                </p>
+                <div className="space-y-1.5">
+                  {items.map((a: any) => (
+                    <div key={a.id} className={`flex items-center gap-3 p-2.5 rounded-lg border transition-colors ${a.is_active ? "bg-secondary/30 border-accent/10" : "bg-muted/30 border-border opacity-60"}`}>
+                      {a.file_url && (
+                        a.file_url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ? (
+                          <img src={a.file_url} alt={a.title} className="h-10 w-10 rounded-md object-cover border border-accent/20" />
+                        ) : (
+                          <div className="h-10 w-10 rounded-md bg-accent/10 flex items-center justify-center">
+                            <FileText className="h-4 w-4 text-accent" />
+                          </div>
+                        )
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">{a.title}</p>
+                        {a.content && <p className="text-[10px] text-muted-foreground line-clamp-1">{a.content}</p>}
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title={a.is_active ? "Desativar" : "Ativar"} onClick={() => handleToggle(a.id, a.is_active)}>
+                          {a.is_active ? <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : <Ban className="h-3.5 w-3.5 text-muted-foreground" />}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive" title="Excluir" onClick={() => handleDelete(a.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 // ─── AI Post Creator Tab ───
 const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
@@ -621,6 +805,7 @@ const CreatePostTab = () => {
   const [imageLoading, setImageLoading] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [showBrandAssets, setShowBrandAssets] = useState(false);
   const [generatedPost, setGeneratedPost] = useState<{
     caption: string;
     hashtags: string[];
@@ -639,6 +824,15 @@ const CreatePostTab = () => {
     },
   });
 
+  const { data: brandAssets } = useQuery({
+    queryKey: ["brand-assets-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("brand_assets").select("*").eq("is_active", true).order("type");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const selectedProduct = useMemo(() => products?.find(p => p.id === selectedProductId), [products, selectedProductId]);
 
   const handleGenerate = async () => {
@@ -647,10 +841,18 @@ const CreatePostTab = () => {
     setGeneratedPost(null);
     setGeneratedImage(null);
 
+    // Build brand context from assets
+    const brandContext = (brandAssets || []).map(a => {
+      let line = `[${a.type.toUpperCase()}] ${a.title}`;
+      if (a.content) line += `: ${a.content}`;
+      if (a.file_url) line += ` (arquivo: ${a.file_url})`;
+      return line;
+    }).join("\n");
+
     try {
       // Generate text
       const { data, error } = await supabase.functions.invoke("generate-post", {
-        body: { prompt, platform, tone },
+        body: { prompt, platform, tone, brandContext },
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); return; }
@@ -665,7 +867,7 @@ const CreatePostTab = () => {
       try {
         const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle },
+          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle, brandContext },
         });
         if (imgErr) throw imgErr;
         if (imgData?.error) { toast.error(imgData.error); return; }
@@ -698,8 +900,13 @@ const CreatePostTab = () => {
     setImageLoading(true);
     try {
       const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
+      const brandContext = (brandAssets || []).map(a => {
+        let line = `[${a.type.toUpperCase()}] ${a.title}`;
+        if (a.content) line += `: ${a.content}`;
+        return line;
+      }).join("\n");
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle },
+        body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: generatedPost.caption, style: resolvedStyle, brandContext },
       });
       if (imgErr) throw imgErr;
       if (imgData?.error) { toast.error(imgData.error); return; }
@@ -842,6 +1049,22 @@ const CreatePostTab = () => {
             </Button>
           </div>
 
+          {/* Brand assets indicator + toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => setShowBrandAssets(!showBrandAssets)}>
+                <BookOpen className="h-3.5 w-3.5" />
+                Central de Marca
+                {(brandAssets?.length || 0) > 0 && (
+                  <Badge variant="secondary" className="text-[9px] ml-1">{brandAssets?.length} ativos</Badge>
+                )}
+              </Button>
+              {(brandAssets?.length || 0) > 0 && (
+                <span className="text-[10px] text-muted-foreground">✅ A IA está usando suas diretrizes de marca</span>
+              )}
+            </div>
+          </div>
+
           {/* Quick ideas */}
           <div className="flex flex-wrap gap-1.5">
             {[
@@ -863,6 +1086,9 @@ const CreatePostTab = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Brand Assets Panel */}
+      {showBrandAssets && <BrandAssetsPanel onClose={() => setShowBrandAssets(false)} />}
 
       {/* Loading state */}
       {(loading || imageLoading) && !generatedPost && (

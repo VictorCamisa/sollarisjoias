@@ -11,7 +11,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, platform, productId, caption, style = "dark" } = await req.json();
+    const { prompt, platform, productId, caption, style = "dark", brandContext } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
@@ -103,6 +103,7 @@ ${caption ? `Caption context: ${caption.slice(0, 200)}` : ""}
 
 ═══ REFERENCE AESTHETIC ═══
 Think: Bottega Veneta campaign simplicity + Bulgari product elegance + Apple's clean design language. The post should make someone stop scrolling.
+${brandContext ? `\n═══ EXTRA BRAND GUIDELINES (from client — follow strictly) ═══\n${brandContext}` : ""}
 
 OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to publish.`;
 
