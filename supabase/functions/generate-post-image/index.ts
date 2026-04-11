@@ -110,41 +110,29 @@ async function loadActiveBrandAssets(supabase: any) {
   return (data || []) as BrandAsset[];
 }
 
-async function requestImageEdit(apiKey: string, prompt: string, size: string, imageInputs: Array<{ blob: Blob; filename: string }>) {
-  const formData = new FormData();
-  formData.append("model", "dall-e-2");
-  formData.append("prompt", prompt);
-  formData.append("size", "1024x1024");
-  formData.append("n", "1");
+async function requestImageGeneration(apiKey: string, prompt: string, size: string, model: string) {
+  // gpt-image-1 does not support response_format; dall-e-3 does
+  const isDalle3 = model === "dall-e-3";
+  const truncatedPrompt = isDalle3 ? prompt.slice(0, 3900) : prompt;
 
-  // dall-e-2 edit accepts a single "image" (base image) and optional "mask"
-  if (imageInputs.length > 0) {
-    formData.append("image", imageInputs[0].blob, imageInputs[0].filename);
+  const body: Record<string, unknown> = {
+    model,
+    prompt: truncatedPrompt,
+    n: 1,
+    size,
+  };
+
+  if (isDalle3) {
+    body.response_format = "b64_json";
   }
 
-  return fetch("https://api.openai.com/v1/images/edits", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: formData,
-  });
-}
-
-async function requestImageGeneration(apiKey: string, prompt: string, size: string, model: string) {
   return fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model,
-      prompt,
-      n: 1,
-      size,
-      response_format: "b64_json",
-    }),
+    body: JSON.stringify(body),
   });
 }
 
@@ -333,35 +321,8 @@ ${[structuredBrandSummary, brandContext].filter(Boolean).join("\n") || "Use SOLL
 
 OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to publish.`;
 
-    let response: Response | null = null;
-    const editAttemptSets = [combinedVisualInputs, coreVisualInputs, coreVisualInputs.filter((asset) => asset.kind === "product")]
-      .filter((attempt, index, all) => attempt.length > 0 && all.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(attempt)) === index);
-
-    for (const attempt of editAttemptSets) {
-      const loadedInputs = await loadImageInputs(attempt);
-      if (!loadedInputs.length) continue;
-
-      response = await requestImageEdit(
-        OPENAI_API_KEY,
-        imagePrompt,
-        effectiveFormat.size,
-        loadedInputs.map((input) => ({ blob: input.blob, filename: input.filename }))
-      );
-
-      if (response.ok) break;
-
-      const failedText = await response.text();
-      console.error("AI image edit error:", response.status, failedText, attempt.map((asset) => asset.label));
-
-      if (response.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente em alguns segundos.");
-      if (response.status === 402) return jsonError(402, "Créditos insuficientes. Adicione créditos na sua conta.");
-
-      response = null;
-    }
-
-    if (!response) {
-      response = await requestImageGeneration(OPENAI_API_KEY, imagePrompt, effectiveFormat.size, "gpt-image-1");
-    }
+    // Go straight to generation (edit API is unreliable with current models)
+    let response = await requestImageGeneration(OPENAI_API_KEY, imagePrompt, effectiveFormat.size, "gpt-image-1");
 
     if (!response.ok) {
       const generationErrorText = await response.text();
