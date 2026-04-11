@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import {
   Brain, Send, Sparkles, ShoppingCart, Users, Calendar,
   Package, DollarSign, ListTodo, Loader2, Trash2, Plus,
-  MessageSquare, Clock,
+  MessageSquare, Clock, Mic, MicOff, Volume2, VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ interface Message {
   content: string;
   actions?: string[];
   timestamp: Date;
+  audioUrl?: string;
 }
 
 interface Conversation {
@@ -55,14 +56,21 @@ const BrainNalu = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Load conversations list
   const loadConversations = useCallback(async () => {
     const { data } = await supabase
       .from("brain_conversations")
@@ -74,7 +82,6 @@ const BrainNalu = () => {
 
   useEffect(() => { loadConversations(); }, [loadConversations]);
 
-  // Load messages for a conversation
   const loadConversation = async (convId: string) => {
     setActiveConversationId(convId);
     const { data } = await supabase
@@ -94,9 +101,8 @@ const BrainNalu = () => {
     }
   };
 
-  // Start new conversation
   const startNewConversation = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("brain_conversations")
       .insert({ title: "Nova conversa" })
       .select()
@@ -109,12 +115,137 @@ const BrainNalu = () => {
     }
   };
 
-  const sendMessage = async (text?: string) => {
+  // ── TTS: play assistant response as audio ──
+  const playAudio = async (text: string, msgId: string) => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
+    setIsSpeaking(true);
+    setPlayingMsgId(msgId);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/brain-voice`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      if (!response.ok) throw new Error("TTS failed");
+
+      const data = await response.json();
+      const audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
+      const audio = new Audio(audioUrl);
+      currentAudioRef.current = audio;
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        setPlayingMsgId(null);
+        currentAudioRef.current = null;
+      };
+
+      await audio.play();
+    } catch (err) {
+      console.error("TTS error:", err);
+      toast.error("Erro ao reproduzir áudio");
+      setIsSpeaking(false);
+      setPlayingMsgId(null);
+    }
+  };
+
+  const stopAudio = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    setIsSpeaking(false);
+    setPlayingMsgId(null);
+  };
+
+  // ── Recording ──
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        await transcribeAndSend(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Mic error:", err);
+      toast.error("Não foi possível acessar o microfone");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  };
+
+  const transcribeAndSend = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "audio.webm");
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/brain-voice`,
+        {
+          method: "POST",
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) throw new Error("Transcription failed");
+
+      const data = await response.json();
+      const text = data.text?.trim();
+
+      if (!text) {
+        toast.error("Não consegui entender o áudio");
+        return;
+      }
+
+      // Send as message (voice mode auto-plays reply)
+      await sendMessage(text, true);
+    } catch (err) {
+      console.error("STT error:", err);
+      toast.error("Erro na transcrição do áudio");
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const sendMessage = async (text?: string, autoPlayReply = false) => {
     const msgText = text || input.trim();
     if (!msgText || isLoading) return;
     setInput("");
 
-    // Auto-create conversation if none active
     let convId = activeConversationId;
     if (!convId) {
       const { data } = await supabase
@@ -154,17 +285,23 @@ const BrainNalu = () => {
 
       if (error) throw error;
 
+      const replyText = data.response || "Desculpe, não consegui processar.";
+      const assistantMsgId = crypto.randomUUID();
+
       const assistantMsg: Message = {
-        id: crypto.randomUUID(),
+        id: assistantMsgId,
         role: "assistant",
-        content: data.response || "Desculpe, não consegui processar.",
+        content: replyText,
         actions: data.actions_executed || [],
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMsg]);
-
-      // Refresh sidebar
       loadConversations();
+
+      // Auto-play TTS if voice mode is on
+      if (voiceMode && autoPlayReply) {
+        setTimeout(() => playAudio(replyText, assistantMsgId), 300);
+      }
     } catch (err: any) {
       console.error("Brain Sollaris error:", err);
       toast.error(err?.message || "Erro ao conectar com a Brain Sollaris");
@@ -204,7 +341,7 @@ const BrainNalu = () => {
 
   return (
     <div className="flex h-[calc(100vh-7rem)] md:h-[calc(100vh-4rem)] gap-0">
-      {/* Sidebar - conversation history */}
+      {/* Sidebar */}
       {showSidebar && (
         <div className="w-64 border-r border-border/50 flex flex-col flex-shrink-0">
           <div className="p-3 border-b border-border/50">
@@ -264,10 +401,25 @@ const BrainNalu = () => {
             <div>
               <h1 className="text-sm font-semibold tracking-tight">Brain Sollaris</h1>
               <p className="text-[10px] text-muted-foreground">
-                Assistente com memória · <span className="text-green-400">Online</span>
+                {voiceMode ? "Modo voz ativado 🎙️" : "Assistente com memória"} · <span className="text-green-400">Online</span>
               </p>
             </div>
           </div>
+
+          {/* Voice mode toggle */}
+          <Button
+            variant={voiceMode ? "default" : "outline"}
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={() => {
+              setVoiceMode(!voiceMode);
+              if (isSpeaking) stopAudio();
+              toast.success(voiceMode ? "Modo texto ativado" : "Modo voz ativado 🎙️");
+            }}
+          >
+            {voiceMode ? <Volume2 className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+            {voiceMode ? "Voz ON" : "Voz"}
+          </Button>
         </div>
 
         {/* Messages */}
@@ -279,15 +431,44 @@ const BrainNalu = () => {
               </div>
               <h2 className="text-lg font-semibold mb-1">Olá, Ana! ✨</h2>
               <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
-                Sou sua assistente com memória. Lembro de tudo que conversamos para te ajudar melhor a cada dia.
+                {voiceMode
+                  ? "Modo bate-papo por voz ativado! Toque no microfone e fale comigo."
+                  : "Sou sua assistente com memória. Lembro de tudo que conversamos para te ajudar melhor a cada dia."
+                }
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
-                {SUGGESTIONS.map((s) => (
-                  <button key={s} onClick={() => sendMessage(s)} className="text-left text-[12px] px-3 py-2.5 rounded-xl border border-border/60 text-muted-foreground hover:text-foreground hover:border-accent/30 hover:bg-accent/5 transition-all duration-200">
-                    {s}
+
+              {voiceMode ? (
+                <div className="flex flex-col items-center gap-4">
+                  <button
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={isTranscribing || isLoading}
+                    className={`h-24 w-24 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      isRecording
+                        ? "bg-red-500/20 border-2 border-red-500 animate-pulse shadow-[0_0_30px_rgba(239,68,68,0.3)]"
+                        : "bg-accent/10 border-2 border-accent/30 hover:border-accent hover:bg-accent/20 hover:shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]"
+                    }`}
+                  >
+                    {isTranscribing ? (
+                      <Loader2 className="h-8 w-8 text-accent animate-spin" />
+                    ) : isRecording ? (
+                      <MicOff className="h-8 w-8 text-red-500" />
+                    ) : (
+                      <Mic className="h-8 w-8 text-accent" />
+                    )}
                   </button>
-                ))}
-              </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isTranscribing ? "Transcrevendo..." : isRecording ? "Gravando... toque para parar" : "Toque para falar"}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
+                  {SUGGESTIONS.map((s) => (
+                    <button key={s} onClick={() => sendMessage(s)} className="text-left text-[12px] px-3 py-2.5 rounded-xl border border-border/60 text-muted-foreground hover:text-foreground hover:border-accent/30 hover:bg-accent/5 transition-all duration-200">
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -323,9 +504,24 @@ const BrainNalu = () => {
                         </div>
                       ) : msg.content}
                     </div>
-                    <p className="text-[9px] text-muted-foreground/50 mt-1 px-1">
-                      {msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1 px-1">
+                      <p className="text-[9px] text-muted-foreground/50">
+                        {msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                      {msg.role === "assistant" && voiceMode && (
+                        <button
+                          onClick={() => playingMsgId === msg.id ? stopAudio() : playAudio(msg.content, msg.id)}
+                          className="text-muted-foreground/50 hover:text-accent transition-colors"
+                          title={playingMsgId === msg.id ? "Parar" : "Ouvir"}
+                        >
+                          {playingMsgId === msg.id ? (
+                            <VolumeX className="h-3 w-3 text-accent" />
+                          ) : (
+                            <Volume2 className="h-3 w-3" />
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -351,11 +547,30 @@ const BrainNalu = () => {
         {/* Input */}
         <div className="border-t border-border/50 pt-3 pb-1 px-4">
           <div className="flex gap-2 items-end">
+            {/* Mic button (always visible in voice mode) */}
+            {voiceMode && messages.length > 0 && (
+              <Button
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={isTranscribing || isLoading}
+                variant={isRecording ? "destructive" : "outline"}
+                className={`h-[44px] w-[44px] rounded-2xl flex-shrink-0 ${isRecording ? "animate-pulse" : ""}`}
+                size="icon"
+              >
+                {isTranscribing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : isRecording ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
                 className="w-full min-h-[44px] max-h-[120px] px-4 py-3 pr-12 bg-card border border-border/60 rounded-2xl text-[13px] resize-none focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all placeholder:text-muted-foreground/50"
-                placeholder="Pergunte qualquer coisa sobre a Sollaris..."
+                placeholder={voiceMode ? "Ou digite aqui..." : "Pergunte qualquer coisa sobre a Sollaris..."}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -367,7 +582,7 @@ const BrainNalu = () => {
             </Button>
           </div>
           <p className="text-[9px] text-muted-foreground/40 text-center mt-2">
-            Brain Sollaris com memória persistente · Lembra de todas as conversas
+            {voiceMode ? "Modo bate-papo · Fale ou digite" : "Brain Sollaris com memória persistente · Lembra de todas as conversas"}
           </p>
         </div>
       </div>
