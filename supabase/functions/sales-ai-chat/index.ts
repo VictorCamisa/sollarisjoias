@@ -71,9 +71,9 @@ serve(async (req) => {
   try {
     const { messages, scenario_key, temperature, system_prompt_override, lead_context } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
     // Determine which system prompt to use
@@ -101,14 +101,14 @@ Use essas informações para personalizar suas respostas. Não mencione que poss
     // Add profile identity reminder
     systemPrompt += `\n\nVocê está operando como: **${scenario.label}**. Mantenha o tom e abordagem deste perfil em todas as respostas. Responda sempre em português brasileiro. Seja concisa (máx 3 parágrafos curtos).`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
