@@ -103,6 +103,7 @@ ${caption ? `Caption context: ${caption.slice(0, 200)}` : ""}
 
 ═══ REFERENCE AESTHETIC ═══
 Think: Bottega Veneta campaign simplicity + Bulgari product elegance + Apple's clean design language. The post should make someone stop scrolling.
+${brandContext ? `\n═══ EXTRA BRAND GUIDELINES (from client — follow strictly) ═══\n${brandContext}` : ""}
 
 OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to publish.`;
 
