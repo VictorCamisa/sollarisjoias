@@ -172,7 +172,7 @@ serve(async (req) => {
       brandRules ? `BRAND GUIDELINES: ${brandRules.slice(0, 300)}` : "",
     ].filter(Boolean).join("\n");
 
-    console.log(`Generating with gpt-image-1, ${imageInputs.length} visual inputs, style: ${style}`);
+    console.log(`Generating with gpt-image-1, ${imageInputs.length} visual inputs, style: ${style}, text-on-image disabled`);
 
     // Build the request body for OpenAI Images API
     const requestBody: Record<string, unknown> = {
