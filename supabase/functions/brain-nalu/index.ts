@@ -250,6 +250,21 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "query_marketing_posts",
+      description: "Busca posts de marketing já gerados. Use para enviar o último post, listar posts recentes, ou buscar por tema/estilo.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "number", description: "Quantidade de posts para retornar (padrão: 1)" },
+          style: { type: "string", description: "Filtrar por estilo: dark ou light" },
+          status: { type: "string", description: "Filtrar por status: rascunho, publicado, agendado" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "update_order_status",
       description: "Atualiza o status de um pedido.",
       parameters: {
