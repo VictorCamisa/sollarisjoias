@@ -114,13 +114,13 @@ async function requestImageEdit(apiKey: string, prompt: string, size: string, im
   const formData = new FormData();
   formData.append("model", "dall-e-2");
   formData.append("prompt", prompt);
-  formData.append("size", size);
+  formData.append("size", "1024x1024");
   formData.append("n", "1");
-  formData.append("response_format", "b64_json");
 
-  imageInputs.forEach((input) => {
-    formData.append("image[]", input.blob, input.filename);
-  });
+  // dall-e-2 edit accepts a single "image" (base image) and optional "mask"
+  if (imageInputs.length > 0) {
+    formData.append("image", imageInputs[0].blob, imageInputs[0].filename);
+  }
 
   return fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
