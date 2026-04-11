@@ -491,7 +491,6 @@ const AdminSettings = () => {
             <p className="text-xs text-muted-foreground">
               Redefinir senha de <strong>{resetPwdUser ? getUserDisplayName(resetPwdUser) : ""}</strong>
             </p>
-            </p>
             <div>
               <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nova Senha</Label>
               <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
