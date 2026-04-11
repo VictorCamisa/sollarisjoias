@@ -178,11 +178,30 @@ serve(async (req) => {
 
     console.log(`Brain reply: "${replyText.substring(0, 100)}"`);
 
+    // ── Check for image URLs in the response (from marketing post generation) ──
+    const imageUrlMatch = replyText.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
+    const imageUrl = imageUrlMatch ? imageUrlMatch[1] : null;
+    // Remove the markdown image from the text reply
+    const cleanReplyText = imageUrl
+      ? replyText.replace(/!\[.*?\]\(https?:\/\/[^\s)]+\)/g, "").trim()
+      : replyText;
+
+    // ── Send image if present ──
+    if (imageUrl) {
+      console.log("Sending generated image via WhatsApp:", imageUrl);
+      try {
+        await sendImageReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, imageUrl, "");
+      } catch (e) {
+        console.error("Failed to send image:", e);
+      }
+    }
+
     // ── Send reply: audio if received audio, text otherwise ──
+    const textToSend = cleanReplyText || replyText;
     if (isAudioMessage) {
       console.log("Generating audio reply with ElevenLabs TTS...");
       try {
-        const audio = await textToSpeech(replyText);
+        const audio = await textToSpeech(textToSend);
         const sentAsAudio = await sendAudioReply(
           baseUrl,
           resolvedInstance,
@@ -193,14 +212,14 @@ serve(async (req) => {
 
         if (!sentAsAudio) {
           console.warn("All audio delivery attempts failed, falling back to text");
-          await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
+          await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, textToSend);
         }
       } catch (e) {
         console.error("TTS error, falling back to text:", e);
-        await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
+        await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, textToSend);
       }
     } else {
-      await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, replyText);
+      await sendTextReply(baseUrl, resolvedInstance, EVOLUTION_API_KEY, senderPhone, textToSend);
     }
 
     return new Response(JSON.stringify({
