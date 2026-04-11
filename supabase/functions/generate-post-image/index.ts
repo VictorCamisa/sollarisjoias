@@ -12,8 +12,8 @@ serve(async (req) => {
 
   try {
     const { prompt, platform, productId, caption, style = "dark" } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -118,16 +118,18 @@ OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to pub
       },
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
-        messages,
-        modalities: ["image", "text"],
+        model: "dall-e-3",
+        prompt: typeof messages[0].content === "string" ? messages[0].content : messages[0].content[0].text,
+        n: 1,
+        size: "1024x1024",
+        response_format: "b64_json",
       }),
     });
 
@@ -150,7 +152,8 @@ OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to pub
     }
 
     const data = await response.json();
-    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    const b64 = data.data?.[0]?.b64_json;
+    const imageData = b64 ? `data:image/png;base64,${b64}` : null;
 
     if (!imageData) {
       return new Response(JSON.stringify({ error: "Nenhuma imagem foi gerada. Tente novamente." }), {
