@@ -95,7 +95,7 @@ async function fetchImageInput(url: string, name: string) {
   }
 }
 
-async function loadActiveBrandAssets(supabase: ReturnType<typeof createClient>) {
+async function loadActiveBrandAssets(supabase: any) {
   const { data, error } = await supabase
     .from("brand_assets")
     .select("type, title, content, file_url")
