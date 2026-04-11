@@ -5,63 +5,65 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Você é a copywriter oficial da SOLLARIS JOIAS — uma marca de joias premium brasileira que segue a filosofia "Curadoria com Intenção". 
+const SYSTEM_PROMPT = `Você é a diretora criativa e copywriter da SOLLARIS JOIAS — marca de joias premium brasileira.
 
-IDENTIDADE DA MARCA:
-- Nome: SOLLARIS (sempre em maiúsculas)
-- Filosofia: "Curadoria, não varejo" — cada peça é selecionada com intenção e significado
-- Público: Classes A e B, mulheres sofisticadas que valorizam exclusividade
-- Tom de voz: Sofisticado, editorial, exclusivo, como uma revista de luxo
-- Cores da marca: Preto Obsidiana, Branco, Dourado Champagne
-- Valores: Autenticidade, elegância atemporal, empoderamento feminino, exclusividade
+IDENTIDADE:
+• Nome: SOLLARIS (sempre maiúsculas)
+• Filosofia: "Curadoria com Intenção" — cada peça é selecionada com propósito
+• Público: Mulheres sofisticadas, classes A/B, que valorizam exclusividade
+• Tom: Sofisticado, editorial, como revista de luxo. Nunca genérico ou "vendedor"
+• Valores: Autenticidade, elegância atemporal, empoderamento feminino
 
-DIRETRIZES PARA POSTS:
-1. Nunca use linguagem genérica ou excessivamente comercial ("compre agora!", "promoção imperdível!")
-2. Use linguagem aspiracional e emocional — venda experiências e sentimentos, não apenas produtos
-3. Inclua emojis com moderação e sofisticação (máximo 3-4 por post)
-4. Sempre inclua hashtags relevantes e de marca (#SOLLARIS #SollarisJoias)
-5. Adapte o tom para cada plataforma mantendo a essência da marca
-6. Mencione materiais e acabamentos quando relevante (banho de ouro, pedras naturais, etc.)
-7. Use frases curtas e impactantes, com pausas estratégicas
-8. Inclua sempre um CTA sutil e elegante
+REGRAS DE COPY:
+1. A legenda DEVE ser sobre o tema/ideia que o usuário pediu — siga o pedido fielmente
+2. Se um produto real foi informado, a legenda fala DESSE produto específico (nome, material, pedra exatos)
+3. Linguagem aspiracional e emocional — venda sentimentos, não features
+4. Emojis: máximo 3, sofisticados (✨💎🤍), nunca 🔥🚨💥
+5. Hashtags: sempre inclua #SOLLARIS #SollarisJoias + 3-5 relevantes
+6. CTA sutil e elegante (nunca "COMPRE AGORA" ou "CORRE")
+7. Frases curtas e impactantes, com pausas estratégicas
+8. NUNCA invente dados do produto (preço, material, pedra) que não foram informados
 
-FORMATO DE RESPOSTA (JSON):
+FORMATO (JSON estrito):
 {
-  "caption": "texto completo da legenda/post",
+  "caption": "legenda completa pronta para postar",
   "hashtags": ["lista", "de", "hashtags"],
-  "platform_tips": "dicas específicas para a plataforma escolhida",
-  "visual_suggestion": "sugestão de visual/foto para acompanhar o post",
-  "best_time": "melhor horário sugerido para postar"
+  "platform_tips": "dica rápida para Instagram",
+  "visual_suggestion": "sugestão de visual para a foto",
+  "best_time": "melhor horário sugerido"
 }`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, platform, tone, brandContext, productContext, referenceContext, generationDirectives } = await req.json();
+    const { prompt, platform, brandContext, productContext, referenceContext, generationDirectives } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
-    const sections = [
-      `Crie um post para ${platform || "Instagram"} com o seguinte tema/ideia: "${prompt}".`,
-      tone ? `Tom desejado: ${tone}.` : null,
-      productContext
-        ? `PRODUTO REAL DISPONÍVEL:\n${productContext}\nUse apenas essas informações factuais na legenda.`
-        : "Se nenhum produto real foi informado, não invente preço, material, pedra ou acabamento.",
-      generationDirectives?.requireSelectedProductFidelity
-        ? "O produto selecionado é obrigatório. A legenda precisa claramente falar dessa peça real, sem trocar categoria, pedra, banho, material ou benefício."
-        : null,
-      referenceContext
-        ? `REFERÊNCIAS VISUAIS DO CLIENTE:\n${referenceContext}\nUse essas referências apenas como direção criativa (ritmo, enquadramento, atmosfera, linguagem editorial). Nunca copie literalmente texto, marca, produto, promessa ou layout.`
-        : null,
-      generationDirectives?.requireOfficialLogoFidelity
-        ? "Considere que a arte final precisa respeitar a logo oficial da SOLLARIS. Não sugira mudar nome, tipografia ou identidade verbal."
-        : null,
-      brandContext
-        ? `DIRETRIZES EXTRAS DA MARCA (fornecidas pelo cliente — siga rigorosamente):\n${brandContext}`
-        : null,
-      `Prioridades obrigatórias:\n- respeitar o branding da SOLLARIS com precisão\n- adaptar qualquer referência para SOLLARIS, nunca copiar\n- soar editorial, sofisticado e premium\n- evitar clichês de varejo, urgência barata e linguagem genérica\n- não inventar informações\n- responder APENAS com o JSON no formato especificado`,
-    ].filter(Boolean);
+    // Build a focused user message that prioritizes what the user actually asked
+    const sections: string[] = [
+      `PEDIDO DO CLIENTE: "${prompt}"`,
+      `Plataforma: Instagram`,
+    ];
+
+    if (productContext) {
+      sections.push(`PRODUTO SELECIONADO (use exatamente esses dados):\n${productContext}`);
+    }
+
+    if (generationDirectives?.requireSelectedProductFidelity) {
+      sections.push("⚠️ OBRIGATÓRIO: A legenda DEVE falar especificamente deste produto. Não generalize nem troque por outro.");
+    }
+
+    if (referenceContext) {
+      sections.push(`REFERÊNCIAS DE ESTILO (use apenas como inspiração de tom/ritmo, não copie conteúdo):\n${referenceContext}`);
+    }
+
+    if (brandContext) {
+      sections.push(`DIRETRIZES DA MARCA:\n${brandContext}`);
+    }
+
+    sections.push("Responda APENAS com o JSON no formato especificado. A legenda deve seguir fielmente o pedido do cliente acima.");
 
     const userMessage = sections.join("\n\n");
 
@@ -82,11 +84,11 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "generate_branded_post",
-              description: "Generate a branded social media post for SOLLARIS JOIAS",
+              description: "Generate a branded social media post for SOLLARIS JOIAS following the client's exact request",
               parameters: {
                 type: "object",
                 properties: {
-                  caption: { type: "string", description: "Full post caption/text" },
+                  caption: { type: "string", description: "Full post caption that directly addresses the client's request" },
                   hashtags: { type: "array", items: { type: "string" }, description: "Relevant hashtags" },
                   platform_tips: { type: "string", description: "Platform-specific tips" },
                   visual_suggestion: { type: "string", description: "Visual/photo suggestion" },
@@ -127,7 +129,6 @@ serve(async (req) => {
     if (toolCall?.function?.arguments) {
       post = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: try to parse content as JSON
       const content = data.choices?.[0]?.message?.content || "";
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {

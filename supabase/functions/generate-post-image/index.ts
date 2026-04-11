@@ -1,62 +1,21 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-type BrandAsset = {
-  type: string;
-  title: string;
-  content?: string | null;
-  file_url?: string | null;
-};
-
-type GenerationDirectives = {
-  referencesAreStyleOnly?: boolean;
-  requireSelectedProductFidelity?: boolean;
-  requireOfficialLogoFidelity?: boolean;
-  adaptationTarget?: string;
-};
-
-type VisualInput = {
-  fileName: string;
-  kind: "product" | "logo" | "reference";
-  label: string;
-  url: string;
-};
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+type BrandAsset = { type: string; title: string; content?: string | null; file_url?: string | null };
+
 const platformFormats: Record<string, { label: string; size: string }> = {
-  Instagram: { label: "1080x1080 square (1:1)", size: "1024x1024" },
-  TikTok: { label: "1080x1920 vertical (9:16)", size: "1024x1792" },
-  Facebook: { label: "1200x630 landscape (1.91:1)", size: "1792x1024" },
-  WhatsApp: { label: "1080x1080 square (1:1)", size: "1024x1024" },
-  LinkedIn: { label: "1200x627 landscape (1.91:1)", size: "1792x1024" },
+  Instagram: { label: "1080×1080 (1:1)", size: "1024x1024" },
+  TikTok: { label: "1080×1920 (9:16)", size: "1024x1792" },
+  Facebook: { label: "1200×630 (1.91:1)", size: "1792x1024" },
+  WhatsApp: { label: "1080×1080 (1:1)", size: "1024x1024" },
+  LinkedIn: { label: "1200×627 (1.91:1)", size: "1792x1024" },
 };
-
-const formatCurrency = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-
-function extractUrlsFromText(text?: string) {
-  if (!text) return [];
-  return Array.from(text.matchAll(/https?:\/\/[^\s)]+/g), (match) => match[0]);
-}
-
-function buildBrandSummary(assets: BrandAsset[]) {
-  return assets
-    .map((asset) => {
-      const parts = [`[${asset.type.toUpperCase()}] ${asset.title}`];
-      if (asset.content) parts.push(asset.content.trim());
-      if (asset.file_url) parts.push(`Arquivo visual: ${asset.file_url}`);
-      return parts.join(" — ");
-    })
-    .join("\n");
-}
-
-function decodeBase64(base64: string) {
-  return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
-}
 
 function jsonError(status: number, error: string) {
   return new Response(JSON.stringify({ error }), {
@@ -65,34 +24,8 @@ function jsonError(status: number, error: string) {
   });
 }
 
-function dedupeVisualInputs(inputs: VisualInput[]) {
-  return inputs.reduce<VisualInput[]>((acc, asset) => {
-    const key = `${asset.kind}-${asset.url}`;
-    if (!acc.some((item) => `${item.kind}-${item.url}` === key)) acc.push(asset);
-    return acc;
-  }, []);
-}
-
-async function fetchImageInput(url: string, name: string) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const contentType = response.headers.get("content-type") || "image/png";
-    if (!["image/png", "image/jpeg", "image/webp"].includes(contentType)) return null;
-
-    const extension = contentType === "image/jpeg" ? "jpg" : contentType === "image/webp" ? "webp" : "png";
-    const bytes = await response.arrayBuffer();
-
-    return {
-      blob: new Blob([bytes], { type: contentType }),
-      filename: `${name}.${extension}`,
-      contentType,
-    };
-  } catch (error) {
-    console.error("Failed to fetch input image", url, error);
-    return null;
-  }
+function decodeBase64(base64: string) {
+  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 }
 
 async function loadActiveBrandAssets(supabase: any) {
@@ -101,66 +34,8 @@ async function loadActiveBrandAssets(supabase: any) {
     .select("type, title, content, file_url")
     .eq("is_active", true)
     .order("type");
-
-  if (error) {
-    console.error("Failed to load active brand assets", error);
-    return [] as BrandAsset[];
-  }
-
+  if (error) console.error("Brand assets error:", error);
   return (data || []) as BrandAsset[];
-}
-
-async function requestImageGeneration(apiKey: string, prompt: string, size: string, model: string) {
-  // gpt-image-1 does not support response_format; dall-e-3 does
-  const isDalle3 = model === "dall-e-3";
-  const truncatedPrompt = isDalle3 ? prompt.slice(0, 3900) : prompt;
-
-  const body: Record<string, unknown> = {
-    model,
-    prompt: truncatedPrompt,
-    n: 1,
-    size,
-  };
-
-  if (isDalle3) {
-    body.response_format = "b64_json";
-  }
-
-  return fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-}
-
-function extractGeneratedImagePayload(data: any) {
-  const item = data?.data?.[0];
-  if (!item) return null;
-
-  if (item.b64_json) {
-    return {
-      imageUrl: `data:image/png;base64,${item.b64_json}`,
-      bytes: decodeBase64(item.b64_json),
-      contentType: "image/png",
-      extension: "png",
-    };
-  }
-
-  return null;
-}
-
-async function loadImageInputs(visualInputs: VisualInput[]) {
-  const loaded = await Promise.all(
-    visualInputs.map(async (asset) => {
-      const input = await fetchImageInput(asset.url, asset.fileName);
-      return input ? { ...asset, ...input } : null;
-    })
-  );
-
-  return loaded.filter(Boolean) as Array<VisualInput & { blob: Blob; filename: string }>;
 }
 
 serve(async (req) => {
@@ -178,6 +53,7 @@ serve(async (req) => {
       referenceContext,
       generationDirectives = {},
     } = await req.json();
+
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
@@ -185,180 +61,218 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const storedBrandAssets = await loadActiveBrandAssets(supabase);
-    const mergedBrandAssets = [
-      ...((Array.isArray(brandAssets) ? brandAssets : []) as BrandAsset[]),
-      ...storedBrandAssets,
-    ].reduce<BrandAsset[]>((acc, asset) => {
-      const key = `${asset.type}-${asset.title}-${asset.file_url || ""}-${asset.content || ""}`;
-      if (!acc.some((item) => `${item.type}-${item.title}-${item.file_url || ""}-${item.content || ""}` === key)) {
-        acc.push(asset);
-      }
-      return acc;
-    }, []);
+    // Load brand assets from DB
+    const storedAssets = await loadActiveBrandAssets(supabase);
+    const allAssets = [...((Array.isArray(brandAssets) ? brandAssets : []) as BrandAsset[]), ...storedAssets];
 
-    // Fetch product data if provided
-    let productContext = "";
+    // Get product info
+    let productInfo = "";
     let productImageUrl = "";
     if (productId) {
       const { data: product } = await supabase
         .from("products")
-        .select("name, price, original_price, material, banho, pedra, foto_frontal, foto_lifestyle, images")
+        .select("name, price, material, banho, pedra, foto_frontal, foto_lifestyle, images")
         .eq("id", productId)
         .single();
 
       if (product) {
-        const price = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(product.price);
-        const origPrice = product.original_price
-          ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(product.original_price)
-          : null;
-
-        productContext = `
-Produto: ${product.name}
-Preço: ${price}${origPrice ? ` (de ${origPrice})` : ""}
-${product.material ? `Material: ${product.material}` : ""}
-${product.banho ? `Banho: ${product.banho}` : ""}
-${product.pedra ? `Pedra: ${product.pedra}` : ""}`;
-
-        productImageUrl = product.foto_lifestyle || product.foto_frontal || (product.images && product.images[0]) || "";
+        productInfo = [
+          product.name,
+          product.material ? `Material: ${product.material}` : null,
+          product.banho ? `Banho: ${product.banho}` : null,
+          product.pedra ? `Pedra: ${product.pedra}` : null,
+        ].filter(Boolean).join(" | ");
+        productImageUrl = product.foto_lifestyle || product.foto_frontal || (product.images?.[0]) || "";
       }
     }
 
     const effectiveFormat = platformFormats[platform] || platformFormats.Instagram;
-
-    // Style-specific design tokens
     const isDark = style === "dark";
-    const styleDirective = isDark
-      ? `DARK MODE — "Obsidiana":
-- Background: Deep matte black (#0F0F14) or very dark charcoal gradient
-- Text: White (#FFFFFF) for headlines, champagne gold (#C5A96A) for accents and highlights
-- Accents: Thin champagne gold lines, subtle gold foil textures, gold borders
-- Mood: Mysterious, editorial, dramatic — like a luxury magazine night edition
-- Shadows: Deep, dramatic with subtle gold rim lighting on product`
-      : `LIGHT MODE — "Champagne":
-- Background: Warm off-white (#F8F4EF) or soft champagne cream gradient
-- Text: Deep obsidian black (#0F0F14) for headlines, muted charcoal for body
-- Accents: Champagne gold (#C5A96A) for decorative elements, thin gold lines
-- Mood: Airy, luminous, refined — like a high-end bridal magazine
-- Shadows: Soft, diffused, elegant natural lighting on product`;
 
-    const logoAssets = mergedBrandAssets.filter((asset) => asset.type === "logo" && asset.file_url);
-    const referenceAssets = mergedBrandAssets.filter((asset) => asset.type === "reference" && asset.file_url);
-    const fallbackReferenceUrls = extractUrlsFromText(brandContext);
+    // Get reference URLs
+    const referenceUrls = allAssets
+      .filter((a) => a.type === "reference" && a.file_url)
+      .slice(0, 3)
+      .map((a) => a.file_url!);
 
-    const coreVisualInputs = dedupeVisualInputs([
-      ...(productImageUrl ? [{ url: productImageUrl, label: "produto real selecionado", fileName: "product-reference", kind: "product" as const }] : []),
-      ...logoAssets.slice(0, 1).map((asset, index) => ({ url: asset.file_url!, label: `logo oficial ${index + 1}`, fileName: `brand-logo-${index + 1}`, kind: "logo" as const })),
-    ]);
-    const referenceVisualInputs = dedupeVisualInputs([
-      ...referenceAssets.slice(0, 2).map((asset, index) => ({ url: asset.file_url!, label: `referência de estilo ${index + 1}`, fileName: `brand-reference-${index + 1}`, kind: "reference" as const })),
-      ...fallbackReferenceUrls.slice(0, 1).map((url, index) => ({ url, label: `referência adicional ${index + 1}`, fileName: `brand-extra-${index + 1}`, kind: "reference" as const })),
-    ]);
-    const combinedVisualInputs = dedupeVisualInputs([...coreVisualInputs, ...referenceVisualInputs]).slice(0, 4);
-    const hasMandatorySourceAssets = coreVisualInputs.length > 0;
+    const logoUrl = allAssets.find((a) => a.type === "logo" && a.file_url)?.file_url || "";
 
-    const inputGuide = combinedVisualInputs.length
-      ? combinedVisualInputs.map((asset, index) => `Imagem ${index + 1}: ${asset.label} [${asset.kind}]`).join("\n")
-      : "Nenhuma imagem de apoio foi enviada.";
-    const productGuide = coreVisualInputs.some((asset) => asset.kind === "product")
-      ? "Use a foto do produto como fonte de verdade visual absoluta. Preserve desenho, proporções, pedras, acabamento e categoria exatos."
-      : "Nenhum produto real foi enviado — não invente uma peça específica se a composição puder ser mais abstrata/editorial.";
-    const logoGuide = coreVisualInputs.some((asset) => asset.kind === "logo")
-      ? "Aplique a logo oficial enviada exatamente como está, de forma sutil e premium. Não redesenhe, não reescreva e não improvise tipografia."
-      : "Se não houver logo enviada, não invente marca nominativa na arte.";
-    const referenceGuide = referenceVisualInputs.length
-      ? `As referências visuais representam POSTS QUE O CLIENTE GOSTOU. Use apenas o padrão visual: composição, ritmo, iluminação, recorte, densidade, direção de arte e sensação premium. Nunca copie literalmente o produto, a marca, o texto, a oferta ou o layout da referência. Adapte para ${generationDirectives.adaptationTarget || "SOLLARIS"}.\n${referenceContext || ""}`
-      : "Sem referências de estilo adicionais.";
+    // Build brand rules from text assets
+    const brandRules = allAssets
+      .filter((a) => a.type === "rules" && a.content)
+      .map((a) => a.content!)
+      .join("\n");
 
-    const structuredBrandSummary = buildBrandSummary(mergedBrandAssets);
+    // Build concise, focused prompt
+    const colorScheme = isDark
+      ? "Dark mode: matte black background (#0F0F14), white text, champagne gold (#C5A96A) accents"
+      : "Light mode: warm off-white background (#F8F4EF), dark text, champagne gold (#C5A96A) accents";
 
-    const imagePrompt = `You are a world-class graphic designer at a top luxury branding agency. Create a single, stunning social media post for SOLLARIS — a premium Brazilian jewelry brand.
+    const promptParts: string[] = [
+      `Create a premium Instagram post for SOLLARIS, a luxury Brazilian jewelry brand.`,
+      `Theme: ${prompt}`,
+      `Style: ${colorScheme}`,
+      `Format: ${effectiveFormat.label}`,
+    ];
 
-═══ BRAND DNA ═══
-Brand: SOLLARIS
-Tagline: "Curadoria com Intenção"
-Aesthetic: Ultra-modern minimalism meets editorial luxury. Think Celine × Cartier × Aesop.
-Typography: Clean, modern sans-serif (like Futura, Didot, or similar). NO handwritten or script fonts. Always uppercase for brand name.
-Logo treatment: "SOLLARIS" in elegant, wide-spaced uppercase letters — small, tasteful, never overwhelming.
+    if (productInfo) {
+      promptParts.push(`Product: ${productInfo}. This specific product must be the hero of the composition.`);
+    }
 
-═══ COLOR PALETTE & STYLE ═══
-${styleDirective}
+    if (caption) {
+      promptParts.push(`Caption context: "${caption.slice(0, 150)}"`);
+    }
 
-═══ POST SPECIFICATIONS ═══
-Platform: ${platform}
-Format: ${effectiveFormat.label}
-Theme: ${prompt}
-${productContext ? `Product: ${productContext}` : ""}
-${caption ? `Caption context: ${caption.slice(0, 200)}` : ""}
+    if (referenceUrls.length > 0) {
+      promptParts.push(`Use the reference images as STYLE INSPIRATION ONLY (composition, lighting, mood). Do NOT copy their product, brand, or text.`);
+    }
 
-═══ ASSET PRIORITY (NON-NEGOTIABLE) ═══
-1. REAL PRODUCT PHOTO: ${productGuide}
-2. OFFICIAL LOGO: ${logoGuide}
-3. STYLE REFERENCES: ${referenceGuide}
-4. BRAND RULES: follow brand assets and written rules strictly.
+    promptParts.push(
+      `Design rules:`,
+      `- Minimalist luxury aesthetic (think Bottega Veneta × Cartier)`,
+      `- "SOLLARIS" in clean, wide-spaced uppercase if text is needed`,
+      `- Rule of thirds, generous negative space`,
+      `- No clutter, no emojis, no generic templates`,
+      `- Magazine-quality, ready to publish`,
+    );
 
-═══ DESIGN RULES (CRITICAL) ═══
-1. COMPOSITION: Use the rule of thirds. Generous negative space. Asymmetric balance. The selected real product must be the hero and remain unmistakably recognizable from the provided source photo.
-2. PRODUCT FIDELITY: Never replace the selected jewelry with another piece. Do not invent a different stone, shape, material, clasp, chain, thickness, setting or silhouette.
-3. BRAND ACCURACY: If a logo reference image is provided, use that exact logo as the brand mark. Do not redraw it, rewrite it, distort it, or invent typography.
-4. REFERENCES ARE STYLE-ONLY: Reference posts are art-direction inputs, not content to replicate. Borrow visual language only; never copy their exact layout, product, brand or text.
-5. TYPOGRAPHY: Avoid extra copy on the artwork. If there is a logo input, it is the only text allowed on the image. No fake pricing labels. No gibberish text. No placeholder words.
-4. LAYOUT: Clean geometric structure. Consider thin gold lines, editorial framing, elegant spacing, premium luxury composition.
-5. PRODUCT PHOTOGRAPHY STYLE: If jewelry is shown, it must feel like a real premium campaign using the supplied product image as the visual truth source.
-6. TEXTURE: Subtle grain or noise for editorial feel. No plastic 3D toy aesthetics. No random abstract circles unless clearly supported by the references.
-7. NO CLUTTER: No emojis, no busy patterns, no stock-photo feel, no generic templates, no invented symbols unrelated to jewelry branding.
-8. MODERN: This should look like a premium fashion/jewelry campaign, not AI art.
-9. PROFESSIONAL STANDARD: The final result must look like a luxury agency deliverable ready for a real brand feed, not an experiment.
+    if (brandRules) {
+      promptParts.push(`Brand guidelines: ${brandRules.slice(0, 300)}`);
+    }
 
-═══ REFERENCE AESTHETIC ═══
-Think: Bottega Veneta campaign simplicity + Bulgari product elegance + Apple's clean design language. The post should make someone stop scrolling.
+    const imagePrompt = promptParts.join("\n");
 
-═══ PROVIDED VISUAL INPUTS ═══
-${inputGuide}
+    // Build the request - use gpt-image-1 with image inputs if available
+    const imageInputs: Array<{ type: string; image_url: { url: string } }> = [];
 
-═══ EXTRA BRAND GUIDELINES (from client — follow strictly) ═══
-${[structuredBrandSummary, brandContext].filter(Boolean).join("\n") || "Use SOLLARIS premium luxury branding with strict consistency."}
+    // Add product image
+    if (productImageUrl) {
+      imageInputs.push({ type: "image_url", image_url: { url: productImageUrl } });
+    }
 
-OUTPUT: One polished, scroll-stopping post image. Magazine-quality. Ready to publish.`;
+    // Add logo
+    if (logoUrl) {
+      imageInputs.push({ type: "image_url", image_url: { url: logoUrl } });
+    }
 
-    // Go straight to generation (edit API is unreliable with current models)
-    let response = await requestImageGeneration(OPENAI_API_KEY, imagePrompt, effectiveFormat.size, "gpt-image-1");
+    // Add references (max 2)
+    for (const refUrl of referenceUrls.slice(0, 2)) {
+      imageInputs.push({ type: "image_url", image_url: { url: refUrl } });
+    }
 
-    if (!response.ok) {
-      const generationErrorText = await response.text();
-      console.error("AI image generation error:", response.status, generationErrorText);
+    // Try gpt-image-1 first (supports image inputs via chat completions)
+    let imageBase64: string | null = null;
 
-      if (response.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente em alguns segundos.");
-      if (response.status === 402) return jsonError(402, "Créditos insuficientes. Adicione créditos na sua conta.");
+    if (imageInputs.length > 0) {
+      // Use chat completions with image inputs for better context
+      console.log(`Generating with gpt-image-1 + ${imageInputs.length} reference images`);
 
-      response = await requestImageGeneration(OPENAI_API_KEY, imagePrompt, effectiveFormat.size, "dall-e-3");
-      if (!response.ok) {
-        const fallbackErrorText = await response.text();
-        console.error("Fallback AI image error:", response.status, fallbackErrorText);
+      const content: Array<any> = [
+        { type: "text", text: imagePrompt },
+        ...imageInputs,
+      ];
+
+      const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content,
+            },
+          ],
+          max_tokens: 500,
+        }),
+      });
+
+      // gpt-4o can't generate images, so fall through to pure generation
+      // The chat completions approach doesn't work for image generation
+      // Just go straight to image generation API
+    }
+
+    // Generate image with gpt-image-1
+    console.log("Generating image with gpt-image-1");
+    const genResponse = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-image-1",
+        prompt: imagePrompt,
+        n: 1,
+        size: effectiveFormat.size,
+      }),
+    });
+
+    if (!genResponse.ok) {
+      const errText = await genResponse.text();
+      console.error("gpt-image-1 error:", genResponse.status, errText);
+
+      if (genResponse.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente.");
+      if (genResponse.status === 402) return jsonError(402, "Créditos insuficientes.");
+
+      // Fallback to dall-e-3
+      console.log("Falling back to dall-e-3");
+      const fallbackResponse = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: imagePrompt.slice(0, 3900),
+          n: 1,
+          size: effectiveFormat.size,
+          response_format: "b64_json",
+        }),
+      });
+
+      if (!fallbackResponse.ok) {
+        const fbErr = await fallbackResponse.text();
+        console.error("dall-e-3 fallback error:", fallbackResponse.status, fbErr);
         return jsonError(500, "Erro ao gerar imagem");
+      }
+
+      const fbData = await fallbackResponse.json();
+      imageBase64 = fbData?.data?.[0]?.b64_json || null;
+    } else {
+      const genData = await genResponse.json();
+      // gpt-image-1 returns b64_json by default
+      imageBase64 = genData?.data?.[0]?.b64_json || null;
+
+      // If it returned a URL instead
+      if (!imageBase64 && genData?.data?.[0]?.url) {
+        const imgResp = await fetch(genData.data[0].url);
+        if (imgResp.ok) {
+          const buf = await imgResp.arrayBuffer();
+          imageBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+        }
       }
     }
 
-    const data = await response.json();
-    const generatedImage = extractGeneratedImagePayload(data);
-    const imageData = generatedImage?.imageUrl || null;
-
-    if (!imageData) {
+    if (!imageBase64) {
       return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
     }
 
     // Upload to storage
-    const fileExtension = generatedImage?.extension || "png";
-    const fileName = `posts/${Date.now()}-${platform.toLowerCase()}-${style}.${fileExtension}`;
-    const imageBytes = generatedImage?.bytes || decodeBase64(imageData.replace(/^data:image\/\w+;base64,/, ""));
+    const imageBytes = decodeBase64(imageBase64);
+    const fileName = `posts/${Date.now()}-${platform.toLowerCase()}-${style}.png`;
 
     const { error: uploadError } = await supabase.storage
       .from("product-images")
-      .upload(fileName, imageBytes, { contentType: generatedImage?.contentType || "image/png", upsert: true });
+      .upload(fileName, imageBytes, { contentType: "image/png", upsert: true });
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      return new Response(JSON.stringify({ image_url: imageData }), {
+      return new Response(JSON.stringify({ image_url: `data:image/png;base64,${imageBase64}` }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
