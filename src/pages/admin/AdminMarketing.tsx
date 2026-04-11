@@ -814,8 +814,8 @@ const BrandAssetsPanel = ({ onClose }: { onClose: () => void }) => {
 // ─── AI Post Creator Tab ───
 const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
-  const [platform, setPlatform] = useState("Instagram");
-  const [tone, setTone] = useState("padrao");
+  const platform = "Instagram";
+  const tone = "padrao";
   const [postStyle, setPostStyle] = useState<"dark" | "light" | "auto">("auto");
   const [postCount, setPostCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -1117,33 +1117,7 @@ const CreatePostTab = () => {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Select value={platform} onValueChange={setPlatform}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Instagram">📸 Instagram</SelectItem>
-                <SelectItem value="TikTok">🎵 TikTok</SelectItem>
-                <SelectItem value="Facebook">📘 Facebook</SelectItem>
-                <SelectItem value="WhatsApp">💬 WhatsApp</SelectItem>
-                <SelectItem value="LinkedIn">💼 LinkedIn</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Tom (opcional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="padrao">✨ Padrão SOLLARIS</SelectItem>
-                <SelectItem value="inspiracional">✨ Inspiracional</SelectItem>
-                <SelectItem value="educativo">📚 Educativo</SelectItem>
-                <SelectItem value="storytelling">📖 Storytelling</SelectItem>
-                <SelectItem value="promocional-sutil">🎁 Promocional Sutil</SelectItem>
-                <SelectItem value="bastidores">🎬 Bastidores</SelectItem>
-                <SelectItem value="celebracao">🥂 Celebração</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={postStyle} onValueChange={(v: "dark" | "light" | "auto") => setPostStyle(v)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue />
@@ -1367,7 +1341,7 @@ const CreatePostTab = () => {
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Histórico de Posts Gerados</h3>
           <div className="space-y-2">
             {savedPosts?.map((h: any) => (
-              <Card key={h.id} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) { setGeneratedPost({ caption: h.caption, hashtags: h.hashtags || [], platform_tips: h.platform_tips || "", visual_suggestion: h.visual_suggestion || "", best_time: h.best_time || "" }); setPlatform(h.platform || "Instagram"); if (h.image_url) setGeneratedImage(h.image_url); } }}>
+              <Card key={h.id} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) { setGeneratedPost({ caption: h.caption, hashtags: h.hashtags || [], platform_tips: h.platform_tips || "", visual_suggestion: h.visual_suggestion || "", best_time: h.best_time || "" }); if (h.image_url) setGeneratedImage(h.image_url); } }}>
                 <CardContent className="p-3 flex items-center gap-3">
                   {h.image_url ? (
                     <img src={h.image_url} alt="" className="h-10 w-10 rounded-lg object-cover border border-accent/20" />
