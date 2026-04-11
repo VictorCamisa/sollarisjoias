@@ -38,6 +38,7 @@ const ACTION_ICONS: Record<string, { icon: typeof Brain; label: string; color: s
   query_products: { icon: Package, label: "Produtos", color: "text-amber-400" },
   query_financial_summary: { icon: DollarSign, label: "Financeiro", color: "text-emerald-400" },
   create_task: { icon: ListTodo, label: "Criar Tarefa", color: "text-cyan-400" },
+  generate_marketing_post: { icon: Sparkles, label: "Gerar Post", color: "text-rose-400" },
 };
 
 const SUGGESTIONS = [
@@ -500,7 +501,21 @@ const BrainNalu = () => {
                     <div className={`px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${msg.role === "user" ? "bg-accent text-accent-foreground rounded-br-md" : "bg-card border border-border/60 rounded-bl-md"}`}>
                       {msg.role === "assistant" ? (
                         <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:pl-4 [&_ol]:pl-4 [&_li]:mb-0.5 [&_strong]:text-primary [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-xs [&_code]:text-[11px] [&_code]:bg-secondary/60 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_h1]:font-sans [&_h2]:font-sans [&_h3]:font-sans">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          <ReactMarkdown
+                            components={{
+                              img: ({ src, alt }) => (
+                                <a href={src} target="_blank" rel="noopener noreferrer" className="block my-2">
+                                  <img
+                                    src={src}
+                                    alt={alt || "Post gerado"}
+                                    className="rounded-xl max-w-[280px] w-full border border-border/40 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                                  />
+                                </a>
+                              ),
+                            }}
+                          >
+                            {msg.content}
+                          </ReactMarkdown>
                         </div>
                       ) : msg.content}
                     </div>
