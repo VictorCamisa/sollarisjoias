@@ -507,7 +507,31 @@ const AdminSettings = () => {
         </DialogContent>
       </Dialog>
 
-      {/* General Settings */}
+      {/* Edit cargo dialog */}
+      <Dialog open={!!editingCargoUser} onOpenChange={(open) => { if (!open) { setEditingCargoUser(null); setEditCargoValue(""); } }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Editar Cargo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <p className="text-xs text-muted-foreground">
+              Alterar cargo de <strong>{editingCargoUser ? getUserDisplayName(editingCargoUser) : ""}</strong>
+            </p>
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Cargo</Label>
+              <Input value={editCargoValue} onChange={(e) => setEditCargoValue(e.target.value)}
+                className="rounded-lg h-9 mt-1" placeholder="Ex: Vendedora, CEO, Assistente" />
+            </div>
+            <Button
+              onClick={() => updateCargoMutation.mutate()}
+              className="w-full h-9 text-xs rounded-lg"
+              disabled={updateCargoMutation.isPending}
+            >
+              {updateCargoMutation.isPending ? "Salvando..." : "Salvar Cargo"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="bg-card border border-border rounded-xl p-5 space-y-4">
         <div>
           <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome da Loja</Label>
