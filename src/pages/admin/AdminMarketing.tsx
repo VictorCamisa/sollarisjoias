@@ -830,7 +830,17 @@ const CreatePostTab = () => {
     visual_suggestion: string;
     best_time: string;
   } | null>(null);
-  const [history, setHistory] = useState<Array<any>>([]);
+
+  const queryClient = useQueryClient();
+
+  const { data: savedPosts } = useQuery({
+    queryKey: ["marketing-posts-history"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("marketing_posts").select("*").order("created_at", { ascending: false }).limit(10);
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: products } = useQuery({
     queryKey: ["post-products"],
@@ -876,8 +886,24 @@ const CreatePostTab = () => {
 
       const post = data.post;
       setGeneratedPost(post);
-      setHistory(prev => [{ ...post, platform, prompt, image: null }, ...prev].slice(0, 10));
       toast.success("Post gerado com a identidade SOLLARIS! ✨");
+
+      // Save to database immediately (without image yet)
+      const { data: savedPost, error: saveErr } = await supabase.from("marketing_posts").insert({
+        platform,
+        prompt,
+        caption: post.caption,
+        hashtags: post.hashtags || [],
+        style: postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle,
+        product_id: (selectedProductId && selectedProductId !== "none") ? selectedProductId : null,
+        platform_tips: post.platform_tips || null,
+        visual_suggestion: post.visual_suggestion || null,
+        best_time: post.best_time || null,
+        status: "rascunho",
+      } as any).select("id").single();
+
+      if (saveErr) console.error("Save post error:", saveErr);
+      const savedPostId = savedPost?.id;
 
       // Generate image automatically
       setImageLoading(true);
@@ -891,11 +917,12 @@ const CreatePostTab = () => {
         if (imgData?.image_url) {
           setGeneratedImage(imgData.image_url);
           setPostCount(prev => prev + 1);
-          setHistory(prev => {
-            const updated = [...prev];
-            if (updated[0]) updated[0] = { ...updated[0], image: imgData.image_url };
-            return updated;
-          });
+          // Update saved post with image URL
+          if (savedPostId) {
+            await supabase.from("marketing_posts").update({ image_url: imgData.image_url } as any).eq("id", savedPostId);
+          }
+          queryClient.invalidateQueries({ queryKey: ["marketing-posts-history"] });
+          queryClient.invalidateQueries({ queryKey: ["marketing-posts-gallery"] });
           toast.success("Imagem do post gerada! 🎨");
         }
       } catch (imgE: any) {
@@ -1263,23 +1290,26 @@ const CreatePostTab = () => {
       )}
 
       {/* History */}
-      {history.length > 0 && (
+      {(savedPosts?.length || 0) > 0 && (
         <div>
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Histórico de Posts Gerados</h3>
           <div className="space-y-2">
-            {history.map((h, i) => (
-              <Card key={i} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) { setGeneratedPost({ caption: h.caption, hashtags: h.hashtags, platform_tips: h.platform_tips, visual_suggestion: h.visual_suggestion, best_time: h.best_time }); setPlatform(h?.platform || "Instagram"); if (h.image) setGeneratedImage(h.image); } }}>
+            {savedPosts?.map((h: any) => (
+              <Card key={h.id} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) { setGeneratedPost({ caption: h.caption, hashtags: h.hashtags || [], platform_tips: h.platform_tips || "", visual_suggestion: h.visual_suggestion || "", best_time: h.best_time || "" }); setPlatform(h.platform || "Instagram"); if (h.image_url) setGeneratedImage(h.image_url); } }}>
                 <CardContent className="p-3 flex items-center gap-3">
-                  {h?.image ? (
-                    <img src={h.image} alt="" className="h-10 w-10 rounded-lg object-cover border border-accent/20" />
+                  {h.image_url ? (
+                    <img src={h.image_url} alt="" className="h-10 w-10 rounded-lg object-cover border border-accent/20" />
                   ) : (
-                    <span className="text-lg">{platformEmoji[h?.platform || "Instagram"]}</span>
+                    <span className="text-lg">{platformEmoji[h.platform || "Instagram"]}</span>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">{h?.prompt}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{h?.caption?.slice(0, 80)}...</p>
+                    <p className="text-xs font-medium truncate">{h.prompt}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{h.caption?.slice(0, 80)}...</p>
                   </div>
-                  <Badge variant="secondary" className="text-[10px] shrink-0">{h?.platform}</Badge>
+                  <div className="flex flex-col items-end gap-0.5 shrink-0">
+                    <Badge variant="secondary" className="text-[10px]">{h.platform}</Badge>
+                    <span className="text-[9px] text-muted-foreground">{format(new Date(h.created_at), "dd/MM HH:mm")}</span>
+                  </div>
                 </CardContent>
               </Card>
             ))}
