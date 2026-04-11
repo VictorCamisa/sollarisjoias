@@ -70,12 +70,12 @@ const AdminOrders = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="admin-page-title">Pedidos</h1>
-          <p className="admin-page-subtitle">{filtered?.length ?? 0} pedidos encontrados</p>
+          <h1 className="admin-page-title">Vendas</h1>
+          <p className="admin-page-subtitle">{filtered?.length ?? 0} vendas encontradas</p>
         </div>
         <Button size="sm" onClick={() => setNewOrderOpen(true)} className="gap-1.5">
           <Plus className="h-3.5 w-3.5" />
-          Novo Pedido
+          Nova Venda
         </Button>
       </div>
 
@@ -120,8 +120,9 @@ const AdminOrders = () => {
       ) : (
         <div className="admin-card overflow-hidden">
           {/* Table header */}
-          <div className="hidden md:grid grid-cols-[minmax(0,1.2fr)_100px_minmax(0,1.5fr)_100px_130px_40px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
+          <div className="hidden md:grid grid-cols-[minmax(0,1.2fr)_60px_100px_minmax(0,1.5fr)_100px_130px_40px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Cliente</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Canal</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Data</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Itens</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-right">Total</span>
@@ -140,12 +141,15 @@ const AdminOrders = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.015 }}
-                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_100px_minmax(0,1.5fr)_100px_130px_40px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
+                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_60px_100px_minmax(0,1.5fr)_100px_130px_40px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
                   onClick={() => setSelectedOrder(order)}
                 >
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium truncate">{order.customer_name}</p>
                     <p className="text-[10px] text-muted-foreground">{order.customer_phone}</p>
+                  </div>
+                  <div className="hidden md:flex justify-center">
+                    <span className="text-[10px]">{(order as any).sale_channel === "presencial" ? "🏪" : "🌐"}</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground tabular-nums">
                     {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}

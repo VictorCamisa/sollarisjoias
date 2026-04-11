@@ -327,6 +327,10 @@ export type Database = {
           items: Json
           notes: string | null
           payment_method: string | null
+          sale_channel: string | null
+          sold_at: string | null
+          sold_by: string | null
+          sold_by_name: string | null
           status: string
           total: number
           updated_at: string
@@ -341,6 +345,10 @@ export type Database = {
           items?: Json
           notes?: string | null
           payment_method?: string | null
+          sale_channel?: string | null
+          sold_at?: string | null
+          sold_by?: string | null
+          sold_by_name?: string | null
           status?: string
           total?: number
           updated_at?: string
@@ -355,6 +363,10 @@ export type Database = {
           items?: Json
           notes?: string | null
           payment_method?: string | null
+          sale_channel?: string | null
+          sold_at?: string | null
+          sold_by?: string | null
+          sold_by_name?: string | null
           status?: string
           total?: number
           updated_at?: string
