@@ -172,29 +172,38 @@ const EmailCampaignsTab = () => {
 
 // ─── Social Media Tab ───
 const SocialMediaTab = () => {
-  const [posts, setPosts] = useState<Array<{ id: string; platform: string; content: string; date: string; status: string }>>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ platform: "instagram", content: "", date: "" });
+  const [search, setSearch] = useState("");
 
-  const handleCreate = () => {
-    if (!form.content.trim()) return toast.error("Conteúdo é obrigatório");
-    setPosts(prev => [...prev, { id: crypto.randomUUID(), ...form, status: form.date ? "agendado" : "rascunho" }]);
-    setDialogOpen(false);
-    setForm({ platform: "instagram", content: "", date: "" });
-    toast.success("Post criado!");
-  };
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ["marketing-posts-gallery"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("marketing_posts").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  const platformIcon: Record<string, string> = { instagram: "📸", tiktok: "🎵", facebook: "📘", whatsapp: "💬" };
-  const platformColor: Record<string, string> = { instagram: "text-pink-400", tiktok: "text-cyan-400", facebook: "text-blue-400", whatsapp: "text-emerald-400" };
+  const platformEmoji: Record<string, string> = { Instagram: "📸", TikTok: "🎵", Facebook: "📘", WhatsApp: "💬", LinkedIn: "💼" };
+
+  const filtered = useMemo(() => {
+    if (!posts) return [];
+    if (!search) return posts;
+    const q = search.toLowerCase();
+    return posts.filter(p => p.caption?.toLowerCase().includes(q) || p.prompt?.toLowerCase().includes(q) || p.platform?.toLowerCase().includes(q));
+  }, [posts, search]);
+
+  const totalPosts = posts?.length || 0;
+  const withImage = posts?.filter(p => p.image_url).length || 0;
+  const platforms = new Set(posts?.map(p => p.platform) || []).size;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "Posts Criados", value: posts.length, icon: FileText, color: "text-pink-400" },
-          { label: "Agendados", value: posts.filter(p => p.status === "agendado").length, icon: Calendar, color: "text-blue-400" },
-          { label: "Rascunhos", value: posts.filter(p => p.status === "rascunho").length, icon: Pencil, color: "text-amber-400" },
-          { label: "Plataformas", value: new Set(posts.map(p => p.platform)).size || 0, icon: Globe, color: "text-emerald-400" },
+          { label: "Posts Criados", value: totalPosts, icon: FileText, color: "text-pink-400" },
+          { label: "Com Imagem", value: withImage, icon: ImagePlus, color: "text-blue-400" },
+          { label: "Plataformas", value: platforms, icon: Globe, color: "text-emerald-400" },
+          { label: "Este Mês", value: posts?.filter(p => new Date(p.created_at).getMonth() === new Date().getMonth()).length || 0, icon: Calendar, color: "text-amber-400" },
         ].map(k => (
           <Card key={k.label}><CardContent className="p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-secondary flex items-center justify-center"><k.icon className={`h-4 w-4 ${k.color}`} /></div>
@@ -203,48 +212,56 @@ const SocialMediaTab = () => {
         ))}
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button size="sm" onClick={() => setDialogOpen(true)} className="ml-auto"><Plus className="h-4 w-4 mr-1" />Novo Post</Button>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input placeholder="Buscar por legenda, prompt ou plataforma..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
       </div>
 
-      <div className="space-y-2">
-        {posts.map(p => (
-          <Card key={p.id} className="hover:border-accent/30 transition-colors">
-            <CardContent className="p-4 flex items-center gap-3">
-              <span className="text-2xl">{platformIcon[p.platform]}</span>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-semibold ${platformColor[p.platform]}`}>{p.platform}</span>
-                  <Badge variant="outline" className="text-[10px]">{p.status}</Badge>
+      {isLoading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-accent" /></div>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">Nenhum post salvo. Crie posts na aba "Criar Post" e eles aparecerão aqui permanentemente.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map(p => (
+            <Card key={p.id} className="hover:border-accent/30 transition-colors overflow-hidden group">
+              {p.image_url && (
+                <div className="aspect-square overflow-hidden relative">
+                  <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                    <div className="flex gap-1.5">
+                      <a href={p.image_url} download target="_blank" rel="noreferrer">
+                        <Button size="sm" variant="secondary" className="h-7 text-[10px]"><Download className="h-3 w-3 mr-1" />Baixar</Button>
+                      </a>
+                      <Button size="sm" variant="secondary" className="h-7 text-[10px]" onClick={() => { navigator.clipboard.writeText(p.caption + "\n\n" + (p.hashtags || []).map((h: string) => h.startsWith("#") ? h : `#${h}`).join(" ")); toast.success("Copiado!"); }}>
+                        <Copy className="h-3 w-3 mr-1" />Legenda
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{p.content}</p>
-              </div>
-              {p.date && <span className="text-[10px] text-muted-foreground">{p.date}</span>}
-            </CardContent>
-          </Card>
-        ))}
-        {posts.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Crie posts para planejar seu conteúdo nas redes sociais</p>}
-      </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Novo Post</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <Select value={form.platform} onValueChange={v => setForm(f => ({ ...f, platform: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="instagram">📸 Instagram</SelectItem>
-                <SelectItem value="tiktok">🎵 TikTok</SelectItem>
-                <SelectItem value="facebook">📘 Facebook</SelectItem>
-                <SelectItem value="whatsapp">💬 WhatsApp Status</SelectItem>
-              </SelectContent>
-            </Select>
-            <Textarea placeholder="Conteúdo / legenda do post..." value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} rows={4} />
-            <Input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
-          </div>
-          <DialogFooter><Button onClick={handleCreate}>Criar Post</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
+              )}
+              <CardContent className="p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">{platformEmoji[p.platform] || "📝"}</span>
+                    <span className="text-xs font-semibold">{p.platform}</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">{format(new Date(p.created_at), "dd/MM/yy HH:mm")}</span>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-3">{p.caption}</p>
+                {p.hashtags && (p.hashtags as string[]).length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {(p.hashtags as string[]).slice(0, 5).map((h: string, i: number) => (
+                      <Badge key={i} variant="secondary" className="text-[9px]">{h.startsWith("#") ? h : `#${h}`}</Badge>
+                    ))}
+                    {(p.hashtags as string[]).length > 5 && <Badge variant="outline" className="text-[9px]">+{(p.hashtags as string[]).length - 5}</Badge>}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
