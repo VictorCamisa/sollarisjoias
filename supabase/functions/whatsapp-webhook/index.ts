@@ -183,8 +183,8 @@ serve(async (req) => {
       try {
         const audioBase64 = await textToSpeech(replyText);
         
-        // Send audio via Evolution API using sendMedia endpoint
-        const sendResp = await fetch(`${baseUrl}/message/sendMedia/${resolvedInstance}`, {
+        // Send audio via Evolution API using native WhatsApp audio endpoint
+        const sendResp = await fetch(`${baseUrl}/message/sendWhatsAppAudio/${resolvedInstance}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,9 +192,8 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             number: senderPhone,
-            mediatype: "audio",
-            media: `data:audio/mpeg;base64,${audioBase64}`,
-            fileName: "response.mp3",
+            audio: audioBase64,
+            encoding: true,
           }),
         });
 
