@@ -9,6 +9,12 @@ const corsHeaders = {
 
 type BrandAsset = { type: string; title: string; content?: string | null; file_url?: string | null };
 
+function jsonOk(body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
 function jsonError(status: number, error: string) {
   return new Response(JSON.stringify({ error }), {
     status,
@@ -33,23 +39,35 @@ async function loadActiveBrandAssets(supabase: any): Promise<BrandAsset[]> {
   return (data || []) as BrandAsset[];
 }
 
+async function fetchImageAsBase64(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const buf = await res.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  } catch (e) {
+    console.error("Failed to fetch image:", url, e);
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const {
       prompt,
-      platform,
       productId,
       caption,
       style = "dark",
       brandAssets = [],
-      referenceContext,
-      generationDirectives = {},
     } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -80,12 +98,10 @@ serve(async (req) => {
       }
     }
 
-    const isDark = style === "dark";
-
-    // Collect visual inputs
+    // Collect visual references
     const referenceUrls = allAssets
       .filter((a) => a.type === "reference" && a.file_url)
-      .slice(0, 4)
+      .slice(0, 6)
       .map((a) => a.file_url!);
 
     const logoUrl = allAssets.find((a) => a.type === "logo" && a.file_url)?.file_url || "";
@@ -95,131 +111,243 @@ serve(async (req) => {
       .map((a) => a.content!)
       .join("\n");
 
-    // Build the prompt for complete post composition
+    const isDark = style === "dark";
     const colorScheme = isDark
-      ? "Fundo preto mate (#0F0F14), textos em branco e dourado champagne (#C5A96A)"
-      : "Fundo off-white quente (#F8F4EF), textos em cinza escuro e dourado champagne (#C5A96A)";
+      ? "dark background (#0F0F14), white and champagne gold (#C5A96A) text"
+      : "warm off-white background (#F8F4EF), dark gray and champagne gold (#C5A96A) text";
 
-    const textInstruction = caption
-      ? `Inclua este texto na arte de forma elegante e editorial: "${caption.slice(0, 200)}"`
-      : "Inclua uma frase curta, aspiracional e sofisticada sobre o produto na arte";
-
-    const promptLines: string[] = [
-      `Crie uma arte COMPLETA para Instagram post (1080x1080) da marca SOLLARIS, joalheria premium brasileira.`,
-      ``,
-      `TEMA DO POST: ${prompt}`,
-      ``,
-      `ESTILO VISUAL: ${colorScheme}`,
-      ``,
-      `COMPOSIÇÃO OBRIGATÓRIA:`,
-      `- A imagem deve ser uma ARTE FINALIZADA, pronta para publicar no Instagram`,
-      `- Layout profissional de design gráfico, como um post de marca de luxo (Cartier, Bottega Veneta, Tiffany)`,
-      `- ${textInstruction}`,
-      `- O nome "SOLLARIS" deve aparecer na arte em tipografia limpa, caixa alta, espaçamento amplo`,
-    ];
-
-    if (productInfo) {
-      promptLines.push(`- PRODUTO HERO: ${productInfo}`);
-      promptLines.push(`- O produto da foto anexada deve ser o elemento central da composição`);
-    }
-
-    if (referenceUrls.length > 0) {
-      promptLines.push(`- Use as imagens de referência anexadas como INSPIRAÇÃO DE ESTILO (layout, tipografia, composição, mood). Adapte para a identidade SOLLARIS.`);
-    }
-
-    promptLines.push(
-      ``,
-      `REGRAS DE DESIGN:`,
-      `- Estética minimalista de luxo, editorial`,
-      `- Regra dos terços, espaço negativo generoso`,
-      `- Tipografia elegante (serif para destaque, sans-serif para corpo)`,
-      `- Sem clutter, sem emojis, sem templates genéricos`,
-      `- Qualidade de revista, pronto para publicar`,
-    );
-
-    if (brandRules) {
-      promptLines.push(``, `DIRETRIZES DA MARCA: ${brandRules.slice(0, 400)}`);
-    }
-
-    const imagePrompt = promptLines.join("\n");
-
-    // Build multimodal content with image inputs
-    const content: Array<any> = [{ type: "text", text: imagePrompt }];
+    // Build the image input array for gpt-image-1
+    const imageInputs: Array<{ type: string; image_url?: string; detail?: string }> = [];
 
     // Add product image
     if (productImageUrl) {
-      content.push({
-        type: "image_url",
-        image_url: { url: productImageUrl },
-      });
-      console.log("Added product image");
+      const b64 = await fetchImageAsBase64(productImageUrl);
+      if (b64) {
+        imageInputs.push({ type: "input_image", image_url: `data:image/png;base64,${b64}`, detail: "high" });
+        console.log("Added product image input");
+      }
     }
 
     // Add logo
     if (logoUrl) {
-      content.push({
-        type: "image_url",
-        image_url: { url: logoUrl },
-      });
-      console.log("Added logo image");
+      const b64 = await fetchImageAsBase64(logoUrl);
+      if (b64) {
+        imageInputs.push({ type: "input_image", image_url: `data:image/png;base64,${b64}`, detail: "high" });
+        console.log("Added logo image input");
+      }
     }
 
     // Add reference images (max 4)
     for (const refUrl of referenceUrls.slice(0, 4)) {
-      content.push({
-        type: "image_url",
-        image_url: { url: refUrl },
+      const b64 = await fetchImageAsBase64(refUrl);
+      if (b64) {
+        imageInputs.push({ type: "input_image", image_url: `data:image/png;base64,${b64}`, detail: "low" });
+      }
+    }
+    if (imageInputs.length > 2) {
+      console.log(`Added ${imageInputs.length - 2} reference images`);
+    }
+
+    // Build the text prompt
+    const textCaption = caption ? `Include this text elegantly: "${caption.slice(0, 150)}"` : "";
+
+    const imagePrompt = [
+      `Create a COMPLETE, ready-to-publish Instagram post (1080x1080) for SOLLARIS, a premium Brazilian jewelry brand.`,
+      ``,
+      `THEME: ${prompt}`,
+      `STYLE: ${colorScheme}. Minimalist luxury editorial aesthetic — like Cartier, Bottega Veneta, Tiffany.`,
+      ``,
+      productInfo ? `HERO PRODUCT (from attached photo): ${productInfo}. The product photo MUST be the central element.` : "",
+      logoUrl ? `Use the attached SOLLARIS logo in the composition — clean, uppercase, wide spacing.` : `Include "SOLLARIS" in clean uppercase typography with wide letter spacing.`,
+      referenceUrls.length > 0 ? `Match the visual STYLE, layout, and mood of the attached reference images. Adapt to SOLLARIS identity.` : "",
+      textCaption,
+      ``,
+      `DESIGN RULES:`,
+      `- Professional graphic design, ready to post — NOT a photo with text overlay`,
+      `- Rule of thirds, generous negative space`,
+      `- Elegant typography (serif for headlines, sans-serif for body)`,
+      `- No clutter, no emojis, no generic templates`,
+      `- Magazine-quality composition`,
+      brandRules ? `BRAND GUIDELINES: ${brandRules.slice(0, 300)}` : "",
+    ].filter(Boolean).join("\n");
+
+    console.log(`Generating with gpt-image-1, ${imageInputs.length} visual inputs, style: ${style}`);
+
+    // Build the request body for OpenAI Images API
+    const requestBody: Record<string, unknown> = {
+      model: "gpt-image-1",
+      prompt: imagePrompt,
+      n: 1,
+      size: "1024x1024",
+      quality: "high",
+    };
+
+    // If we have image inputs, use the chat completions endpoint with image generation
+    let imageBase64: string | undefined;
+
+    if (imageInputs.length > 0) {
+      // Use responses API for multimodal image generation
+      const content: Array<Record<string, unknown>> = [
+        { type: "text", text: imagePrompt },
+      ];
+      for (const img of imageInputs) {
+        content.push({
+          type: "image_url",
+          image_url: { url: img.image_url, detail: img.detail || "auto" },
+        });
+      }
+
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          input: content,
+          tools: [{ type: "image_generation", size: "1024x1024", quality: "high" }],
+        }),
       });
-    }
-    if (referenceUrls.length > 0) {
-      console.log(`Added ${Math.min(referenceUrls.length, 4)} reference images`);
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("OpenAI responses API error:", response.status, errText);
+
+        if (response.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente em alguns segundos.");
+        if (response.status === 402 || response.status === 400) {
+          // Fallback to simple image generation without references
+          console.log("Falling back to simple gpt-image-1 generation...");
+          const fallbackRes = await fetch("https://api.openai.com/v1/images/generations", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${OPENAI_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "gpt-image-1",
+              prompt: imagePrompt,
+              n: 1,
+              size: "1024x1024",
+              quality: "high",
+            }),
+          });
+
+          if (!fallbackRes.ok) {
+            const fbErr = await fallbackRes.text();
+            console.error("Fallback error:", fallbackRes.status, fbErr);
+            return jsonError(500, "Erro ao gerar imagem. Tente novamente.");
+          }
+
+          const fbData = await fallbackRes.json();
+          imageBase64 = fbData.data?.[0]?.b64_json;
+          if (!imageBase64 && fbData.data?.[0]?.url) {
+            const downloaded = await fetchImageAsBase64(fbData.data[0].url);
+            if (downloaded) imageBase64 = downloaded;
+          }
+        } else {
+          return jsonError(500, "Erro ao gerar imagem. Tente novamente.");
+        }
+      } else {
+        const data = await response.json();
+        // Extract image from responses API output
+        const output = data.output || [];
+        for (const item of output) {
+          if (item.type === "image_generation_call" && item.result) {
+            imageBase64 = item.result;
+            break;
+          }
+        }
+        if (!imageBase64) {
+          // Try alternate response format
+          for (const item of output) {
+            if (item.content) {
+              for (const c of item.content) {
+                if (c.type === "image" && c.image_url?.url) {
+                  const url = c.image_url.url;
+                  if (url.startsWith("data:")) {
+                    imageBase64 = url.split(",")[1];
+                  } else {
+                    imageBase64 = await fetchImageAsBase64(url) || undefined;
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+        if (!imageBase64) {
+          console.error("No image in responses API output:", JSON.stringify(data).slice(0, 500));
+        }
+      }
     }
 
-    console.log(`Generating with Gemini image model, ${content.length - 1} visual inputs, style: ${style}`);
+    // If no image yet, try simple generation
+    if (!imageBase64) {
+      console.log("Using simple gpt-image-1 generation...");
+      const response = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-image-1",
+          prompt: imagePrompt,
+          n: 1,
+          size: "1024x1024",
+          quality: "high",
+        }),
+      });
 
-    // Call Lovable AI Gateway with Gemini image model
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-pro-image-preview",
-        messages: [
-          {
-            role: "user",
-            content,
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("gpt-image-1 error:", response.status, errText);
+
+        if (response.status === 429) return jsonError(429, "Limite de requisições atingido.");
+
+        // Final fallback: dall-e-3
+        console.log("Falling back to dall-e-3...");
+        const dalleRes = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
           },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
+          body: JSON.stringify({
+            model: "dall-e-3",
+            prompt: imagePrompt.slice(0, 4000),
+            n: 1,
+            size: "1024x1024",
+            quality: "hd",
+          }),
+        });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini image error:", response.status, errText);
+        if (!dalleRes.ok) {
+          const dErr = await dalleRes.text();
+          console.error("DALL-E 3 error:", dalleRes.status, dErr);
+          return jsonError(500, "Erro ao gerar imagem. Tente novamente.");
+        }
 
-      if (response.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente em alguns segundos.");
-      if (response.status === 402) return jsonError(402, "Créditos insuficientes. Adicione créditos no workspace.");
-
-      return jsonError(500, "Erro ao gerar imagem. Tente novamente.");
+        const dalleData = await dalleRes.json();
+        const dalleUrl = dalleData.data?.[0]?.url;
+        if (dalleUrl) {
+          imageBase64 = await fetchImageAsBase64(dalleUrl) || undefined;
+        }
+        if (!imageBase64) {
+          return jsonError(500, "Nenhuma imagem foi gerada.");
+        }
+      } else {
+        const data = await response.json();
+        imageBase64 = data.data?.[0]?.b64_json;
+        if (!imageBase64 && data.data?.[0]?.url) {
+          imageBase64 = await fetchImageAsBase64(data.data[0].url) || undefined;
+        }
+      }
     }
 
-    const data = await response.json();
-    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-    if (!imageData) {
-      console.error("No image in response:", JSON.stringify(data).slice(0, 500));
-      return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente com um prompt diferente.");
-    }
-
-    // Extract base64 from data URL
-    let imageBase64: string;
-    if (imageData.startsWith("data:image/")) {
-      imageBase64 = imageData.split(",")[1];
-    } else {
-      imageBase64 = imageData;
+    if (!imageBase64) {
+      return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
     }
 
     // Upload to storage
@@ -232,22 +360,14 @@ serve(async (req) => {
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      // Return data URL as fallback
-      return new Response(JSON.stringify({ image_url: imageData.startsWith("data:") ? imageData : `data:image/png;base64,${imageBase64}` }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonOk({ image_url: `data:image/png;base64,${imageBase64}` });
     }
 
     const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
-    return new Response(JSON.stringify({ image_url: publicUrl.publicUrl, style }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonOk({ image_url: publicUrl.publicUrl, style });
   } catch (e) {
     console.error("generate-post-image error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonError(500, e instanceof Error ? e.message : "Erro desconhecido");
   }
 });
