@@ -867,7 +867,7 @@ const CreatePostTab = () => {
       try {
         const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
-          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle },
+          body: { prompt, platform, productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined, caption: post.caption, style: resolvedStyle, brandContext },
         });
         if (imgErr) throw imgErr;
         if (imgData?.error) { toast.error(imgData.error); return; }
