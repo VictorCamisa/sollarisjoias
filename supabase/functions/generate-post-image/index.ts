@@ -9,14 +9,6 @@ const corsHeaders = {
 
 type BrandAsset = { type: string; title: string; content?: string | null; file_url?: string | null };
 
-const platformFormats: Record<string, { label: string; size: string }> = {
-  Instagram: { label: "1080×1080 (1:1)", size: "1024x1024" },
-  TikTok: { label: "1080×1920 (9:16)", size: "1024x1792" },
-  Facebook: { label: "1200×630 (1.91:1)", size: "1792x1024" },
-  WhatsApp: { label: "1080×1080 (1:1)", size: "1024x1024" },
-  LinkedIn: { label: "1200×627 (1.91:1)", size: "1792x1024" },
-};
-
 function jsonError(status: number, error: string) {
   return new Response(JSON.stringify({ error }), {
     status,
@@ -24,11 +16,14 @@ function jsonError(status: number, error: string) {
   });
 }
 
-function decodeBase64(base64: string) {
-  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+function decodeBase64(base64: string): Uint8Array {
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
 }
 
-async function loadActiveBrandAssets(supabase: any) {
+async function loadActiveBrandAssets(supabase: any): Promise<BrandAsset[]> {
   const { data, error } = await supabase
     .from("brand_assets")
     .select("type, title, content, file_url")
@@ -48,14 +43,13 @@ serve(async (req) => {
       productId,
       caption,
       style = "dark",
-      brandContext,
       brandAssets = [],
       referenceContext,
       generationDirectives = {},
     } = await req.json();
 
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -65,7 +59,7 @@ serve(async (req) => {
     const storedAssets = await loadActiveBrandAssets(supabase);
     const allAssets = [...((Array.isArray(brandAssets) ? brandAssets : []) as BrandAsset[]), ...storedAssets];
 
-    // Get product info
+    // Get product info + image
     let productInfo = "";
     let productImageUrl = "";
     if (productId) {
@@ -86,185 +80,151 @@ serve(async (req) => {
       }
     }
 
-    const effectiveFormat = platformFormats[platform] || platformFormats.Instagram;
     const isDark = style === "dark";
 
-    // Get reference URLs
+    // Collect visual inputs
     const referenceUrls = allAssets
       .filter((a) => a.type === "reference" && a.file_url)
-      .slice(0, 3)
+      .slice(0, 4)
       .map((a) => a.file_url!);
 
     const logoUrl = allAssets.find((a) => a.type === "logo" && a.file_url)?.file_url || "";
 
-    // Build brand rules from text assets
     const brandRules = allAssets
       .filter((a) => a.type === "rules" && a.content)
       .map((a) => a.content!)
       .join("\n");
 
-    // Build concise, focused prompt
+    // Build the prompt for complete post composition
     const colorScheme = isDark
-      ? "Dark mode: matte black background (#0F0F14), white text, champagne gold (#C5A96A) accents"
-      : "Light mode: warm off-white background (#F8F4EF), dark text, champagne gold (#C5A96A) accents";
+      ? "Fundo preto mate (#0F0F14), textos em branco e dourado champagne (#C5A96A)"
+      : "Fundo off-white quente (#F8F4EF), textos em cinza escuro e dourado champagne (#C5A96A)";
 
-    const promptParts: string[] = [
-      `Create a premium Instagram post for SOLLARIS, a luxury Brazilian jewelry brand.`,
-      `Theme: ${prompt}`,
-      `Style: ${colorScheme}`,
-      `Format: ${effectiveFormat.label}`,
+    const textInstruction = caption
+      ? `Inclua este texto na arte de forma elegante e editorial: "${caption.slice(0, 200)}"`
+      : "Inclua uma frase curta, aspiracional e sofisticada sobre o produto na arte";
+
+    const promptLines: string[] = [
+      `Crie uma arte COMPLETA para Instagram post (1080x1080) da marca SOLLARIS, joalheria premium brasileira.`,
+      ``,
+      `TEMA DO POST: ${prompt}`,
+      ``,
+      `ESTILO VISUAL: ${colorScheme}`,
+      ``,
+      `COMPOSIÇÃO OBRIGATÓRIA:`,
+      `- A imagem deve ser uma ARTE FINALIZADA, pronta para publicar no Instagram`,
+      `- Layout profissional de design gráfico, como um post de marca de luxo (Cartier, Bottega Veneta, Tiffany)`,
+      `- ${textInstruction}`,
+      `- O nome "SOLLARIS" deve aparecer na arte em tipografia limpa, caixa alta, espaçamento amplo`,
     ];
 
     if (productInfo) {
-      promptParts.push(`Product: ${productInfo}. This specific product must be the hero of the composition.`);
-    }
-
-    if (caption) {
-      promptParts.push(`Caption context: "${caption.slice(0, 150)}"`);
+      promptLines.push(`- PRODUTO HERO: ${productInfo}`);
+      promptLines.push(`- O produto da foto anexada deve ser o elemento central da composição`);
     }
 
     if (referenceUrls.length > 0) {
-      promptParts.push(`Use the reference images as STYLE INSPIRATION ONLY (composition, lighting, mood). Do NOT copy their product, brand, or text.`);
+      promptLines.push(`- Use as imagens de referência anexadas como INSPIRAÇÃO DE ESTILO (layout, tipografia, composição, mood). Adapte para a identidade SOLLARIS.`);
     }
 
-    promptParts.push(
-      `Design rules:`,
-      `- Minimalist luxury aesthetic (think Bottega Veneta × Cartier)`,
-      `- "SOLLARIS" in clean, wide-spaced uppercase if text is needed`,
-      `- Rule of thirds, generous negative space`,
-      `- No clutter, no emojis, no generic templates`,
-      `- Magazine-quality, ready to publish`,
+    promptLines.push(
+      ``,
+      `REGRAS DE DESIGN:`,
+      `- Estética minimalista de luxo, editorial`,
+      `- Regra dos terços, espaço negativo generoso`,
+      `- Tipografia elegante (serif para destaque, sans-serif para corpo)`,
+      `- Sem clutter, sem emojis, sem templates genéricos`,
+      `- Qualidade de revista, pronto para publicar`,
     );
 
     if (brandRules) {
-      promptParts.push(`Brand guidelines: ${brandRules.slice(0, 300)}`);
+      promptLines.push(``, `DIRETRIZES DA MARCA: ${brandRules.slice(0, 400)}`);
     }
 
-    const imagePrompt = promptParts.join("\n");
+    const imagePrompt = promptLines.join("\n");
 
-    // Build the request - use gpt-image-1 with image inputs if available
-    const imageInputs: Array<{ type: string; image_url: { url: string } }> = [];
+    // Build multimodal content with image inputs
+    const content: Array<any> = [{ type: "text", text: imagePrompt }];
 
     // Add product image
     if (productImageUrl) {
-      imageInputs.push({ type: "image_url", image_url: { url: productImageUrl } });
+      content.push({
+        type: "image_url",
+        image_url: { url: productImageUrl },
+      });
+      console.log("Added product image");
     }
 
     // Add logo
     if (logoUrl) {
-      imageInputs.push({ type: "image_url", image_url: { url: logoUrl } });
-    }
-
-    // Add references (max 2)
-    for (const refUrl of referenceUrls.slice(0, 2)) {
-      imageInputs.push({ type: "image_url", image_url: { url: refUrl } });
-    }
-
-    // Try gpt-image-1 first (supports image inputs via chat completions)
-    let imageBase64: string | null = null;
-
-    if (imageInputs.length > 0) {
-      // Use chat completions with image inputs for better context
-      console.log(`Generating with gpt-image-1 + ${imageInputs.length} reference images`);
-
-      const content: Array<any> = [
-        { type: "text", text: imagePrompt },
-        ...imageInputs,
-      ];
-
-      const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "user",
-              content,
-            },
-          ],
-          max_tokens: 500,
-        }),
+      content.push({
+        type: "image_url",
+        image_url: { url: logoUrl },
       });
-
-      // gpt-4o can't generate images, so fall through to pure generation
-      // The chat completions approach doesn't work for image generation
-      // Just go straight to image generation API
+      console.log("Added logo image");
     }
 
-    // Generate image with gpt-image-1
-    console.log("Generating image with gpt-image-1");
-    const genResponse = await fetch("https://api.openai.com/v1/images/generations", {
+    // Add reference images (max 4)
+    for (const refUrl of referenceUrls.slice(0, 4)) {
+      content.push({
+        type: "image_url",
+        image_url: { url: refUrl },
+      });
+    }
+    if (referenceUrls.length > 0) {
+      console.log(`Added ${Math.min(referenceUrls.length, 4)} reference images`);
+    }
+
+    console.log(`Generating with Gemini image model, ${content.length - 1} visual inputs, style: ${style}`);
+
+    // Call Lovable AI Gateway with Gemini image model
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-image-1",
-        prompt: imagePrompt,
-        n: 1,
-        size: effectiveFormat.size,
+        model: "google/gemini-3-pro-image-preview",
+        messages: [
+          {
+            role: "user",
+            content,
+          },
+        ],
+        modalities: ["image", "text"],
       }),
     });
 
-    if (!genResponse.ok) {
-      const errText = await genResponse.text();
-      console.error("gpt-image-1 error:", genResponse.status, errText);
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Gemini image error:", response.status, errText);
 
-      if (genResponse.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente.");
-      if (genResponse.status === 402) return jsonError(402, "Créditos insuficientes.");
+      if (response.status === 429) return jsonError(429, "Limite de requisições atingido. Tente novamente em alguns segundos.");
+      if (response.status === 402) return jsonError(402, "Créditos insuficientes. Adicione créditos no workspace.");
 
-      // Fallback to dall-e-3
-      console.log("Falling back to dall-e-3");
-      const fallbackResponse = await fetch("https://api.openai.com/v1/images/generations", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "dall-e-3",
-          prompt: imagePrompt.slice(0, 3900),
-          n: 1,
-          size: effectiveFormat.size,
-          response_format: "b64_json",
-        }),
-      });
-
-      if (!fallbackResponse.ok) {
-        const fbErr = await fallbackResponse.text();
-        console.error("dall-e-3 fallback error:", fallbackResponse.status, fbErr);
-        return jsonError(500, "Erro ao gerar imagem");
-      }
-
-      const fbData = await fallbackResponse.json();
-      imageBase64 = fbData?.data?.[0]?.b64_json || null;
-    } else {
-      const genData = await genResponse.json();
-      // gpt-image-1 returns b64_json by default
-      imageBase64 = genData?.data?.[0]?.b64_json || null;
-
-      // If it returned a URL instead
-      if (!imageBase64 && genData?.data?.[0]?.url) {
-        const imgResp = await fetch(genData.data[0].url);
-        if (imgResp.ok) {
-          const buf = await imgResp.arrayBuffer();
-          imageBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-        }
-      }
+      return jsonError(500, "Erro ao gerar imagem. Tente novamente.");
     }
 
-    if (!imageBase64) {
-      return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
+    const data = await response.json();
+    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+    if (!imageData) {
+      console.error("No image in response:", JSON.stringify(data).slice(0, 500));
+      return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente com um prompt diferente.");
+    }
+
+    // Extract base64 from data URL
+    let imageBase64: string;
+    if (imageData.startsWith("data:image/")) {
+      imageBase64 = imageData.split(",")[1];
+    } else {
+      imageBase64 = imageData;
     }
 
     // Upload to storage
     const imageBytes = decodeBase64(imageBase64);
-    const fileName = `posts/${Date.now()}-${platform.toLowerCase()}-${style}.png`;
+    const fileName = `posts/${Date.now()}-instagram-${style}.png`;
 
     const { error: uploadError } = await supabase.storage
       .from("product-images")
@@ -272,7 +232,8 @@ serve(async (req) => {
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      return new Response(JSON.stringify({ image_url: `data:image/png;base64,${imageBase64}` }), {
+      // Return data URL as fallback
+      return new Response(JSON.stringify({ image_url: imageData.startsWith("data:") ? imageData : `data:image/png;base64,${imageBase64}` }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -285,7 +246,8 @@ serve(async (req) => {
   } catch (e) {
     console.error("generate-post-image error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
