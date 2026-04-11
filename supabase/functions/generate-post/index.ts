@@ -18,11 +18,12 @@ REGRAS DE COPY:
 1. A legenda DEVE ser sobre o tema/ideia que o usuário pediu — siga o pedido fielmente
 2. Se um produto real foi informado, a legenda fala DESSE produto específico (nome, material, pedra exatos)
 3. Linguagem aspiracional e emocional — venda sentimentos, não features
-4. Emojis: máximo 3, sofisticados (✨💎🤍), nunca 🔥🚨💥
+4. Emojis: máximo 2, sofisticados (✨🤍), nunca 🔥🚨💥
 5. Hashtags: sempre inclua #SOLLARIS #SollarisJoias + 3-5 relevantes
 6. CTA sutil e elegante (nunca "COMPRE AGORA" ou "CORRE")
 7. Frases curtas e impactantes, com pausas estratégicas
 8. NUNCA invente dados do produto (preço, material, pedra) que não foram informados
+9. A legenda deve ser CURTA — máximo 4-5 linhas. Impacto em poucas palavras.
 
 FORMATO (JSON estrito):
 {
@@ -38,10 +39,9 @@ serve(async (req) => {
 
   try {
     const { prompt, platform, brandContext, productContext, referenceContext, generationDirectives } = await req.json();
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Build a focused user message that prioritizes what the user actually asked
     const sections: string[] = [
       `PEDIDO DO CLIENTE: "${prompt}"`,
       `Plataforma: Instagram`,
@@ -63,18 +63,18 @@ serve(async (req) => {
       sections.push(`DIRETRIZES DA MARCA:\n${brandContext}`);
     }
 
-    sections.push("Responda APENAS com o JSON no formato especificado. A legenda deve seguir fielmente o pedido do cliente acima.");
+    sections.push("Responda APENAS com o JSON no formato especificado. A legenda deve seguir fielmente o pedido do cliente acima. Legenda CURTA e impactante.");
 
     const userMessage = sections.join("\n\n");
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userMessage },
@@ -88,7 +88,7 @@ serve(async (req) => {
               parameters: {
                 type: "object",
                 properties: {
-                  caption: { type: "string", description: "Full post caption that directly addresses the client's request" },
+                  caption: { type: "string", description: "Full post caption, SHORT and impactful (max 4-5 lines)" },
                   hashtags: { type: "array", items: { type: "string" }, description: "Relevant hashtags" },
                   platform_tips: { type: "string", description: "Platform-specific tips" },
                   visual_suggestion: { type: "string", description: "Visual/photo suggestion" },
@@ -111,7 +111,7 @@ serve(async (req) => {
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes. Adicione créditos na sua conta." }), {
+        return new Response(JSON.stringify({ error: "Créditos insuficientes. Adicione créditos no workspace." }), {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
