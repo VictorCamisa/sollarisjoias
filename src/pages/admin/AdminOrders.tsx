@@ -120,8 +120,9 @@ const AdminOrders = () => {
       ) : (
         <div className="admin-card overflow-hidden">
           {/* Table header */}
-          <div className="hidden md:grid grid-cols-[minmax(0,1.2fr)_100px_minmax(0,1.5fr)_100px_130px_40px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
+          <div className="hidden md:grid grid-cols-[minmax(0,1.2fr)_60px_100px_minmax(0,1.5fr)_100px_130px_40px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Cliente</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Canal</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Data</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Itens</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-right">Total</span>
