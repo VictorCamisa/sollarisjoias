@@ -489,7 +489,8 @@ const AdminSettings = () => {
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <p className="text-xs text-muted-foreground">
-              Redefinir senha de <strong>{resetPwdUser?.full_name || resetPwdUser?.email}</strong>
+              Redefinir senha de <strong>{resetPwdUser ? getUserDisplayName(resetPwdUser) : ""}</strong>
+            </p>
             </p>
             <div>
               <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nova Senha</Label>
