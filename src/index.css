@@ -125,12 +125,15 @@
 }
 
 @layer components {
-  /* ─── Admin-specific component tokens ─── */
+  /* ─── Admin Design System v2 — compact, hierarchy-driven ─── */
 
-  /* Fluid card with visible border and hover */
+  /* Card — tighter, cleaner */
   .admin-card {
-    @apply bg-card border border-border rounded-xl transition-all duration-200;
-    @apply hover:border-primary/25 hover:shadow-lg hover:shadow-primary/[0.04];
+    @apply bg-card border border-border rounded-lg transition-all duration-150;
+  }
+  .admin-card-interactive {
+    @apply admin-card cursor-pointer;
+    @apply hover:border-primary/20 hover:bg-card/80;
   }
 
   /* Table styling */
@@ -138,51 +141,70 @@
     @apply w-full text-sm;
   }
   .admin-table thead tr {
-    @apply bg-secondary/60 border-b border-border;
+    @apply bg-secondary/40 border-b border-border;
   }
   .admin-table thead th {
-    @apply text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground;
+    @apply text-left px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
   }
   .admin-table tbody tr {
-    @apply border-b border-border/60 transition-colors duration-150;
-    @apply hover:bg-secondary/40;
+    @apply border-b border-border/50 transition-colors duration-100;
+    @apply hover:bg-secondary/30;
   }
   .admin-table tbody td {
-    @apply px-4 py-3;
+    @apply px-3 py-2.5;
   }
 
   /* Section label */
   .admin-section-label {
-    @apply text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground;
+    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
   }
 
   /* Stat badge */
   .admin-stat-pill {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border;
   }
 
-  /* Input group */
+  /* Input — compact */
   .admin-input {
-    @apply h-9 text-sm bg-secondary/50 border-border rounded-lg;
-    @apply focus:border-primary/50 focus:ring-1 focus:ring-primary/25;
-    @apply placeholder:text-muted-foreground/50 transition-all duration-200;
+    @apply h-8 text-[13px] bg-secondary/40 border-border rounded-md;
+    @apply focus:border-primary/40 focus:ring-1 focus:ring-primary/20;
+    @apply placeholder:text-muted-foreground/40 transition-all duration-150;
   }
 
-  /* Button reset for nav items */
+  /* Nav item */
   .admin-nav-item {
-    @apply flex items-center gap-2.5 rounded-lg text-[13px] font-medium;
-    @apply transition-all duration-200 ease-out;
+    @apply flex items-center gap-2 rounded-md text-[13px] font-medium;
+    @apply transition-colors duration-150;
   }
 
-  /* Page header */
+  /* ── Page Layout Pattern ── */
   .admin-page-header {
-    @apply flex items-center justify-between mb-6;
+    @apply flex items-center justify-between gap-3;
   }
   .admin-page-title {
-    @apply text-lg font-semibold tracking-tight;
+    @apply text-base font-semibold tracking-tight leading-tight;
   }
   .admin-page-subtitle {
-    @apply text-xs text-muted-foreground mt-0.5;
+    @apply text-[11px] text-muted-foreground mt-0.5;
+  }
+
+  /* Toolbar — unified filter/action bar */
+  .admin-toolbar {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  /* Compact stat card for KPI rows */
+  .admin-kpi {
+    @apply admin-card p-3 flex items-center gap-3;
+  }
+  .admin-kpi-icon {
+    @apply h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0;
+  }
+  .admin-kpi-value {
+    @apply text-lg font-bold tracking-tight leading-none;
+  }
+  .admin-kpi-label {
+    @apply text-[10px] text-muted-foreground mt-0.5 leading-tight;
   }
 }
 

@@ -66,7 +66,7 @@ const AdminOrders = () => {
   };
 
   return (
-    <div className="space-y-5 max-w-[1400px]">
+    <div className="space-y-4 max-w-[1200px]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
