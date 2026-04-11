@@ -865,6 +865,14 @@ const CreatePostTab = () => {
     () => (brandAssets || []).map(({ type, title, content, file_url }) => ({ type, title, content, file_url })),
     [brandAssets]
   );
+  const logoAssets = useMemo(
+    () => activeBrandAssetsPayload.filter((asset) => asset.type === "logo" && asset.file_url),
+    [activeBrandAssetsPayload]
+  );
+  const referenceAssets = useMemo(
+    () => activeBrandAssetsPayload.filter((asset) => asset.type === "reference"),
+    [activeBrandAssetsPayload]
+  );
   const brandContext = useMemo(
     () => activeBrandAssetsPayload.map((asset) => {
       const parts = [`[${asset.type.toUpperCase()}] ${asset.title}`];
@@ -873,6 +881,15 @@ const CreatePostTab = () => {
       return parts.join(" — ");
     }).join("\n"),
     [activeBrandAssetsPayload]
+  );
+  const referencePatternContext = useMemo(
+    () => referenceAssets.map((asset, index) => {
+      const parts = [`Referência visual ${index + 1}: ${asset.title}`];
+      if (asset.content) parts.push(`Padrão desejado: ${asset.content}`);
+      if (asset.file_url) parts.push(`Arquivo da referência: ${asset.file_url}`);
+      return parts.join(" — ");
+    }).join("\n"),
+    [referenceAssets]
   );
   const selectedProductContext = useMemo(() => {
     if (!selectedProduct) return "";
@@ -885,6 +902,15 @@ const CreatePostTab = () => {
       selectedProduct.pedra ? `Pedra: ${selectedProduct.pedra}` : null,
     ].filter(Boolean).join("\n");
   }, [selectedProduct]);
+  const generationDirectives = useMemo(
+    () => ({
+      referencesAreStyleOnly: true,
+      requireSelectedProductFidelity: Boolean(selectedProduct),
+      requireOfficialLogoFidelity: logoAssets.length > 0,
+      adaptationTarget: "SOLLARIS",
+    }),
+    [selectedProduct, logoAssets.length]
+  );
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return toast.error("Descreva o que deseja para o post");
@@ -895,7 +921,16 @@ const CreatePostTab = () => {
     try {
       // Generate text
       const { data, error } = await supabase.functions.invoke("generate-post", {
-        body: { prompt, platform, tone, brandContext, brandAssets: activeBrandAssetsPayload, productContext: selectedProductContext },
+        body: {
+          prompt,
+          platform,
+          tone,
+          brandContext,
+          brandAssets: activeBrandAssetsPayload,
+          productContext: selectedProductContext,
+          referenceContext: referencePatternContext,
+          generationDirectives,
+        },
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); return; }
@@ -934,6 +969,8 @@ const CreatePostTab = () => {
             style: resolvedStyle,
             brandContext,
             brandAssets: activeBrandAssetsPayload,
+            referenceContext: referencePatternContext,
+            generationDirectives,
           },
         });
         if (imgErr) throw imgErr;
@@ -977,6 +1014,8 @@ const CreatePostTab = () => {
           style: resolvedStyle,
           brandContext,
           brandAssets: activeBrandAssetsPayload,
+          referenceContext: referencePatternContext,
+          generationDirectives,
         },
       });
       if (imgErr) throw imgErr;
@@ -1131,10 +1170,16 @@ const CreatePostTab = () => {
                 )}
               </Button>
               {(brandAssets?.length || 0) > 0 && (
-                <span className="text-[10px] text-muted-foreground">✅ A IA está usando suas diretrizes de marca</span>
+                <span className="text-[10px] text-muted-foreground">✅ Logo oficial, regras da marca e referências viram direção criativa</span>
               )}
             </div>
           </div>
+
+          {(selectedProduct || referenceAssets.length > 0 || logoAssets.length > 0) && (
+            <div className="rounded-lg border border-accent/15 bg-secondary/30 px-3 py-2 text-[10px] text-muted-foreground">
+              {selectedProduct ? "Produto selecionado será tratado como fonte real obrigatória." : "Selecione um produto para travar a peça real na arte."} {logoAssets.length > 0 ? "A logo ativa será usada como marca oficial, sem recriação." : "Adicione uma logo ativa para aplicação oficial."} {referenceAssets.length > 0 ? "As referências serão usadas só como padrão visual, adaptadas para SOLLARIS." : "Envie referências visuais para guiar composição, luz e enquadramento."}
+            </div>
+          )}
 
           {/* Quick ideas */}
           <div className="flex flex-wrap gap-1.5">

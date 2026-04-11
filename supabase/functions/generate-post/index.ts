@@ -38,7 +38,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, platform, tone, brandContext, productContext } = await req.json();
+    const { prompt, platform, tone, brandContext, productContext, referenceContext, generationDirectives } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
@@ -48,10 +48,19 @@ serve(async (req) => {
       productContext
         ? `PRODUTO REAL DISPONÍVEL:\n${productContext}\nUse apenas essas informações factuais na legenda.`
         : "Se nenhum produto real foi informado, não invente preço, material, pedra ou acabamento.",
+      generationDirectives?.requireSelectedProductFidelity
+        ? "O produto selecionado é obrigatório. A legenda precisa claramente falar dessa peça real, sem trocar categoria, pedra, banho, material ou benefício."
+        : null,
+      referenceContext
+        ? `REFERÊNCIAS VISUAIS DO CLIENTE:\n${referenceContext}\nUse essas referências apenas como direção criativa (ritmo, enquadramento, atmosfera, linguagem editorial). Nunca copie literalmente texto, marca, produto, promessa ou layout.`
+        : null,
+      generationDirectives?.requireOfficialLogoFidelity
+        ? "Considere que a arte final precisa respeitar a logo oficial da SOLLARIS. Não sugira mudar nome, tipografia ou identidade verbal."
+        : null,
       brandContext
         ? `DIRETRIZES EXTRAS DA MARCA (fornecidas pelo cliente — siga rigorosamente):\n${brandContext}`
         : null,
-      `Prioridades obrigatórias:\n- respeitar o branding da SOLLARIS com precisão\n- soar editorial, sofisticado e premium\n- evitar clichês de varejo, urgência barata e linguagem genérica\n- não inventar informações\n- responder APENAS com o JSON no formato especificado`,
+      `Prioridades obrigatórias:\n- respeitar o branding da SOLLARIS com precisão\n- adaptar qualquer referência para SOLLARIS, nunca copiar\n- soar editorial, sofisticado e premium\n- evitar clichês de varejo, urgência barata e linguagem genérica\n- não inventar informações\n- responder APENAS com o JSON no formato especificado`,
     ].filter(Boolean);
 
     const userMessage = sections.join("\n\n");
