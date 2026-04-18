@@ -265,6 +265,42 @@ export type Database = {
           },
         ]
       }
+      google_integrations: {
+        Row: {
+          access_token: string
+          connected_at: string
+          email_google: string
+          expires_at: string
+          id: string
+          refresh_token: string
+          scopes: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          connected_at?: string
+          email_google: string
+          expires_at: string
+          id?: string
+          refresh_token: string
+          scopes: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          connected_at?: string
+          email_google?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string
+          scopes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketing_posts: {
         Row: {
           best_time: string | null
