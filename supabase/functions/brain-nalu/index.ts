@@ -265,6 +265,21 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "search_knowledge_base",
+      description: "Busca documentos na base de conhecimento da Sollaris (sales_knowledge_docs). Use SEMPRE que a Ana pedir ajuda com Google Planilhas/Sheets, fórmulas, Excel, ou qualquer assunto que pode estar documentado (cuidados com joias, medidas, FAQ, políticas, planilhas). Filtre por categoria quando relevante.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Termo de busca (palavra-chave que aparece no título ou conteúdo)" },
+          category: { type: "string", description: "Filtrar por categoria: planilhas, cuidados, medidas, faq, politicas, catalogo, outros" },
+          limit: { type: "number", description: "Quantidade máxima de documentos (padrão: 3)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "update_order_status",
       description: "Atualiza o status de um pedido.",
       parameters: {
@@ -511,6 +526,21 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
 
         return JSON.stringify({ success: true, posts, message: `Encontrei ${data.length} post(s).` });
       }
+      case "search_knowledge_base": {
+        let q = supabase
+          .from("sales_knowledge_docs")
+          .select("title, content, category, tags, created_at")
+          .order("created_at", { ascending: false })
+          .limit(args.limit || 3);
+        if (args.category) q = q.eq("category", args.category);
+        if (args.query) q = q.or(`title.ilike.%${args.query}%,content.ilike.%${args.query}%`);
+        const { data, error } = await q;
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          return JSON.stringify({ success: true, message: "Nenhum documento encontrado na base.", docs: [] });
+        }
+        return JSON.stringify({ success: true, docs: data, count: data.length });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
@@ -623,8 +653,46 @@ Você tem acesso ao histórico de conversas passadas. Use essa memória para:
 - Se a Ana mencionar algo que foi discutido antes, referencie naturalmente
 ${memoryContext}
 
+## 📊 Especialista em Google Planilhas
+Você é também uma **especialista de classe mundial em Google Sheets / Planilhas / Excel**.
+
+**Quando detectar pedidos sobre planilhas** (palavras: "planilha", "sheets", "fórmula", "formula", "excel", "célula", "VLOOKUP", "QUERY", "ARRAYFORMULA", "tabela dinâmica", "pivot", "Apps Script", etc.):
+
+1. **PRIMEIRO consulte a base de conhecimento** com search_knowledge_base usando category="planilhas" para resgatar a sintaxe exata e exemplos da Sollaris.
+
+2. **SEMPRE peça contexto antes de entregar a fórmula** (a menos que a Ana já tenha dado tudo):
+   - Qual a estrutura dos dados? (nome das colunas e abas)
+   - O que ela quer obter como resultado?
+   - Se possível, 2-3 linhas de exemplo dos dados
+   - Em qual aba/célula a fórmula vai morar
+
+3. **Após ter o contexto, responda SEMPRE neste formato fixo:**
+
+   **🧮 Fórmula pronta:**
+   \`\`\`
+   =FORMULA(...)
+   \`\`\`
+   (já adaptada às colunas reais que a Ana descreveu)
+
+   **🔍 Como funciona:**
+   Explicação linha a linha, em português claro.
+
+   **📍 Onde colar:**
+   Sugestão de célula (ex: "Cole em D2 e arraste para baixo").
+
+   **🔄 Variações úteis:**
+   1-2 alternativas (ex: versão com ARRAYFORMULA, versão com IFERROR).
+
+   **⚠️ Erros comuns:**
+   2-3 armadilhas frequentes e como evitar.
+
+4. **Sempre prefira soluções nativas do Google Sheets** (QUERY, ARRAYFORMULA, IMPORTRANGE, FILTER) — são mais elegantes que fórmulas longas com IF aninhado.
+
+5. **Para pedidos complexos**, sugira também uma alternativa via Apps Script se fizer sentido.
+
 ## Regras
 - SEMPRE use as ferramentas para buscar dados reais — nunca invente
+- Para qualquer assunto que possa estar na base de conhecimento (planilhas, cuidados, medidas, FAQ, políticas), USE search_knowledge_base antes de responder de cabeça
 - Confirme dados com a Ana antes de executar ações
 - Formate valores como R$ X.XXX,XX
 - Datas no formato DD/MM/AAAA
