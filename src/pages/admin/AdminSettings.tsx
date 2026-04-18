@@ -23,6 +23,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { GoogleSheetsConnection } from "@/components/admin/integrations/GoogleSheetsConnection";
 
 interface SystemUser {
   id: string;
@@ -647,6 +648,9 @@ const AdminSettings = () => {
           </>
         )}
       </div>
+
+      {/* ── GOOGLE SHEETS INTEGRATION ── */}
+      <GoogleSheetsConnection />
     </div>
   );
 };

@@ -293,10 +293,143 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_my_sheets",
+      description: "Lista as planilhas do Google Sheets da Ana (Google Drive). Use quando ela mencionar uma planilha pelo nome para descobrir o ID. Pode filtrar por nome.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Trecho do nome da planilha (opcional)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "read_sheet",
+      description: "Lê valores de um intervalo de uma planilha Google Sheets. Use após descobrir o spreadsheet_id via list_my_sheets. Range no formato A1, ex: 'Vendas!A1:F100' ou 'A:F'.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+          range: { type: "string", description: "Ex: 'Vendas!A1:F100' ou 'A:Z'" },
+        },
+        required: ["spreadsheet_id", "range"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_sheet_metadata",
+      description: "Retorna a estrutura de uma planilha (nomes das abas, dimensões). Use quando precisar descobrir quais abas existem.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+        },
+        required: ["spreadsheet_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "append_to_sheet",
+      description: "Adiciona uma ou mais linhas no FIM de uma planilha. SEMPRE peça confirmação 'sim' explícita à Ana antes de chamar essa tool. Mostre primeiro o que vai adicionar.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+          range: { type: "string", description: "Aba alvo, ex: 'Vendas!A:F'" },
+          values: { type: "array", description: "Array de linhas, cada linha é array de células. Ex: [['18/04/2026','Maria','Colar Sol',480]]" },
+        },
+        required: ["spreadsheet_id", "range", "values"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "write_sheet_range",
+      description: "Sobrescreve um intervalo específico de células. SEMPRE peça confirmação explícita antes. Use append_to_sheet para adicionar linhas; use esta para EDITAR células existentes.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+          range: { type: "string", description: "Intervalo exato, ex: 'Vendas!D5:D5' ou 'A1:C3'" },
+          values: { type: "array", description: "Array 2D de valores" },
+        },
+        required: ["spreadsheet_id", "range", "values"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_google_sheet",
+      description: "Cria uma planilha nova no Google Drive da Ana. Confirme antes.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+        },
+        required: ["title"],
+      },
+    },
+  },
 ];
 
-async function executeTool(name: string, args: Record<string, any>, supabase: any): Promise<string> {
+// Helper to call google-sheets-proxy from inside brain-nalu
+async function callSheetsProxy(action: string, payload: Record<string, unknown>, userId: string): Promise<string> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   try {
+    const res = await fetch(`${supabaseUrl}/functions/v1/google-sheets-proxy`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify({ action, user_id: userId, ...payload }),
+    });
+    const text = await res.text();
+    return text;
+  } catch (e) {
+    return JSON.stringify({ error: e instanceof Error ? e.message : String(e) });
+  }
+}
+
+async function executeTool(name: string, args: Record<string, any>, supabase: any, userId: string | null): Promise<string> {
+  try {
+    // Google Sheets tools — require userId (the connected admin)
+    const sheetTools = ["list_my_sheets", "read_sheet", "get_sheet_metadata", "append_to_sheet", "write_sheet_range", "create_google_sheet"];
+    if (sheetTools.includes(name)) {
+      if (!userId) {
+        const { data: anyInt } = await supabase.from("google_integrations").select("user_id").limit(1).maybeSingle();
+        if (!anyInt) return JSON.stringify({ error: "Nenhuma conta Google conectada. Conecte em Configurações → Google Sheets." });
+        userId = anyInt.user_id;
+      }
+      switch (name) {
+        case "list_my_sheets":
+          return await callSheetsProxy("list_sheets", { query: args.query }, userId!);
+        case "read_sheet":
+          return await callSheetsProxy("read_range", { spreadsheet_id: args.spreadsheet_id, range: args.range }, userId!);
+        case "get_sheet_metadata":
+          return await callSheetsProxy("get_metadata", { spreadsheet_id: args.spreadsheet_id }, userId!);
+        case "append_to_sheet":
+          return await callSheetsProxy("append_row", { spreadsheet_id: args.spreadsheet_id, range: args.range, values: args.values }, userId!);
+        case "write_sheet_range":
+          return await callSheetsProxy("write_range", { spreadsheet_id: args.spreadsheet_id, range: args.range, values: args.values }, userId!);
+        case "create_google_sheet":
+          return await callSheetsProxy("create_sheet", { title: args.title }, userId!);
+      }
+    }
+
     switch (name) {
       case "query_orders": {
         let query = supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(args.limit || 10);
@@ -600,7 +733,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, conversation_id, save_messages } = await req.json();
+    const { messages, conversation_id, save_messages, user_id: bodyUserId } = await req.json();
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
@@ -608,6 +741,21 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Resolve userId from auth header (chat) or body (whatsapp)
+    let userId: string | null = bodyUserId || null;
+    const authHeader = req.headers.get("Authorization");
+    if (!userId && authHeader) {
+      try {
+        const supabaseUserClient = createClient(
+          supabaseUrl,
+          Deno.env.get("SUPABASE_ANON_KEY")!,
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const { data: { user } } = await supabaseUserClient.auth.getUser();
+        userId = user?.id ?? null;
+      } catch (_) { /* ignore */ }
+    }
 
     // Build memory context from past conversations
     const memoryContext = await buildMemoryContext(supabase, conversation_id);
@@ -631,6 +779,24 @@ Você tem acesso REAL ao sistema da Sollaris e pode:
 5. **Financeiro**: Ver resumos financeiros, criar transações
 6. **Tarefas**: Criar, consultar e atualizar tarefas
 7. **Marketing**: Gerar posts completos para Instagram (legenda + imagem editorial)
+8. **Google Sheets ao vivo**: LER e ESCREVER nas planilhas Google da Ana (list_my_sheets, read_sheet, get_sheet_metadata, append_to_sheet, write_sheet_range, create_google_sheet)
+
+## 📗 Google Sheets — Operação ao vivo
+A Ana conectou a conta Google dela. Você atua direto nas planilhas dela.
+
+**Fluxo padrão de leitura:**
+1. Quando ela citar uma planilha pelo nome ("controle de caixa", "vendas março"), use **list_my_sheets** com trecho do nome para descobrir o spreadsheet_id.
+2. Se não conhecer a estrutura, use **get_sheet_metadata** para ver as abas disponíveis.
+3. Use **read_sheet** com range específico (ex: 'Vendas!A1:F500'). Evite ler a planilha inteira se for grande.
+4. Para análises (somar, filtrar, agrupar), faça os cálculos no resultado lido — não invente números.
+
+**Para ESCREVER (append_to_sheet, write_sheet_range, create_google_sheet):**
+- SEMPRE mostre antes: planilha, aba, range exato, valores que vai escrever
+- PEÇA confirmação "sim" explícita da Ana
+- SÓ DEPOIS execute a tool
+- Após executar, confirme o que foi escrito
+
+**Se vier erro "Nenhuma conta Google conectada":** instrua a Ana a abrir Configurações → Google Sheets → Conectar Google.
 
 ## Marketing / Posts
 Quando a Ana pedir para criar um post:
@@ -748,7 +914,7 @@ Você é também uma **especialista de classe mundial em Google Sheets / Planilh
           let fnArgs: Record<string, any> = {};
           try { fnArgs = JSON.parse(tc.function.arguments); } catch { /* empty */ }
           console.log(`Executing tool: ${fnName}`, fnArgs);
-          const result = await executeTool(fnName, fnArgs, supabase);
+          const result = await executeTool(fnName, fnArgs, supabase, userId);
           allMessages.push({ role: "tool", tool_call_id: tc.id, content: result } as any);
         }
         continue;
