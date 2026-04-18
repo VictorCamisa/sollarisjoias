@@ -404,8 +404,32 @@ async function callSheetsProxy(action: string, payload: Record<string, unknown>,
   }
 }
 
-async function executeTool(name: string, args: Record<string, any>, supabase: any): Promise<string> {
+async function executeTool(name: string, args: Record<string, any>, supabase: any, userId: string | null): Promise<string> {
   try {
+    // Google Sheets tools — require userId (the connected admin)
+    const sheetTools = ["list_my_sheets", "read_sheet", "get_sheet_metadata", "append_to_sheet", "write_sheet_range", "create_google_sheet"];
+    if (sheetTools.includes(name)) {
+      if (!userId) {
+        const { data: anyInt } = await supabase.from("google_integrations").select("user_id").limit(1).maybeSingle();
+        if (!anyInt) return JSON.stringify({ error: "Nenhuma conta Google conectada. Conecte em Configurações → Google Sheets." });
+        userId = anyInt.user_id;
+      }
+      switch (name) {
+        case "list_my_sheets":
+          return await callSheetsProxy("list_sheets", { query: args.query }, userId!);
+        case "read_sheet":
+          return await callSheetsProxy("read_range", { spreadsheet_id: args.spreadsheet_id, range: args.range }, userId!);
+        case "get_sheet_metadata":
+          return await callSheetsProxy("get_metadata", { spreadsheet_id: args.spreadsheet_id }, userId!);
+        case "append_to_sheet":
+          return await callSheetsProxy("append_row", { spreadsheet_id: args.spreadsheet_id, range: args.range, values: args.values }, userId!);
+        case "write_sheet_range":
+          return await callSheetsProxy("write_range", { spreadsheet_id: args.spreadsheet_id, range: args.range, values: args.values }, userId!);
+        case "create_google_sheet":
+          return await callSheetsProxy("create_sheet", { title: args.title }, userId!);
+      }
+    }
+
     switch (name) {
       case "query_orders": {
         let query = supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(args.limit || 10);
