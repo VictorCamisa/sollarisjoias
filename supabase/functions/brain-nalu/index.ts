@@ -526,6 +526,21 @@ async function executeTool(name: string, args: Record<string, any>, supabase: an
 
         return JSON.stringify({ success: true, posts, message: `Encontrei ${data.length} post(s).` });
       }
+      case "search_knowledge_base": {
+        let q = supabase
+          .from("sales_knowledge_docs")
+          .select("title, content, category, tags, created_at")
+          .order("created_at", { ascending: false })
+          .limit(args.limit || 3);
+        if (args.category) q = q.eq("category", args.category);
+        if (args.query) q = q.or(`title.ilike.%${args.query}%,content.ilike.%${args.query}%`);
+        const { data, error } = await q;
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          return JSON.stringify({ success: true, message: "Nenhum documento encontrado na base.", docs: [] });
+        }
+        return JSON.stringify({ success: true, docs: data, count: data.length });
+      }
       default:
         return JSON.stringify({ error: `Tool ${name} not found` });
     }
