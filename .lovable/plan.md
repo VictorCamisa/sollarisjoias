@@ -1,28 +1,48 @@
 
 
-## Plano: Migrar geração de imagem de volta para OpenAI (gpt-image-1)
+## Plano: Especialista em Google Planilhas no Brain
 
-### Problema
-O código atual usa Lovable AI Gateway (Gemini) para gerar imagens, mas esta conta não tem créditos. Você já tem `OPENAI_API_KEY` configurada.
+### Objetivo
+Transformar o Brain Sollaris em especialista em Google Sheets — quando o usuário pedir ajuda com planilhas, ele coleta contexto (o que precisa, qual aba, formato dos dados) e devolve resposta completa com fórmula pronta, explicação passo a passo e dicas.
 
-### Solução
+### Como funciona
 
-**Arquivo: `supabase/functions/generate-post-image/index.ts`**
+**1. Base de conhecimento (Conhecimento → AutomacoesConhecimento)**
+Adicionar nova categoria `planilhas` ao `CATEGORY_CONFIG` e criar 6 templates prontos que o usuário insere com 1 clique:
+- Fórmulas Essenciais (SUM, AVERAGE, IF, IFS, COUNTIF, SUMIF)
+- Lookups (VLOOKUP, HLOOKUP, INDEX/MATCH, XLOOKUP)
+- QUERY (sintaxe SQL-like do Google Sheets — superpoder)
+- ARRAYFORMULA + FILTER + SORT + UNIQUE
+- Datas e Texto (TEXT, DATEDIF, REGEX, SPLIT, JOIN)
+- Importação e Conexões (IMPORTRANGE, IMPORTHTML, GOOGLEFINANCE)
+- Dicas avançadas (validação, formatação condicional, tabelas dinâmicas, Apps Script básico)
 
-1. **Trocar de Lovable AI para OpenAI direta** — usar `https://api.openai.com/v1/images/generations` com modelo `gpt-image-1`
-2. **Manter inputs multimodais** — o `gpt-image-1` aceita imagens inline no prompt. Enviar foto do produto, logo e referências como inputs visuais para que a arte final incorpore os elementos reais da marca
-3. **Formato da request**: usar o endpoint de images/generations da OpenAI com os parâmetros corretos (`model`, `prompt`, `size: 1080x1080`, `quality: high`)
-4. **Manter toda a lógica existente** de: carregar brand assets do DB, buscar produto, coletar referências, upload para storage
+Cada template em markdown, com sintaxe + exemplo real + erros comuns.
 
-**Arquivo: `supabase/functions/generate-post/index.ts`**
+**2. Comportamento do Brain (`brain-nalu/index.ts` — system prompt)**
+Adicionar bloco no prompt:
+- Detectar pedidos de planilha (palavras: "planilha", "sheets", "fórmula", "excel", "célula", "VLOOKUP" etc.)
+- **Sempre perguntar contexto antes de responder**: estrutura dos dados (colunas, abas), o que quer obter, exemplo de 2-3 linhas se possível
+- Após contexto: responder em formato fixo
+  1. **Fórmula pronta** (em bloco de código, adaptada às colunas reais do usuário)
+  2. **Como funciona** (explicação linha a linha)
+  3. **Onde colar** (célula sugerida)
+  4. **Variações úteis** (1-2 alternativas)
+  5. **Erros comuns** e como evitar
+- Consultar a base de conhecimento (`sales_knowledge_docs` categoria `planilhas`) via tool já existente quando precisar lembrar sintaxe específica
 
-5. **Manter no Lovable AI Gateway** para legendas (texto) — ou migrar para OpenAI também com `OPENAI_API_KEY` para consistência e evitar problemas de créditos. Usar `gpt-4o-mini` para legendas.
+**3. Tool de busca na base (já existe parcialmente)**
+Garantir que o Brain consulte `sales_knowledge_docs` filtrando por `category = 'planilhas'` quando o assunto for planilhas — pequeno ajuste na descrição da tool existente para reforçar o uso.
 
-### Detalhes técnicos
+### Arquivos a editar
+- `src/pages/admin/automacoes/AutomacoesConhecimento.tsx` — adicionar categoria `planilhas` + 7 templates
+- `supabase/functions/brain-nalu/index.ts` — atualizar system prompt com protocolo "Especialista em Planilhas"
 
-- `gpt-image-1` suporta input multimodal via o campo `image` no body, permitindo enviar produto + logo + referências
-- Size `1024x1024` (mais próximo de 1080x1080 disponível)
-- Response em base64 para upload direto ao storage
-- Fallback: se falhar, tentar `dall-e-3`
-- Deploy automático das edge functions após edição
+### O que o usuário faz depois
+1. Abre **Automações → Conhecimento**
+2. Clica nos templates de planilhas (1 clique adiciona cada um à base)
+3. Conversa com o Brain pedindo "preciso de uma fórmula que…" — ele pergunta contexto e entrega solução completa, no chat ou WhatsApp
+
+### Resposta direta à pergunta
+**Sim, é totalmente possível** e é exatamente o padrão que já está montado: a base de conhecimento alimenta o Brain, e o system prompt define o comportamento. Não precisa de API nova, nem custo extra.
 
