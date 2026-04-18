@@ -265,6 +265,21 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "search_knowledge_base",
+      description: "Busca documentos na base de conhecimento da Sollaris (sales_knowledge_docs). Use SEMPRE que a Ana pedir ajuda com Google Planilhas/Sheets, fórmulas, Excel, ou qualquer assunto que pode estar documentado (cuidados com joias, medidas, FAQ, políticas, planilhas). Filtre por categoria quando relevante.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Termo de busca (palavra-chave que aparece no título ou conteúdo)" },
+          category: { type: "string", description: "Filtrar por categoria: planilhas, cuidados, medidas, faq, politicas, catalogo, outros" },
+          limit: { type: "number", description: "Quantidade máxima de documentos (padrão: 3)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "update_order_status",
       description: "Atualiza o status de um pedido.",
       parameters: {
