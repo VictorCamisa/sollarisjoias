@@ -733,7 +733,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, conversation_id, save_messages } = await req.json();
+    const { messages, conversation_id, save_messages, user_id: bodyUserId } = await req.json();
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
@@ -741,6 +741,21 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Resolve userId from auth header (chat) or body (whatsapp)
+    let userId: string | null = bodyUserId || null;
+    const authHeader = req.headers.get("Authorization");
+    if (!userId && authHeader) {
+      try {
+        const supabaseUserClient = createClient(
+          supabaseUrl,
+          Deno.env.get("SUPABASE_ANON_KEY")!,
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const { data: { user } } = await supabaseUserClient.auth.getUser();
+        userId = user?.id ?? null;
+      } catch (_) { /* ignore */ }
+    }
 
     // Build memory context from past conversations
     const memoryContext = await buildMemoryContext(supabase, conversation_id);
@@ -881,7 +896,7 @@ Você é também uma **especialista de classe mundial em Google Sheets / Planilh
           let fnArgs: Record<string, any> = {};
           try { fnArgs = JSON.parse(tc.function.arguments); } catch { /* empty */ }
           console.log(`Executing tool: ${fnName}`, fnArgs);
-          const result = await executeTool(fnName, fnArgs, supabase);
+          const result = await executeTool(fnName, fnArgs, supabase, userId);
           allMessages.push({ role: "tool", tool_call_id: tc.id, content: result } as any);
         }
         continue;
