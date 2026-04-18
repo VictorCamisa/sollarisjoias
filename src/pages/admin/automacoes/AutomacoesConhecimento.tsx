@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   BookOpen, Plus, Search, Trash2, Eye, FileText, Tag,
-  GraduationCap, ShieldCheck, Ruler, HelpCircle, Star,
+  GraduationCap, ShieldCheck, Ruler, HelpCircle, Star, Table2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
