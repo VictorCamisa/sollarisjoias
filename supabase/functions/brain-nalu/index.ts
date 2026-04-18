@@ -293,7 +293,116 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_my_sheets",
+      description: "Lista as planilhas do Google Sheets da Ana (Google Drive). Use quando ela mencionar uma planilha pelo nome para descobrir o ID. Pode filtrar por nome.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Trecho do nome da planilha (opcional)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "read_sheet",
+      description: "Lê valores de um intervalo de uma planilha Google Sheets. Use após descobrir o spreadsheet_id via list_my_sheets. Range no formato A1, ex: 'Vendas!A1:F100' ou 'A:F'.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+          range: { type: "string", description: "Ex: 'Vendas!A1:F100' ou 'A:Z'" },
+        },
+        required: ["spreadsheet_id", "range"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_sheet_metadata",
+      description: "Retorna a estrutura de uma planilha (nomes das abas, dimensões). Use quando precisar descobrir quais abas existem.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+        },
+        required: ["spreadsheet_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "append_to_sheet",
+      description: "Adiciona uma ou mais linhas no FIM de uma planilha. SEMPRE peça confirmação 'sim' explícita à Ana antes de chamar essa tool. Mostre primeiro o que vai adicionar.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+          range: { type: "string", description: "Aba alvo, ex: 'Vendas!A:F'" },
+          values: { type: "array", description: "Array de linhas, cada linha é array de células. Ex: [['18/04/2026','Maria','Colar Sol',480]]" },
+        },
+        required: ["spreadsheet_id", "range", "values"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "write_sheet_range",
+      description: "Sobrescreve um intervalo específico de células. SEMPRE peça confirmação explícita antes. Use append_to_sheet para adicionar linhas; use esta para EDITAR células existentes.",
+      parameters: {
+        type: "object",
+        properties: {
+          spreadsheet_id: { type: "string" },
+          range: { type: "string", description: "Intervalo exato, ex: 'Vendas!D5:D5' ou 'A1:C3'" },
+          values: { type: "array", description: "Array 2D de valores" },
+        },
+        required: ["spreadsheet_id", "range", "values"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_google_sheet",
+      description: "Cria uma planilha nova no Google Drive da Ana. Confirme antes.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+        },
+        required: ["title"],
+      },
+    },
+  },
 ];
+
+// Helper to call google-sheets-proxy from inside brain-nalu
+async function callSheetsProxy(action: string, payload: Record<string, unknown>, userId: string): Promise<string> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  try {
+    const res = await fetch(`${supabaseUrl}/functions/v1/google-sheets-proxy`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify({ action, user_id: userId, ...payload }),
+    });
+    const text = await res.text();
+    return text;
+  } catch (e) {
+    return JSON.stringify({ error: e instanceof Error ? e.message : String(e) });
+  }
+}
 
 async function executeTool(name: string, args: Record<string, any>, supabase: any): Promise<string> {
   try {
