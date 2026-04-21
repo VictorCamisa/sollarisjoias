@@ -215,11 +215,12 @@ const AdminProducts = () => {
       ) : (
         <div className="admin-card overflow-hidden">
           {/* Table header */}
-          <div className="hidden md:grid grid-cols-[44px_minmax(0,1.6fr)_90px_90px_70px_60px_60px_80px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
+          <div className="hidden md:grid grid-cols-[44px_minmax(0,1.6fr)_90px_90px_70px_70px_60px_60px_80px] gap-3 px-4 py-2.5 border-b border-border bg-secondary/20">
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Foto</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Produto</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Categoria</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-right">Preço</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Margem</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Estoque</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">Mídia</span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider text-center">SEO</span>
@@ -234,6 +235,12 @@ const AdminProducts = () => {
               const discount = p.original_price && p.original_price > p.price
                 ? Math.round(((p.original_price - p.price) / p.original_price) * 100)
                 : null;
+              const markup = Number((p as any).markup_percent) || 0;
+              const markupColor =
+                markup >= 50 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                markup >= 35 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                markup > 0 ? "bg-red-500/10 text-red-400 border-red-500/20" :
+                "bg-muted/40 text-muted-foreground border-border";
 
               return (
                 <motion.div
@@ -241,7 +248,7 @@ const AdminProducts = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.015 }}
-                  className="grid grid-cols-[44px_minmax(0,1fr)_auto] md:grid-cols-[44px_minmax(0,1.6fr)_90px_90px_70px_60px_60px_80px] gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors group"
+                  className="grid grid-cols-[44px_minmax(0,1fr)_auto] md:grid-cols-[44px_minmax(0,1.6fr)_90px_90px_70px_70px_60px_60px_80px] gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors group"
                 >
                   {/* Photo thumbnail */}
                   <div
@@ -285,10 +292,23 @@ const AdminProducts = () => {
 
                   {/* Price */}
                   <div className="hidden md:block text-right">
-                    {p.original_price && p.original_price > p.price && (
+                    {(p as any).cost_total > 0 ? (
+                      <p className="text-[10px] text-muted-foreground tabular-nums">custo {fmt(Number((p as any).cost_total))}</p>
+                    ) : p.original_price && p.original_price > p.price ? (
                       <p className="text-[10px] text-muted-foreground line-through tabular-nums">{fmt(p.original_price)}</p>
-                    )}
+                    ) : null}
                     <p className="text-xs font-semibold tabular-nums">{fmt(p.price)}</p>
+                  </div>
+
+                  {/* Markup */}
+                  <div className="hidden md:flex justify-center">
+                    {markup > 0 ? (
+                      <Badge variant="outline" className={`text-[10px] tabular-nums ${markupColor}`}>
+                        {markup.toFixed(0)}%
+                      </Badge>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground/40">—</span>
+                    )}
                   </div>
 
                   {/* Stock */}
