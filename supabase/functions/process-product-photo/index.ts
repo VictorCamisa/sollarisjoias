@@ -22,6 +22,16 @@ function jsonError(status: number, error: string) {
 
 async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; contentType: string } | null> {
   try {
+    if (url.startsWith("data:")) {
+      const match = url.match(/^data:([^;,]+)?(;base64)?,(.*)$/s);
+      if (!match) return null;
+      const contentType = match[1] || "image/jpeg";
+      const isBase64 = Boolean(match[2]);
+      const payload = match[3] || "";
+      if (isBase64) return { bytes: decodeBase64(payload), contentType };
+      return { bytes: new TextEncoder().encode(decodeURIComponent(payload)), contentType };
+    }
+
     const res = await fetch(url);
     if (!res.ok) return null;
     const contentType = res.headers.get("content-type") || "image/jpeg";
