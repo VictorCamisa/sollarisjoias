@@ -144,7 +144,9 @@ const AdminLayout = () => {
     if (collapsed) {
       return (
         <Tooltip>
-          <TooltipTrigger asChild>{el}</TooltipTrigger>
+          <TooltipTrigger asChild>
+            <span className="block">{el}</span>
+          </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">{label}</TooltipContent>
         </Tooltip>
       );
