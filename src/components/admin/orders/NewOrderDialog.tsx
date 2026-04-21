@@ -553,7 +553,7 @@ export const NewOrderDialog = ({
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
                     <div><span className="text-muted-foreground">Canal:</span> <span className="font-medium">{channel === "presencial" ? "🏪 Presencial" : "🌐 Online"}</span></div>
                     <div><span className="text-muted-foreground">Vendedor:</span> <span className="font-medium">{sellerName}</span></div>
-                    <div><span className="text-muted-foreground">Pagamento:</span> <span className="font-medium">{paymentMethods.find((pm) => pm.value === customer.payment_method)?.icon} {paymentMethods.find((pm) => pm.value === customer.payment_method)?.label}</span></div>
+                    <div><span className="text-muted-foreground">Pagamento:</span> <span className="font-medium">{paymentMethods.find((pm) => pm.value === customer.payment_method)?.icon} {paymentMethods.find((pm) => pm.value === customer.payment_method)?.label}{customer.payment_method === "crediario" ? ` ${customer.installments}×` : ""}</span></div>
                     <div><span className="text-muted-foreground">Data:</span> <span className="font-medium">{new Date().toLocaleDateString("pt-BR")}</span></div>
                   </div>
                 </div>
