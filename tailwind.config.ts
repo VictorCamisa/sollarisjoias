@@ -19,14 +19,15 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["Gloock", "Georgia", "serif"],
-        sans: ["Instrument Sans", "system-ui", "sans-serif"],
+        sans: ["Inter Tight", "system-ui", "sans-serif"],
+        display: ["Gloock", "Georgia", "serif"], // storefront only
+        serif: ["Gloock", "Georgia", "serif"],   // storefront only
       },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "1.4" }],
-        "display-lg": ["3.5rem", { lineHeight: "1.05" }],
-        "display": ["2.75rem", { lineHeight: "1.1" }],
-        "display-sm": ["2rem", { lineHeight: "1.15" }],
+        "display-lg": ["3.5rem", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
+        "display": ["2.75rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+        "display-sm": ["2rem", { lineHeight: "1.15", letterSpacing: "-0.015em" }],
       },
       letterSpacing: {
         "brand": "0.1em",

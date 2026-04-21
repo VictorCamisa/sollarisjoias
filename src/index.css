@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gloock&family=Inter+Tight:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,84 +7,87 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-       SOLLARIS — Preto Obsidiana + Branco + Ouro Champagne
-       Identidade visual premium · Semijoias
+       SOLLARIS Admin v5 — Boutique Light
+       Off-white creme · Obsidiana · Champagne saturado
+       Ref: Notion luxo + Stripe Atlas
     ═══════════════════════════════════════════════════════════════ */
 
-    /* ─── v4: high-contrast hierarchy ───
-       3 surface levels: bg (deepest) → card → elevated
-       Champagne richer/warmer · text whiter · borders more present */
+    /* Surfaces — 3 níveis de elevação */
+    --background: 36 24% 97%;          /* creme off-white (page) */
+    --foreground: 234 22% 9%;          /* obsidiana (text) */
 
-    /* Primary: Ouro Champagne — richer, more saturated */
-    --primary: 38 55% 64%;
-    --primary-foreground: 234 22% 5%;
+    --card: 0 0% 100%;                 /* branco puro (elevated) */
+    --card-foreground: 234 22% 9%;
 
-    /* Background: Preto Obsidiana profundo */
-    --background: 234 22% 5%;
-    --foreground: 40 12% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 234 22% 9%;
 
-    /* Card: clear lift from background */
-    --card: 234 16% 10%;
-    --card-foreground: 40 10% 95%;
+    --secondary: 36 18% 93%;           /* zona secundária */
+    --secondary-foreground: 234 18% 14%;
 
-    --popover: 234 18% 12%;
-    --popover-foreground: 40 10% 95%;
+    --muted: 36 14% 90%;               /* zonas de input, hovers */
+    --muted-foreground: 234 8% 42%;    /* texto auxiliar legível */
 
-    /* Secondary: elevated surface for chips, subtle fills */
-    --secondary: 234 12% 16%;
-    --secondary-foreground: 40 8% 92%;
+    /* Champagne saturado — funciona em fundo claro */
+    --primary: 36 60% 46%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Muted: captions / hints — readable, not faded */
-    --muted: 234 10% 20%;
-    --muted-foreground: 40 6% 68%;
+    --accent: 36 60% 46%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Accent: Champagne for highlights, links */
-    --accent: 38 55% 64%;
-    --accent-foreground: 234 22% 5%;
-
-    --destructive: 0 78% 55%;
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders — visible structure (was 18% → 24%) */
-    --border: 234 10% 24%;
-    --input: 234 10% 22%;
-    --ring: 38 55% 64%;
+    /* Borders — sutis mas presentes */
+    --border: 36 12% 86%;
+    --input: 36 14% 88%;
+    --ring: 36 60% 46%;
 
     --radius: 0.625rem;
 
-    /* Brand tokens — Sollaris */
-    --sollaris-obsidiana: 234 22% 5%;
-    --sollaris-obsidiana-light: 234 16% 11%;
-    --sollaris-champagne: 38 55% 64%;
-    --sollaris-champagne-light: 38 48% 76%;
-    --sollaris-champagne-pale: 38 30% 86%;
+    /* Brand tokens — Sollaris (storefront usa estes diretos) */
+    --sollaris-obsidiana: 234 22% 7%;
+    --sollaris-obsidiana-light: 234 16% 12%;
+    --sollaris-champagne: 36 60% 46%;
+    --sollaris-champagne-light: 36 50% 62%;
+    --sollaris-champagne-pale: 36 30% 86%;
     --sollaris-white: 0 0% 100%;
     --sollaris-midnight: 228 50% 15%;
 
-    /* Sidebar (admin) — distinct from main bg for visual anchor */
-    --sidebar-background: 234 24% 4%;
-    --sidebar-foreground: 40 8% 90%;
-    --sidebar-primary: 38 55% 64%;
-    --sidebar-primary-foreground: 234 22% 5%;
-    --sidebar-accent: 234 14% 12%;
-    --sidebar-accent-foreground: 40 10% 96%;
-    --sidebar-border: 234 12% 18%;
-    --sidebar-ring: 38 55% 64%;
+    /* Sidebar (admin) — levemente creme, delimita do conteúdo branco */
+    --sidebar-background: 36 22% 95%;
+    --sidebar-foreground: 234 18% 14%;
+    --sidebar-primary: 36 60% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 36 18% 90%;
+    --sidebar-accent-foreground: 234 22% 9%;
+    --sidebar-border: 36 12% 84%;
+    --sidebar-ring: 36 60% 46%;
 
-    /* Status colors — semantic tokens */
-    --success: 152 57% 48%;
+    /* Status — saturados pra fundo claro */
+    --success: 152 62% 38%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 32 92% 48%;
     --warning-foreground: 0 0% 100%;
-    --info: 217 91% 60%;
+    --info: 217 85% 52%;
     --info-foreground: 0 0% 100%;
 
+    /* Hub colors — identidade por área */
+    --hub-comercial: 245 65% 55%;       /* indigo profundo */
+    --hub-operacao: 158 62% 38%;        /* emerald escuro */
+    --hub-financas: 32 88% 46%;         /* amber rico */
+
     /* Chart palette */
-    --chart-gold: 39 41% 70%;
-    --chart-emerald: 152 57% 58%;
-    --chart-blue: 217 91% 60%;
-    --chart-orange: 25 95% 53%;
-    --chart-pink: 330 81% 60%;
+    --chart-gold: 36 60% 46%;
+    --chart-emerald: 158 62% 42%;
+    --chart-blue: 217 85% 52%;
+    --chart-orange: 25 92% 50%;
+    --chart-pink: 330 75% 54%;
+
+    /* Sombras Notion-style */
+    --shadow-notion-sm: 0 1px 2px hsl(234 22% 9% / 0.04), 0 1px 1px hsl(234 22% 9% / 0.03);
+    --shadow-notion-md: 0 2px 4px hsl(234 22% 9% / 0.04), 0 4px 12px hsl(234 22% 9% / 0.06);
+    --shadow-notion-lg: 0 4px 8px hsl(234 22% 9% / 0.05), 0 12px 32px hsl(234 22% 9% / 0.10);
   }
 }
 
@@ -103,7 +106,7 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-feature-settings: "kern" 1, "liga" 1, "ss01" 1, "cv11" 1;
     overflow-x: hidden;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
@@ -116,71 +119,78 @@
     font-weight: 400;
   }
 
-  /* Admin headings: use sans-serif for clarity */
+  /* All headings: Inter Tight (admin) — unified type system */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-family: 'Inter Tight', system-ui, sans-serif;
     font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   ::selection {
-    background: hsl(var(--sollaris-champagne) / 0.3);
-    color: hsl(var(--sollaris-obsidiana));
+    background: hsl(var(--accent) / 0.25);
+    color: hsl(var(--foreground));
+  }
+
+  /* Tabular numbers everywhere by default for data legibility */
+  .tabular-nums, [data-tabular] {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
-  /* ─── Admin Design System v3 — clear hierarchy, consistent density ─── */
+  /* ─── Admin Design System v5 — Boutique Light ─── */
 
-  /* ── Cards — v4: clear elevation + champagne lift on hover ── */
+  /* ── Surface elevation ── */
+  .surface-1 { @apply bg-secondary; }
+  .surface-2 { @apply bg-card; }
+  .surface-3 { background: hsl(var(--card)); box-shadow: var(--shadow-notion-md); }
+
+  /* ── Cards ── */
   .admin-card {
     @apply bg-card border border-border rounded-lg transition-all duration-200;
-    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.02) inset, 0 1px 2px hsl(0 0% 0% / 0.25);
+    box-shadow: var(--shadow-notion-sm);
   }
   .admin-card-interactive {
     @apply admin-card cursor-pointer;
-    @apply hover:border-primary/40;
   }
   .admin-card-interactive:hover {
-    box-shadow:
-      0 1px 0 hsl(var(--primary) / 0.08) inset,
-      0 4px 16px -4px hsl(var(--primary) / 0.12),
-      0 2px 6px hsl(0 0% 0% / 0.3);
+    @apply border-primary/40;
+    box-shadow: var(--shadow-notion-md);
+    transform: translateY(-1px);
   }
-  /* Elevated surface — for nested panels inside cards */
   .admin-card-elevated {
-    @apply bg-secondary/60 border border-border rounded-md;
+    @apply bg-card border border-border rounded-md;
+    box-shadow: var(--shadow-notion-md);
   }
 
-  /* Card internal section header */
   .admin-card-header {
     @apply flex items-start justify-between gap-3 mb-3;
   }
   .admin-card-title {
-    @apply text-[13px] font-semibold text-foreground leading-none;
+    @apply text-[14px] font-semibold text-foreground leading-none tracking-tight;
   }
   .admin-card-subtitle {
-    @apply text-[10px] text-muted-foreground mt-1 leading-none;
+    @apply text-[11px] text-muted-foreground mt-1.5 leading-none;
   }
 
-  /* ── Tables — v4: stronger header, clearer row separation ── */
+  /* ── Tables ── */
   .admin-table {
     @apply w-full text-sm;
   }
   .admin-table thead tr {
-    @apply bg-secondary/70 border-b-2 border-border;
+    @apply bg-secondary/60 border-b border-border;
   }
   .admin-table thead th {
-    @apply text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground/70;
+    @apply text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
   }
   .admin-table tbody tr {
     @apply border-b border-border/60 transition-colors duration-100;
-    @apply hover:bg-secondary/40;
+    @apply hover:bg-secondary/50;
   }
   .admin-table tbody td {
     @apply px-3 py-2.5 text-foreground/90;
   }
 
-  /* ── Labels & Sections ── */
   .admin-section-label {
     @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
   }
@@ -188,151 +198,135 @@
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border;
   }
 
-  /* ── Input — h-9 matches shadcn Select default ── */
+  /* ── Inputs ── */
   .admin-input {
-    @apply h-9 text-[13px] bg-secondary/40 border-border rounded-md;
-    @apply focus:border-primary/40 focus:ring-1 focus:ring-primary/20;
-    @apply placeholder:text-muted-foreground/40 transition-all duration-150;
+    @apply h-9 text-[13px] bg-card border-input rounded-md;
+    @apply focus:border-primary/50 focus:ring-2 focus:ring-primary/15;
+    @apply placeholder:text-muted-foreground/50 transition-all duration-150;
   }
 
   /* ── Navigation ── */
   .admin-nav-item {
     @apply flex items-center gap-2 rounded-md text-[13px] font-medium;
-    @apply transition-colors duration-150;
+    @apply transition-all duration-150;
   }
 
   /* ── Page Layout ── */
   .admin-page-header {
     @apply flex items-center justify-between gap-3;
   }
-  /* Page title: 18px gives clear hierarchy over body text (13-14px) */
   .admin-page-title {
-    @apply text-[18px] font-semibold tracking-tight leading-tight;
+    @apply text-[26px] font-semibold tracking-tight leading-tight text-foreground;
   }
   .admin-page-subtitle {
-    @apply text-xs text-muted-foreground mt-0.5;
+    @apply text-[13px] text-muted-foreground mt-1;
   }
   .admin-toolbar {
     @apply flex flex-wrap items-center gap-2;
   }
 
-  /* ── KPI Cards (horizontal: icon + value) — v4: stronger numbers ── */
+  /* ── KPI Cards ── */
   .admin-kpi {
     @apply admin-card p-4 flex items-center gap-3;
     position: relative;
     overflow: hidden;
   }
-  .admin-kpi::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 2px;
-    background: linear-gradient(180deg, transparent, hsl(var(--primary) / 0.4), transparent);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-  .admin-kpi:hover::before { opacity: 1; }
   .admin-kpi-icon {
     @apply h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0;
   }
-  /* KPI value: 24px — prominent number, clear hierarchy */
   .admin-kpi-value {
-    @apply text-[24px] font-bold tracking-tight leading-none text-foreground;
+    @apply text-[26px] font-semibold tracking-tight leading-none text-foreground tabular-nums;
   }
   .admin-kpi-label {
     @apply text-[11px] text-muted-foreground mt-1.5 leading-tight uppercase tracking-[0.08em];
   }
 
-  /* ── Empty States (consistent across all pages) ── */
+  /* ── Empty States ── */
   .admin-empty {
     @apply flex flex-col items-center justify-center py-16 text-center;
   }
   .admin-empty-icon {
-    @apply h-10 w-10 mx-auto text-muted-foreground/20 mb-3;
+    @apply h-10 w-10 mx-auto text-muted-foreground/30 mb-3;
   }
   .admin-empty-title {
-    @apply text-sm font-medium text-muted-foreground/70;
+    @apply text-sm font-medium text-foreground/70;
   }
   .admin-empty-desc {
-    @apply text-xs text-muted-foreground/50 mt-1 max-w-[200px] mx-auto leading-relaxed;
+    @apply text-xs text-muted-foreground mt-1 max-w-[240px] mx-auto leading-relaxed;
+  }
+
+  /* ── Hub badges (sidebar) ── */
+  .hub-dot {
+    @apply h-1.5 w-1.5 rounded-full flex-shrink-0;
   }
 }
 
 @layer utilities {
-  .scroll-smooth {
-    scroll-behavior: smooth;
-  }
+  .scroll-smooth { scroll-behavior: smooth; }
 
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 
   .text-caption {
     @apply text-[11px] uppercase font-medium;
     letter-spacing: 0.15em;
   }
 
+  /* ── Motion utilities ── */
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-
   @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(-8px); }
     to { opacity: 1; transform: translateX(0); }
   }
-
-  .animate-fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
+  @keyframes fabPulse {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.4), var(--shadow-notion-lg); }
+    50% { box-shadow: 0 0 0 12px hsl(var(--accent) / 0); var(--shadow-notion-lg); }
+  }
+  @keyframes pageEnter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
-  }
+  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
+  .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+  .animate-page-enter { animation: pageEnter 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
+  .animate-fab-pulse { animation: fabPulse 2.4s ease-in-out infinite; }
 
-  .animate-slide-in {
-    animation: slideIn 0.3s ease-out forwards;
-  }
-
-  .hover-lift {
-    @apply transition-transform duration-300;
-  }
-  .hover-lift:hover {
-    transform: translateY(-2px);
-  }
+  .hover-lift { @apply transition-transform duration-200; }
+  .hover-lift:hover { transform: translateY(-2px); }
 
   /* Champagne accent line */
   .gold-line {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(var(--sollaris-champagne) / 0.4), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.5), transparent);
   }
 
-  /* Brand marquee */
+  /* Brand marquee (storefront) */
   @keyframes sollaris-marquee {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
-
-  /* Clip-path reveal */
   @keyframes sollaris-reveal-down {
     from { clip-path: inset(0 0 100% 0); }
     to   { clip-path: inset(0 0 0% 0); }
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — discreet on light */
 @media (min-width: 768px) {
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: hsl(var(--secondary)); }
-  ::-webkit-scrollbar-thumb { background: hsl(var(--sollaris-champagne) / 0.2); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--sollaris-champagne) / 0.4); }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
 }
