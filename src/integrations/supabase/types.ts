@@ -474,6 +474,13 @@ export type Database = {
             foreignKeyName: "orders_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
+            referencedRelation: "crediario_summary"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -615,6 +622,9 @@ export type Database = {
           address: string | null
           cargo: string | null
           created_at: string
+          credit_blocked: boolean | null
+          credit_limit: number | null
+          credit_score: number | null
           full_name: string | null
           id: string
           notes: string | null
@@ -625,6 +635,9 @@ export type Database = {
           address?: string | null
           cargo?: string | null
           created_at?: string
+          credit_blocked?: boolean | null
+          credit_limit?: number | null
+          credit_score?: number | null
           full_name?: string | null
           id: string
           notes?: string | null
@@ -635,6 +648,9 @@ export type Database = {
           address?: string | null
           cargo?: string | null
           created_at?: string
+          credit_blocked?: boolean | null
+          credit_limit?: number | null
+          credit_score?: number | null
           full_name?: string | null
           id?: string
           notes?: string | null
@@ -968,6 +984,45 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          movement_type: string
+          new_stock: number | null
+          notes: string | null
+          order_id: string | null
+          previous_stock: number | null
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type: string
+          new_stock?: number | null
+          notes?: string | null
+          order_id?: string | null
+          previous_stock?: number | null
+          product_id: string
+          quantity: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type?: string
+          new_stock?: number | null
+          notes?: string | null
+          order_id?: string | null
+          previous_stock?: number | null
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: []
+      }
       supplier_quotations: {
         Row: {
           category: string | null
@@ -1140,7 +1195,23 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      crediario_summary: {
+        Row: {
+          credit_blocked: boolean | null
+          credit_limit: number | null
+          credit_score: number | null
+          customer_id: string | null
+          full_name: string | null
+          last_payment_date: string | null
+          next_due_date: string | null
+          open_installments: number | null
+          overdue_installments: number | null
+          phone: string | null
+          total_overdue: number | null
+          total_owed: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
