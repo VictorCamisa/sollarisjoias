@@ -422,6 +422,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id: string
+          installments: number
           items: Json
           notes: string | null
           payment_method: string | null
@@ -440,6 +441,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id?: string
+          installments?: number
           items?: Json
           notes?: string | null
           payment_method?: string | null
@@ -458,6 +460,7 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           id?: string
+          installments?: number
           items?: Json
           notes?: string | null
           payment_method?: string | null
@@ -1214,6 +1217,10 @@ export type Database = {
       }
     }
     Functions: {
+      get_or_create_customer_profile: {
+        Args: { _name: string; _phone: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

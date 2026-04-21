@@ -73,7 +73,7 @@ export const NewOrderDialog = ({
   const [productSearch, setProductSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customer, setCustomer] = useState({
-    name: "", phone: "", email: "", notes: "", payment_method: "pix",
+    name: "", phone: "", email: "", notes: "", payment_method: "pix", installments: 1,
   });
   const searchRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -184,12 +184,14 @@ export const NewOrderDialog = ({
       const items = cart.map((i) => ({
         product_id: i.id, name: i.name, price: i.price, quantity: i.quantity,
       }));
+      const isCredit = customer.payment_method === "crediario";
       const { error } = await supabase.from("orders").insert({
         customer_name: customer.name,
         customer_phone: customer.phone,
         customer_email: customer.email || null,
         notes: customer.notes || null,
         payment_method: customer.payment_method,
+        installments: isCredit ? Math.max(1, customer.installments) : 1,
         items, total,
         status: channel === "presencial" ? "confirmed" : "pending",
         sale_channel: channel,
@@ -205,12 +207,12 @@ export const NewOrderDialog = ({
       toast.success(channel === "presencial" ? "✅ Venda presencial registrada!" : "✅ Venda online criada!");
       resetAndClose();
     },
-    onError: () => toast.error("Erro ao registrar venda"),
+    onError: (e: any) => toast.error("Erro ao registrar venda: " + (e?.message || "")),
   });
 
   const resetAndClose = () => {
     setStep("channel"); setChannel(null); setCart([]); setProductSearch("");
-    setCustomer({ name: "", phone: "", email: "", notes: "", payment_method: "pix" });
+    setCustomer({ name: "", phone: "", email: "", notes: "", payment_method: "pix", installments: 1 });
     onOpenChange(false);
   };
 
@@ -489,6 +491,44 @@ export const NewOrderDialog = ({
                   </div>
                 </div>
 
+                {/* Installments selector — only for crediário */}
+                {customer.payment_method === "crediario" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="space-y-1.5 p-3 rounded-lg bg-primary/5 border border-primary/20"
+                  >
+                    <label className="text-[10px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
+                      📋 Número de Parcelas
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[1, 2, 3, 4, 5, 6, 10, 12].map((n) => (
+                        <button
+                          key={n}
+                          onClick={() => setCustomer((c) => ({ ...c, installments: n }))}
+                          className={cn(
+                            "h-8 min-w-[36px] px-2.5 rounded-md text-[12px] font-semibold border transition-all tabular-nums",
+                            customer.installments === n
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border/60 hover:border-primary/40 text-muted-foreground"
+                          )}
+                        >
+                          {n}×
+                        </button>
+                      ))}
+                    </div>
+                    {customer.installments > 1 && total > 0 && (
+                      <p className="text-[10px] text-muted-foreground pt-1">
+                        {customer.installments}× de{" "}
+                        <span className="font-semibold text-foreground">
+                          {fmt(total / customer.installments)}
+                        </span>{" "}
+                        · 1ª vence em 30 dias
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Observações</label>
                   <Textarea
@@ -513,7 +553,7 @@ export const NewOrderDialog = ({
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
                     <div><span className="text-muted-foreground">Canal:</span> <span className="font-medium">{channel === "presencial" ? "🏪 Presencial" : "🌐 Online"}</span></div>
                     <div><span className="text-muted-foreground">Vendedor:</span> <span className="font-medium">{sellerName}</span></div>
-                    <div><span className="text-muted-foreground">Pagamento:</span> <span className="font-medium">{paymentMethods.find((pm) => pm.value === customer.payment_method)?.icon} {paymentMethods.find((pm) => pm.value === customer.payment_method)?.label}</span></div>
+                    <div><span className="text-muted-foreground">Pagamento:</span> <span className="font-medium">{paymentMethods.find((pm) => pm.value === customer.payment_method)?.icon} {paymentMethods.find((pm) => pm.value === customer.payment_method)?.label}{customer.payment_method === "crediario" ? ` ${customer.installments}×` : ""}</span></div>
                     <div><span className="text-muted-foreground">Data:</span> <span className="font-medium">{new Date().toLocaleDateString("pt-BR")}</span></div>
                   </div>
                 </div>
