@@ -11,61 +11,65 @@
        Identidade visual premium · Semijoias
     ═══════════════════════════════════════════════════════════════ */
 
-    /* Primary: Ouro Champagne — main action color */
-    --primary: 39 41% 70%;
-    --primary-foreground: 234 18% 7%;
+    /* ─── v4: high-contrast hierarchy ───
+       3 surface levels: bg (deepest) → card → elevated
+       Champagne richer/warmer · text whiter · borders more present */
 
-    /* Background: Preto Obsidiana #0F0F14 */
-    --background: 234 18% 7%;
-    --foreground: 0 0% 92%;
+    /* Primary: Ouro Champagne — richer, more saturated */
+    --primary: 38 55% 64%;
+    --primary-foreground: 234 22% 5%;
 
-    /* Card: clearer separation from background */
-    --card: 234 12% 11%;
-    --card-foreground: 0 0% 90%;
+    /* Background: Preto Obsidiana profundo */
+    --background: 234 22% 5%;
+    --foreground: 40 12% 96%;
 
-    --popover: 234 12% 12%;
-    --popover-foreground: 0 0% 88%;
+    /* Card: clear lift from background */
+    --card: 234 16% 10%;
+    --card-foreground: 40 10% 95%;
 
-    /* Secondary: for secondary buttons, subtle fills */
-    --secondary: 234 10% 15%;
-    --secondary-foreground: 0 0% 88%;
+    --popover: 234 18% 12%;
+    --popover-foreground: 40 10% 95%;
 
-    /* Muted: for disabled, captions, hints */
-    --muted: 234 8% 18%;
-    --muted-foreground: 234 6% 55%;
+    /* Secondary: elevated surface for chips, subtle fills */
+    --secondary: 234 12% 16%;
+    --secondary-foreground: 40 8% 92%;
 
-    /* Accent: Ouro Champagne — for highlights, links */
-    --accent: 39 41% 70%;
-    --accent-foreground: 234 18% 7%;
+    /* Muted: captions / hints — readable, not faded */
+    --muted: 234 10% 20%;
+    --muted-foreground: 40 6% 68%;
 
-    --destructive: 0 72% 51%;
+    /* Accent: Champagne for highlights, links */
+    --accent: 38 55% 64%;
+    --accent-foreground: 234 22% 5%;
+
+    --destructive: 0 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders — more visible for structure */
-    --border: 234 8% 18%;
-    --input: 234 8% 20%;
-    --ring: 39 41% 70%;
+    /* Borders — visible structure (was 18% → 24%) */
+    --border: 234 10% 24%;
+    --input: 234 10% 22%;
+    --ring: 38 55% 64%;
 
     --radius: 0.625rem;
 
     /* Brand tokens — Sollaris */
-    --sollaris-obsidiana: 234 18% 7%;
-    --sollaris-obsidiana-light: 234 14% 12%;
-    --sollaris-champagne: 39 41% 70%;
-    --sollaris-champagne-light: 39 35% 80%;
-    --sollaris-champagne-pale: 39 25% 88%;
+    --sollaris-obsidiana: 234 22% 5%;
+    --sollaris-obsidiana-light: 234 16% 11%;
+    --sollaris-champagne: 38 55% 64%;
+    --sollaris-champagne-light: 38 48% 76%;
+    --sollaris-champagne-pale: 38 30% 86%;
     --sollaris-white: 0 0% 100%;
     --sollaris-midnight: 228 50% 15%;
 
-    /* Sidebar (admin) */
-    --sidebar-background: 234 14% 9%;
-    --sidebar-foreground: 0 0% 88%;
-    --sidebar-primary: 39 41% 70%;
-    --sidebar-primary-foreground: 234 18% 7%;
-    --sidebar-accent: 234 10% 14%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 234 8% 16%;
-    --sidebar-ring: 39 41% 70%;
+    /* Sidebar (admin) — distinct from main bg for visual anchor */
+    --sidebar-background: 234 24% 4%;
+    --sidebar-foreground: 40 8% 90%;
+    --sidebar-primary: 38 55% 64%;
+    --sidebar-primary-foreground: 234 22% 5%;
+    --sidebar-accent: 234 14% 12%;
+    --sidebar-accent-foreground: 40 10% 96%;
+    --sidebar-border: 234 12% 18%;
+    --sidebar-ring: 38 55% 64%;
 
     /* Status colors — semantic tokens */
     --success: 152 57% 48%;
@@ -127,13 +131,24 @@
 @layer components {
   /* ─── Admin Design System v3 — clear hierarchy, consistent density ─── */
 
-  /* ── Cards ── */
+  /* ── Cards — v4: clear elevation + champagne lift on hover ── */
   .admin-card {
-    @apply bg-card border border-border rounded-lg transition-all duration-150;
+    @apply bg-card border border-border rounded-lg transition-all duration-200;
+    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.02) inset, 0 1px 2px hsl(0 0% 0% / 0.25);
   }
   .admin-card-interactive {
     @apply admin-card cursor-pointer;
-    @apply hover:border-primary/25 hover:bg-card/80;
+    @apply hover:border-primary/40;
+  }
+  .admin-card-interactive:hover {
+    box-shadow:
+      0 1px 0 hsl(var(--primary) / 0.08) inset,
+      0 4px 16px -4px hsl(var(--primary) / 0.12),
+      0 2px 6px hsl(0 0% 0% / 0.3);
+  }
+  /* Elevated surface — for nested panels inside cards */
+  .admin-card-elevated {
+    @apply bg-secondary/60 border border-border rounded-md;
   }
 
   /* Card internal section header */
@@ -147,22 +162,22 @@
     @apply text-[10px] text-muted-foreground mt-1 leading-none;
   }
 
-  /* ── Tables ── */
+  /* ── Tables — v4: stronger header, clearer row separation ── */
   .admin-table {
     @apply w-full text-sm;
   }
   .admin-table thead tr {
-    @apply bg-secondary/40 border-b border-border;
+    @apply bg-secondary/70 border-b-2 border-border;
   }
   .admin-table thead th {
-    @apply text-left px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+    @apply text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground/70;
   }
   .admin-table tbody tr {
-    @apply border-b border-border/50 transition-colors duration-100;
-    @apply hover:bg-secondary/30;
+    @apply border-b border-border/60 transition-colors duration-100;
+    @apply hover:bg-secondary/40;
   }
   .admin-table tbody td {
-    @apply px-3 py-2.5;
+    @apply px-3 py-2.5 text-foreground/90;
   }
 
   /* ── Labels & Sections ── */
@@ -201,19 +216,31 @@
     @apply flex flex-wrap items-center gap-2;
   }
 
-  /* ── KPI Cards (horizontal: icon + value) ── */
+  /* ── KPI Cards (horizontal: icon + value) — v4: stronger numbers ── */
   .admin-kpi {
     @apply admin-card p-4 flex items-center gap-3;
+    position: relative;
+    overflow: hidden;
   }
+  .admin-kpi::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, hsl(var(--primary) / 0.4), transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .admin-kpi:hover::before { opacity: 1; }
   .admin-kpi-icon {
-    @apply h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0;
+    @apply h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0;
   }
-  /* KPI value: 22px — prominent number, clear hierarchy */
+  /* KPI value: 24px — prominent number, clear hierarchy */
   .admin-kpi-value {
-    @apply text-[22px] font-bold tracking-tight leading-none;
+    @apply text-[24px] font-bold tracking-tight leading-none text-foreground;
   }
   .admin-kpi-label {
-    @apply text-[11px] text-muted-foreground mt-1 leading-tight;
+    @apply text-[11px] text-muted-foreground mt-1.5 leading-tight uppercase tracking-[0.08em];
   }
 
   /* ── Empty States (consistent across all pages) ── */

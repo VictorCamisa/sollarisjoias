@@ -3,10 +3,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart,
   Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket,
-  ChevronLeft, Store, Megaphone, Zap, Brain,
+  ChevronLeft, ChevronDown, Store, Megaphone, Zap, Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -54,11 +54,28 @@ const navGroups = [
 
 const allItems = navGroups.flatMap((g) => g.items);
 
+const STORAGE_KEY = "sollaris-admin-nav-collapsed-groups";
+
 const AdminLayout = () => {
   const { isAdmin, loading, signOut, user } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+
+  // Persisted collapsed-group state per group label
+  const [closedGroups, setClosedGroups] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch { return {}; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(closedGroups)); } catch {}
+  }, [closedGroups]);
+
+  const toggleGroup = (label: string) =>
+    setClosedGroups((prev) => ({ ...prev, [label]: !prev[label] }));
 
   if (loading) {
     return (
@@ -79,6 +96,8 @@ const AdminLayout = () => {
     if (item.exact) return location.pathname === item.to;
     return location.pathname.startsWith(item.to);
   };
+
+  const groupHasActive = (group: typeof navGroups[0]) => group.items.some(isActive);
 
   const currentPage = allItems.find((item) => isActive(item));
   const initials = user?.email?.slice(0, 2).toUpperCase() || "AD";
@@ -141,80 +160,109 @@ const AdminLayout = () => {
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 py-2 overflow-y-auto overflow-x-hidden scrollbar-hide">
-            {navGroups.map((group, gi) => (
-              <div key={group.label} className={cn(gi > 0 && "mt-2")}>
-                {/* Group label */}
-                <AnimatePresence>
-                  {!collapsed && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="px-3 mb-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50 select-none"
+          <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-hide">
+            {navGroups.map((group, gi) => {
+              const isClosed = !!closedGroups[group.label];
+              const hasActive = groupHasActive(group);
+              // Force open when a child is active
+              const open = hasActive ? true : !isClosed;
+
+              return (
+                <div key={group.label} className={cn(gi > 0 && "mt-3")}>
+                  {/* Group header — clickable to collapse */}
+                  {!collapsed ? (
+                    <button
+                      onClick={() => toggleGroup(group.label)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 mb-1.5 group/grp",
+                        "text-[9px] font-bold uppercase tracking-[0.18em] select-none transition-colors",
+                        hasActive ? "text-accent/80" : "text-muted-foreground/60 hover:text-foreground/80"
+                      )}
                     >
-                      {group.label}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-                {collapsed && gi > 0 && (
-                  <div className="mx-3 mb-1.5 border-t border-sidebar-border/40" />
-                )}
-
-                <div className="space-y-px px-2">
-                  {group.items.map((item) => {
-                    const active = isActive(item);
-                    const linkEl = (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        className={cn(
-                          "admin-nav-item relative overflow-hidden",
-                          collapsed ? "h-8 w-8 justify-center mx-auto" : "px-2.5 py-[5px] w-full",
-                          active
-                            ? "text-accent bg-accent/10 font-semibold"
-                            : "text-muted-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-                        )}
-                      >
-                        {/* Left active indicator bar */}
-                        {active && !collapsed && (
-                          <span className="absolute left-0 inset-y-1 w-[3px] rounded-r-full bg-accent" aria-hidden="true" />
-                        )}
-                        <item.icon className={cn(
-                          "h-[14px] w-[14px] flex-shrink-0",
-                          active ? "text-accent" : "text-muted-foreground/60"
+                      <span className="flex items-center gap-1.5">
+                        <span className={cn(
+                          "h-px w-3 transition-colors",
+                          hasActive ? "bg-accent/60" : "bg-border group-hover/grp:bg-foreground/40"
                         )} />
-                        <AnimatePresence>
-                          {!collapsed && (
-                            <motion.span
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.1 }}
-                              className="whitespace-nowrap"
-                            >
-                              {item.label}
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
-                      </Link>
-                    );
+                        {group.label}
+                      </span>
+                      <ChevronDown className={cn(
+                        "h-3 w-3 transition-transform duration-200",
+                        open ? "rotate-0" : "-rotate-90",
+                        "opacity-50 group-hover/grp:opacity-100"
+                      )} />
+                    </button>
+                  ) : (
+                    gi > 0 && <div className="mx-3 mb-2 border-t border-sidebar-border/60" />
+                  )}
 
-                    if (collapsed) {
-                      return (
-                        <Tooltip key={item.to}>
-                          <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
-                          <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">
-                            {item.label}
-                          </TooltipContent>
-                        </Tooltip>
-                      );
-                    }
-                    return <div key={item.to}>{linkEl}</div>;
-                  })}
+                  {/* Items */}
+                  <AnimatePresence initial={false}>
+                    {(collapsed || open) && (
+                      <motion.div
+                        initial={collapsed ? false : { height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-px px-2 pb-1">
+                          {group.items.map((item) => {
+                            const active = isActive(item);
+                            const linkEl = (
+                              <Link
+                                key={item.to}
+                                to={item.to}
+                                className={cn(
+                                  "admin-nav-item relative overflow-hidden",
+                                  collapsed ? "h-8 w-8 justify-center mx-auto" : "px-2.5 py-1.5 w-full",
+                                  active
+                                    ? "text-accent bg-accent/12 font-semibold"
+                                    : "text-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
+                                )}
+                              >
+                                {active && !collapsed && (
+                                  <span className="absolute left-0 inset-y-1 w-[3px] rounded-r-full bg-accent" aria-hidden="true" />
+                                )}
+                                <item.icon className={cn(
+                                  "h-[14px] w-[14px] flex-shrink-0",
+                                  active ? "text-accent" : "text-foreground/55"
+                                )} />
+                                <AnimatePresence>
+                                  {!collapsed && (
+                                    <motion.span
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: 1 }}
+                                      exit={{ opacity: 0 }}
+                                      transition={{ duration: 0.1 }}
+                                      className="whitespace-nowrap"
+                                    >
+                                      {item.label}
+                                    </motion.span>
+                                  )}
+                                </AnimatePresence>
+                              </Link>
+                            );
+
+                            if (collapsed) {
+                              return (
+                                <Tooltip key={item.to}>
+                                  <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
+                                  <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">
+                                    {item.label}
+                                  </TooltipContent>
+                                </Tooltip>
+                              );
+                            }
+                            return <div key={item.to}>{linkEl}</div>;
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
 
           {/* Footer */}
