@@ -46,3 +46,5 @@ type: reference
 - [AI Image Logic](mem://features/admin-marketing-ai-image-logic) — Visual Context Injection details
 - [Mobile Tech Standards](mem://constraints/mobile-technical-standards) — Viewport and scroll setup
 - [Scroll Behavior](mem://constraints/scroll-behavior-standards) — overflow-x rules
+- [Admin Dark Mode](mem://style/admin-dark-mode) — Toggle claro/escuro na topbar, tokens .dark obsidiana
+- [Sales-Finance-Stock Integration](mem://features/sales-finance-stock-integration) — Triggers DB: venda→estoque→financeiro→crediário
