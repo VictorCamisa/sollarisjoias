@@ -224,7 +224,7 @@ export const NewOrderDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] flex flex-col p-0 gap-0 bg-card border-border overflow-hidden">
+      <DialogContent className="max-w-lg max-h-[90dvh] flex flex-col p-0 gap-0 bg-card border-border overflow-hidden">
         {/* ── Header with progress ── */}
         <div className="px-4 pt-4 pb-3 border-b border-border/60">
           <DialogHeader className="mb-3">
@@ -272,7 +272,7 @@ export const NewOrderDialog = ({
         </div>
 
         {/* ── Content ── */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <AnimatePresence mode="wait">
             {/* Step 1: Channel */}
             {step === "channel" && (
@@ -427,7 +427,7 @@ export const NewOrderDialog = ({
 
             {/* Step 3: Customer + Payment */}
             {step === "customer" && (
-              <motion.div key="customer" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.15 }} className="px-4 py-4 space-y-3 overflow-y-auto max-h-[50vh]">
+              <motion.div key="customer" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.15 }} className="px-4 py-4 space-y-3">
                 {/* Quick summary */}
                 <div className="flex items-center gap-2 p-2.5 rounded-lg bg-secondary/30 border border-border/50 text-[11px]">
                   <Package className="h-3.5 w-3.5 text-primary" />
@@ -543,7 +543,7 @@ export const NewOrderDialog = ({
 
             {/* Step 4: Confirmation */}
             {step === "confirm" && (
-              <motion.div key="confirm" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.15 }} className="px-4 py-4 space-y-3 overflow-y-auto max-h-[50vh]">
+              <motion.div key="confirm" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.15 }} className="px-4 py-4 space-y-3">
                 {/* Sale details */}
                 <div className="rounded-xl bg-gradient-to-br from-primary/5 to-primary/0 border border-primary/15 p-4 space-y-3">
                   <div className="flex items-center gap-2">
