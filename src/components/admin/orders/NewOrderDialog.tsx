@@ -184,12 +184,14 @@ export const NewOrderDialog = ({
       const items = cart.map((i) => ({
         product_id: i.id, name: i.name, price: i.price, quantity: i.quantity,
       }));
+      const isCredit = customer.payment_method === "crediario";
       const { error } = await supabase.from("orders").insert({
         customer_name: customer.name,
         customer_phone: customer.phone,
         customer_email: customer.email || null,
         notes: customer.notes || null,
         payment_method: customer.payment_method,
+        installments: isCredit ? Math.max(1, customer.installments) : 1,
         items, total,
         status: channel === "presencial" ? "confirmed" : "pending",
         sale_channel: channel,
@@ -205,12 +207,12 @@ export const NewOrderDialog = ({
       toast.success(channel === "presencial" ? "✅ Venda presencial registrada!" : "✅ Venda online criada!");
       resetAndClose();
     },
-    onError: () => toast.error("Erro ao registrar venda"),
+    onError: (e: any) => toast.error("Erro ao registrar venda: " + (e?.message || "")),
   });
 
   const resetAndClose = () => {
     setStep("channel"); setChannel(null); setCart([]); setProductSearch("");
-    setCustomer({ name: "", phone: "", email: "", notes: "", payment_method: "pix" });
+    setCustomer({ name: "", phone: "", email: "", notes: "", payment_method: "pix", installments: 1 });
     onOpenChange(false);
   };
 
