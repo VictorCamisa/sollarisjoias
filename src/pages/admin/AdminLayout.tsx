@@ -337,10 +337,11 @@ const AdminLayout = () => {
               </div>
               <span className="text-[13px] font-semibold tracking-tight text-foreground">Sollaris</span>
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {currentPage && (
                 <span className="text-[11px] font-medium text-muted-foreground">{currentPage.label}</span>
               )}
+              <ThemeToggle />
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
