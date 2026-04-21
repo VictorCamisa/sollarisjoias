@@ -65,14 +65,13 @@ serve(async (req) => {
 
     if (!imageUrl) return jsonError(400, "imageUrl é obrigatório");
 
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Build product hint
     const productDetails = [
       productName,
       material ? `material ${material}` : null,
@@ -80,18 +79,16 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    // EDIT prompts — SOLLARIS brand standard: fundo OBSIDIAN (preto profundo #0A0A0B).
-    // CRITICAL: preservar 100% a peça original — mesma forma, mesmos detalhes, mesmas pedras, mesmo acabamento.
     const BRAND_PRESERVE =
-      "ABSOLUTE RULE: This is a PHOTO RETOUCH task, NOT a generation task. You MUST preserve the input jewelry piece pixel-for-pixel: identical silhouette, identical contour, identical gemstone (same color, same cut, same size, same position, same number of prongs), identical chain links, identical metal tone and plating, identical proportions, identical orientation. Do NOT redesign, do NOT restyle the piece, do NOT change the gem color, do NOT add or remove any element of the jewelry, do NOT swap stone shapes, do NOT alter chain pattern. The piece in the output MUST be visually indistinguishable from the input piece — only the BACKGROUND and LIGHTING may change.";
+      "ABSOLUTE RULE: This is a PHOTO RETOUCH task, NOT a new design. Preserve the original jewelry exactly: same silhouette, same gemstone color and cut, same chain pattern, same metal finish, same proportions, same orientation, same prongs, same visible details. Do not redesign, do not restyle, do not change the product structure. Only improve the photo treatment, background and lighting.";
 
     const stylePrompts: Record<string, string> = {
       catalog:
-        `${BRAND_PRESERVE} Replace ONLY the background with a seamless deep OBSIDIAN black backdrop (#0A0A0B, true matte black, no gradient, no texture, no vignette edges). Apply soft professional studio lighting from above-front with subtle champagne gold rim light to reveal metal facets and gemstone brilliance. Keep the piece perfectly centered, portrait composition, generous negative space. Add a very faint natural shadow under the piece. Photorealistic luxury jewelry product photography in the style of Cartier and Bottega Veneta catalogs. Absolutely NO text, NO logos, NO watermarks, NO captions, NO typography anywhere in the image.`,
+        `${BRAND_PRESERVE} Replace only the background with a seamless obsidian black backdrop (#0A0A0B). Use luxury studio lighting, soft frontal light, subtle champagne highlights, clean premium jewelry e-commerce aesthetic, centered composition, photorealistic. No text, no logo, no watermark, no typography.`,
       mockup:
-        `${BRAND_PRESERVE} Replace ONLY the background and lighting: place the unchanged piece on a smooth obsidian black surface (#0A0A0B) with subtle reflection beneath it, deep black bokeh background, dramatic warm champagne gold side lighting that highlights the metal edges and gemstone facets. Editorial luxury magazine mood, Vogue Joalheria style. Photorealistic. Absolutely NO text, NO logos, NO watermarks, NO captions, NO typography.`,
+        `${BRAND_PRESERVE} Keep the exact same jewelry piece and place it in a luxury editorial product scene with obsidian black environment, subtle reflective surface, dramatic warm champagne side light, photorealistic, premium fashion jewelry direction. No text, no logo, no watermark, no typography.`,
       lifestyle:
-        `${BRAND_PRESERVE} Place the unchanged piece in a moody editorial lifestyle scene with deep obsidian black tones dominating the frame (dark interior, dark fabric, low-key lighting), warm champagne gold accent light on the jewelry. The piece must remain clearly visible, identical to the input, and be the absolute hero of the frame. Vogue Brasil editorial feel, sophisticated and minimal. Photorealistic. Absolutely NO text, NO logos, NO watermarks, NO captions, NO typography.`,
+        `${BRAND_PRESERVE} Keep the exact same jewelry piece and place it in a dark editorial lifestyle scene with obsidian black mood, soft warm highlights, premium fashion styling, but the jewelry must remain the hero and visually identical to the input. Photorealistic. No text, no logo, no watermark, no typography.`,
     };
 
     const styleDesc = stylePrompts[style] || stylePrompts.catalog;
@@ -99,47 +96,50 @@ serve(async (req) => {
       ? `${styleDesc}\n\nProduct reference: ${productDetails}.`
       : styleDesc;
 
-    // Fetch input image bytes (the REAL product photo we want to preserve)
-    const input = await fetchImageBytes(imageUrl);
-    if (!input) return jsonError(400, "Não foi possível carregar a imagem original. Verifique a URL.");
-
-    // Use OpenAI /images/edits with gpt-image-1 — this preserves the actual product
-    const formData = new FormData();
-    formData.append("model", "gpt-image-1");
-    formData.append("prompt", finalPrompt);
-    formData.append("size", "1024x1024");
-    formData.append("n", "1");
-    formData.append(
-      "image",
-      new Blob([input.bytes], { type: input.contentType }),
-      "input.png",
-    );
-
-    let imageBase64: string | undefined;
-
-    const editRes = await fetch("https://api.openai.com/v1/images/edits", {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
-      body: formData,
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3.1-flash-image-preview",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: finalPrompt },
+              { type: "image_url", image_url: { url: imageUrl } },
+            ],
+          },
+        ],
+        modalities: ["image", "text"],
+      }),
     });
 
-    if (editRes.ok) {
-      const editData = await editRes.json();
-      imageBase64 = editData.data?.[0]?.b64_json;
-      if (!imageBase64 && editData.data?.[0]?.url) {
-        const fetched = await fetchImageBytes(editData.data[0].url);
-        if (fetched) {
-          let bin = "";
-          for (let i = 0; i < fetched.bytes.length; i++) bin += String.fromCharCode(fetched.bytes[i]);
-          imageBase64 = btoa(bin);
-        }
-      }
+    if (!aiRes.ok) {
+      const errText = await aiRes.text();
+      console.error("lovable image edit error:", aiRes.status, errText);
+      if (aiRes.status === 429) return jsonError(429, "Limite de requisições atingido. Tente em alguns segundos.");
+      if (aiRes.status === 402) return jsonError(402, "Créditos de IA insuficientes no workspace.");
+      return jsonError(500, `Falha ao processar a foto (${aiRes.status}).`);
+    }
+
+    const aiData = await aiRes.json();
+    const generatedUrl = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    if (!generatedUrl) return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
+
+    let imageBase64: string | undefined;
+    if (generatedUrl.startsWith("data:image/")) {
+      const base64Part = generatedUrl.split(",")[1];
+      imageBase64 = base64Part;
     } else {
-      const errText = await editRes.text();
-      console.error("images/edits error:", editRes.status, errText);
-      if (editRes.status === 429) return jsonError(429, "Limite de requisições atingido. Tente em alguns segundos.");
-      if (editRes.status === 401) return jsonError(500, "Chave OpenAI inválida.");
-      return jsonError(500, `Falha ao editar a foto (${editRes.status}). A foto original precisa ser PNG/JPG válida.`);
+      const fetched = await fetchImageBytes(generatedUrl);
+      if (fetched) {
+        let bin = "";
+        for (let i = 0; i < fetched.bytes.length; i++) bin += String.fromCharCode(fetched.bytes[i]);
+        imageBase64 = btoa(bin);
+      }
     }
 
     if (!imageBase64) return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
