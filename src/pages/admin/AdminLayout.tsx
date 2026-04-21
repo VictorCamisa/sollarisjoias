@@ -54,11 +54,28 @@ const navGroups = [
 
 const allItems = navGroups.flatMap((g) => g.items);
 
+const STORAGE_KEY = "sollaris-admin-nav-collapsed-groups";
+
 const AdminLayout = () => {
   const { isAdmin, loading, signOut, user } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+
+  // Persisted collapsed-group state per group label
+  const [closedGroups, setClosedGroups] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch { return {}; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(closedGroups)); } catch {}
+  }, [closedGroups]);
+
+  const toggleGroup = (label: string) =>
+    setClosedGroups((prev) => ({ ...prev, [label]: !prev[label] }));
 
   if (loading) {
     return (
@@ -79,6 +96,8 @@ const AdminLayout = () => {
     if (item.exact) return location.pathname === item.to;
     return location.pathname.startsWith(item.to);
   };
+
+  const groupHasActive = (group: typeof navGroups[0]) => group.items.some(isActive);
 
   const currentPage = allItems.find((item) => isActive(item));
   const initials = user?.email?.slice(0, 2).toUpperCase() || "AD";
