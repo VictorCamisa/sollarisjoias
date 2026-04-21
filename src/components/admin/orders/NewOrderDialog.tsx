@@ -491,6 +491,44 @@ export const NewOrderDialog = ({
                   </div>
                 </div>
 
+                {/* Installments selector — only for crediário */}
+                {customer.payment_method === "crediario" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="space-y-1.5 p-3 rounded-lg bg-primary/5 border border-primary/20"
+                  >
+                    <label className="text-[10px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
+                      📋 Número de Parcelas
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[1, 2, 3, 4, 5, 6, 10, 12].map((n) => (
+                        <button
+                          key={n}
+                          onClick={() => setCustomer((c) => ({ ...c, installments: n }))}
+                          className={cn(
+                            "h-8 min-w-[36px] px-2.5 rounded-md text-[12px] font-semibold border transition-all tabular-nums",
+                            customer.installments === n
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border/60 hover:border-primary/40 text-muted-foreground"
+                          )}
+                        >
+                          {n}×
+                        </button>
+                      ))}
+                    </div>
+                    {customer.installments > 1 && total > 0 && (
+                      <p className="text-[10px] text-muted-foreground pt-1">
+                        {customer.installments}× de{" "}
+                        <span className="font-semibold text-foreground">
+                          {fmt(total / customer.installments)}
+                        </span>{" "}
+                        · 1ª vence em 30 dias
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Observações</label>
                   <Textarea
