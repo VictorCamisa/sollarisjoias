@@ -70,14 +70,18 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    // EDIT prompts — não recriar, apenas relight + background. NUNCA mudar a forma da peça.
+    // EDIT prompts — SOLLARIS brand standard: fundo OBSIDIAN (preto profundo #0A0A0B).
+    // CRITICAL: preservar 100% a peça original — mesma forma, mesmos detalhes, mesmas pedras, mesmo acabamento.
+    const BRAND_PRESERVE =
+      "ABSOLUTE RULE: This is a PHOTO RETOUCH task, NOT a generation task. You MUST preserve the input jewelry piece pixel-for-pixel: identical silhouette, identical contour, identical gemstone (same color, same cut, same size, same position, same number of prongs), identical chain links, identical metal tone and plating, identical proportions, identical orientation. Do NOT redesign, do NOT restyle the piece, do NOT change the gem color, do NOT add or remove any element of the jewelry, do NOT swap stone shapes, do NOT alter chain pattern. The piece in the output MUST be visually indistinguishable from the input piece — only the BACKGROUND and LIGHTING may change.";
+
     const stylePrompts: Record<string, string> = {
       catalog:
-        "Keep the EXACT same jewelry piece from the input photo — same shape, same details, same proportions, same gemstones, same metal finish. Do NOT redesign or alter the piece in any way. Only: replace the background with a clean, seamless pure white (#FFFFFF) studio backdrop, apply professional even soft lighting from above and front, render fine micro-details (metal texture, gem facets, plating sheen), add a very subtle natural drop shadow under the piece. Center the piece in portrait composition. Photorealistic product photography. Absolutely no text, no logos, no captions, no typography.",
+        `${BRAND_PRESERVE} Replace ONLY the background with a seamless deep OBSIDIAN black backdrop (#0A0A0B, true matte black, no gradient, no texture, no vignette edges). Apply soft professional studio lighting from above-front with subtle champagne gold rim light to reveal metal facets and gemstone brilliance. Keep the piece perfectly centered, portrait composition, generous negative space. Add a very faint natural shadow under the piece. Photorealistic luxury jewelry product photography in the style of Cartier and Bottega Veneta catalogs. Absolutely NO text, NO logos, NO watermarks, NO captions, NO typography anywhere in the image.`,
       mockup:
-        "Keep the EXACT same jewelry piece from the input photo — same shape, details, gemstones, finish. Do NOT redesign. Only relight and restyle: place it on an elegant deep charcoal (#0F0F14) surface with luxury editorial mood, dramatic side lighting with warm champagne gold accent highlights on the metal, subtle bokeh dark background, magazine-quality jewelry photography. Photorealistic. No text, no logos, no captions.",
+        `${BRAND_PRESERVE} Replace ONLY the background and lighting: place the unchanged piece on a smooth obsidian black surface (#0A0A0B) with subtle reflection beneath it, deep black bokeh background, dramatic warm champagne gold side lighting that highlights the metal edges and gemstone facets. Editorial luxury magazine mood, Vogue Joalheria style. Photorealistic. Absolutely NO text, NO logos, NO watermarks, NO captions, NO typography.`,
       lifestyle:
-        "Keep the EXACT same jewelry piece from the input photo — same shape, details, finish. Do NOT redesign the piece. Place the same piece worn naturally by a stylish woman in a warm editorial lifestyle scene (soft natural light, modern Brazilian interior or golden hour outdoor), Vogue Brasil editorial feel. The jewelry must remain clearly visible, identical to the input, and be the hero. Photorealistic. No text, no logos, no captions.",
+        `${BRAND_PRESERVE} Place the unchanged piece in a moody editorial lifestyle scene with deep obsidian black tones dominating the frame (dark interior, dark fabric, low-key lighting), warm champagne gold accent light on the jewelry. The piece must remain clearly visible, identical to the input, and be the absolute hero of the frame. Vogue Brasil editorial feel, sophisticated and minimal. Photorealistic. Absolutely NO text, NO logos, NO watermarks, NO captions, NO typography.`,
     };
 
     const styleDesc = stylePrompts[style] || stylePrompts.catalog;
