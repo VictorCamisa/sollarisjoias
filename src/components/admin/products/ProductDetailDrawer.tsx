@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, ExternalLink, Package, Tag, Gem, Weight, Layers } from "lucide-react";
+import { Pencil, Trash2, Package, Tag, Gem, Weight, Layers, TrendingUp, Calendar, Building2 } from "lucide-react";
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 

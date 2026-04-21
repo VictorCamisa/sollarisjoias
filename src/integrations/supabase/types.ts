@@ -484,6 +484,12 @@ export type Database = {
           banho: string | null
           category_id: string | null
           colors: string[] | null
+          cost_fees: number | null
+          cost_packaging: number | null
+          cost_shipping: number | null
+          cost_taxes: number | null
+          cost_total: number | null
+          cost_unit: number | null
           created_at: string
           description: string | null
           foto_detalhe: string | null
@@ -494,16 +500,21 @@ export type Database = {
           images: string[] | null
           internal_notes: string | null
           is_featured: boolean
+          markup_percent: number | null
           material: string | null
           name: string
           original_price: number | null
           pedra: string | null
           price: number
           priority: string | null
+          profit_amount: number | null
+          purchase_date: string | null
           sizes: string[] | null
           sku: string | null
           stock_quantity: number | null
           stock_status: boolean
+          supplier_code: string | null
+          supplier_name: string | null
           tags: string[] | null
           tags_seo: string | null
           updated_at: string
@@ -513,6 +524,12 @@ export type Database = {
           banho?: string | null
           category_id?: string | null
           colors?: string[] | null
+          cost_fees?: number | null
+          cost_packaging?: number | null
+          cost_shipping?: number | null
+          cost_taxes?: number | null
+          cost_total?: number | null
+          cost_unit?: number | null
           created_at?: string
           description?: string | null
           foto_detalhe?: string | null
@@ -523,16 +540,21 @@ export type Database = {
           images?: string[] | null
           internal_notes?: string | null
           is_featured?: boolean
+          markup_percent?: number | null
           material?: string | null
           name: string
           original_price?: number | null
           pedra?: string | null
           price?: number
           priority?: string | null
+          profit_amount?: number | null
+          purchase_date?: string | null
           sizes?: string[] | null
           sku?: string | null
           stock_quantity?: number | null
           stock_status?: boolean
+          supplier_code?: string | null
+          supplier_name?: string | null
           tags?: string[] | null
           tags_seo?: string | null
           updated_at?: string
@@ -542,6 +564,12 @@ export type Database = {
           banho?: string | null
           category_id?: string | null
           colors?: string[] | null
+          cost_fees?: number | null
+          cost_packaging?: number | null
+          cost_shipping?: number | null
+          cost_taxes?: number | null
+          cost_total?: number | null
+          cost_unit?: number | null
           created_at?: string
           description?: string | null
           foto_detalhe?: string | null
@@ -552,16 +580,21 @@ export type Database = {
           images?: string[] | null
           internal_notes?: string | null
           is_featured?: boolean
+          markup_percent?: number | null
           material?: string | null
           name?: string
           original_price?: number | null
           pedra?: string | null
           price?: number
           priority?: string | null
+          profit_amount?: number | null
+          purchase_date?: string | null
           sizes?: string[] | null
           sku?: string | null
           stock_quantity?: number | null
           stock_status?: boolean
+          supplier_code?: string | null
+          supplier_name?: string | null
           tags?: string[] | null
           tags_seo?: string | null
           updated_at?: string
