@@ -89,6 +89,68 @@
     --shadow-notion-md: 0 2px 4px hsl(234 22% 9% / 0.04), 0 4px 12px hsl(234 22% 9% / 0.06);
     --shadow-notion-lg: 0 4px 8px hsl(234 22% 9% / 0.05), 0 12px 32px hsl(234 22% 9% / 0.10);
   }
+
+  /* ═══════════════════════════════════════════════════════════════
+     DARK MODE — Obsidiana Deep + Champagne Luminoso
+     Ref: Linear dark + Vercel admin
+  ═══════════════════════════════════════════════════════════════ */
+  .dark {
+    --background: 234 18% 7%;            /* obsidiana profunda */
+    --foreground: 36 18% 94%;            /* creme suave */
+
+    --card: 234 16% 10%;                 /* card elevado */
+    --card-foreground: 36 18% 94%;
+
+    --popover: 234 18% 11%;
+    --popover-foreground: 36 18% 94%;
+
+    --secondary: 234 14% 13%;
+    --secondary-foreground: 36 14% 88%;
+
+    --muted: 234 12% 16%;
+    --muted-foreground: 234 8% 62%;
+
+    --primary: 36 70% 60%;               /* champagne luminoso */
+    --primary-foreground: 234 22% 7%;
+
+    --accent: 36 70% 60%;
+    --accent-foreground: 234 22% 7%;
+
+    --destructive: 0 70% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 234 12% 18%;
+    --input: 234 12% 16%;
+    --ring: 36 70% 60%;
+
+    /* Sidebar dark */
+    --sidebar-background: 234 20% 5%;
+    --sidebar-foreground: 36 14% 86%;
+    --sidebar-primary: 36 70% 60%;
+    --sidebar-primary-foreground: 234 22% 7%;
+    --sidebar-accent: 234 14% 12%;
+    --sidebar-accent-foreground: 36 18% 94%;
+    --sidebar-border: 234 12% 14%;
+    --sidebar-ring: 36 70% 60%;
+
+    /* Status — vibrantes em fundo escuro */
+    --success: 152 65% 50%;
+    --success-foreground: 234 22% 7%;
+    --warning: 38 95% 58%;
+    --warning-foreground: 234 22% 7%;
+    --info: 217 90% 62%;
+    --info-foreground: 234 22% 7%;
+
+    /* Hubs — saturados pra brilhar no dark */
+    --hub-comercial: 245 80% 68%;
+    --hub-operacao: 158 65% 50%;
+    --hub-financas: 38 95% 58%;
+
+    /* Sombras dark — pretas profundas */
+    --shadow-notion-sm: 0 1px 2px hsl(0 0% 0% / 0.30), 0 1px 1px hsl(0 0% 0% / 0.20);
+    --shadow-notion-md: 0 2px 4px hsl(0 0% 0% / 0.30), 0 4px 12px hsl(0 0% 0% / 0.40);
+    --shadow-notion-lg: 0 4px 8px hsl(0 0% 0% / 0.40), 0 12px 32px hsl(0 0% 0% / 0.55);
+  }
 }
 
 @layer base {
