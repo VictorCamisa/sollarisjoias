@@ -289,8 +289,8 @@
     to { opacity: 1; transform: translateX(0); }
   }
   @keyframes fabPulse {
-    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.4), var(--shadow-notion-lg); }
-    50% { box-shadow: 0 0 0 12px hsl(var(--accent) / 0); var(--shadow-notion-lg); }
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.45), 0 12px 32px hsl(234 22% 9% / 0.18); }
+    50%      { box-shadow: 0 0 0 14px hsl(var(--accent) / 0),    0 12px 32px hsl(234 22% 9% / 0.18); }
   }
   @keyframes pageEnter {
     from { opacity: 0; transform: translateY(6px); }
