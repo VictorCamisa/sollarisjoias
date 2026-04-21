@@ -77,9 +77,19 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
   const saveMutation = useMutation({
     mutationFn: async () => {
       const stockQty = parseInt(form.stock_quantity) || 0;
+      const cu = parseFloat(form.cost_unit) || 0;
+      const cp = parseFloat(form.cost_packaging) || 0;
+      const cs = parseFloat(form.cost_shipping) || 0;
+      const ct = parseFloat(form.cost_taxes) || 0;
+      const cf = parseFloat(form.cost_fees) || 0;
+      const costTotal = cu + cp + cs + ct + cf;
+      const sellPrice = parseFloat(form.price) || 0;
+      const profit = sellPrice - costTotal;
+      const markup = costTotal > 0 ? (profit / costTotal) * 100 : 0;
+
       const payload = {
         name: form.name, sku: form.sku || null, description: form.description || null,
-        price: parseFloat(form.price) || 0, original_price: parseFloat(form.original_price) || null,
+        price: sellPrice, original_price: parseFloat(form.original_price) || null,
         category_id: form.category_id || null,
         sizes: form.sizes ? form.sizes.split(",").map((s) => s.trim()) : [],
         colors: form.colors ? form.colors.split(",").map((s) => s.trim()) : [],
@@ -93,6 +103,12 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
         foto_frontal: form.foto_frontal || null, foto_lateral: form.foto_lateral || null,
         foto_lifestyle: form.foto_lifestyle || null, foto_detalhe: form.foto_detalhe || null,
         images: form.images,
+        cost_unit: cu, cost_packaging: cp, cost_shipping: cs, cost_taxes: ct, cost_fees: cf,
+        cost_total: costTotal, profit_amount: profit,
+        markup_percent: Math.round(markup * 100) / 100,
+        supplier_name: form.supplier_name || null,
+        supplier_code: form.supplier_code || null,
+        purchase_date: form.purchase_date || null,
       };
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
