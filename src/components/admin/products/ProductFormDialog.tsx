@@ -549,6 +549,101 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
                 </div>
               </TabsContent>
 
+              {/* TAB: Custos & Margem */}
+              <TabsContent value="costs" className="mt-0 space-y-4">
+                {(() => {
+                  const cu = parseFloat(form.cost_unit) || 0;
+                  const cp = parseFloat(form.cost_packaging) || 0;
+                  const cs = parseFloat(form.cost_shipping) || 0;
+                  const ct = parseFloat(form.cost_taxes) || 0;
+                  const cf = parseFloat(form.cost_fees) || 0;
+                  const total = cu + cp + cs + ct + cf;
+                  const sell = parseFloat(form.price) || 0;
+                  const profit = sell - total;
+                  const markup = total > 0 ? (profit / total) * 100 : 0;
+                  const markupColor =
+                    markup >= 50 ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" :
+                    markup >= 35 ? "text-amber-400 border-amber-500/30 bg-amber-500/10" :
+                    "text-red-400 border-red-500/30 bg-red-500/10";
+                  const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+                  return (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Custo unitário</Label>
+                          <Input type="number" step="0.01" value={form.cost_unit} onChange={(e) => set("cost_unit", e.target.value)} className="admin-input" placeholder="0,00" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Embalagem</Label>
+                          <Input type="number" step="0.01" value={form.cost_packaging} onChange={(e) => set("cost_packaging", e.target.value)} className="admin-input" placeholder="0,00" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Frete</Label>
+                          <Input type="number" step="0.01" value={form.cost_shipping} onChange={(e) => set("cost_shipping", e.target.value)} className="admin-input" placeholder="0,00" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Impostos</Label>
+                          <Input type="number" step="0.01" value={form.cost_taxes} onChange={(e) => set("cost_taxes", e.target.value)} className="admin-input" placeholder="0,00" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Taxas</Label>
+                          <Input type="number" step="0.01" value={form.cost_fees} onChange={(e) => set("cost_fees", e.target.value)} className="admin-input" placeholder="0,00" />
+                        </div>
+                      </div>
+
+                      {/* Live calculation panel */}
+                      <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                          <span className="text-xs font-semibold">Resumo de precificação</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Custo total</p>
+                            <p className="text-sm font-semibold tabular-nums">{fmt(total)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Preço de venda</p>
+                            <p className="text-sm font-semibold tabular-nums">{fmt(sell)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Lucro</p>
+                            <p className={`text-sm font-semibold tabular-nums ${profit >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fmt(profit)}</p>
+                          </div>
+                        </div>
+                        <div className={`rounded-lg border px-3 py-2 flex items-center justify-between ${markupColor}`}>
+                          <span className="text-[10px] uppercase tracking-wider opacity-80">Markup / Margem sobre custo</span>
+                          <span className="text-base font-bold tabular-nums">{markup.toFixed(1)}%</span>
+                        </div>
+                        {total > 0 && sell > 0 && markup < 35 && (
+                          <p className="text-[10px] text-amber-400 flex items-start gap-1.5">
+                            <RefreshCw className="h-2.5 w-2.5 mt-0.5 shrink-0" />
+                            Margem abaixo de 35% — considere revisar o preço.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Fornecedor</Label>
+                          <Input value={form.supplier_name} onChange={(e) => set("supplier_name", e.target.value)} className="admin-input" placeholder="Nome do fornecedor" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Código no fornecedor</Label>
+                          <Input value={form.supplier_code} onChange={(e) => set("supplier_code", e.target.value)} className="admin-input" placeholder="REF-123" />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Data da compra</Label>
+                        <Input type="date" value={form.purchase_date} onChange={(e) => set("purchase_date", e.target.value)} className="admin-input" />
+                      </div>
+                    </>
+                  );
+                })()}
+              </TabsContent>
+
               {/* TAB: SEO & Notas */}
               <TabsContent value="seo" className="mt-0 space-y-4">
                 <div className="space-y-1">
