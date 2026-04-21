@@ -14,7 +14,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "@/hooks/useStore";
 import {
   Package, Image as ImageIcon, Tag, Settings2,
-  Sparkles, Loader2, CheckCircle2, RefreshCw, Wand2,
+  Sparkles, Loader2, CheckCircle2, RefreshCw, Wand2, DollarSign, TrendingUp,
 } from "lucide-react";
 
 export interface ProductForm {
@@ -24,6 +24,10 @@ export interface ProductForm {
   stock_quantity: string; is_featured: boolean; stock_status: boolean; internal_notes: string;
   foto_frontal: string; foto_lateral: string; foto_lifestyle: string; foto_detalhe: string;
   images: string[];
+  // Custos & precificação
+  cost_unit: string; cost_packaging: string; cost_shipping: string;
+  cost_taxes: string; cost_fees: string;
+  supplier_name: string; supplier_code: string; purchase_date: string;
 }
 
 export const emptyForm: ProductForm = {
@@ -33,6 +37,9 @@ export const emptyForm: ProductForm = {
   stock_quantity: "0", is_featured: false, stock_status: true,
   internal_notes: "", foto_frontal: "", foto_lateral: "",
   foto_lifestyle: "", foto_detalhe: "", images: [],
+  cost_unit: "", cost_packaging: "", cost_shipping: "",
+  cost_taxes: "", cost_fees: "",
+  supplier_name: "", supplier_code: "", purchase_date: "",
 };
 
 interface SeoSuggestions {
