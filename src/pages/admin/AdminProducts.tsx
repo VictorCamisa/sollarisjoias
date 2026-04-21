@@ -308,20 +308,20 @@ const AdminProducts = () => {
                   </div>
 
                   {/* Photo indicator */}
-                  <div className="hidden md:flex justify-center">
+                  <div className="hidden md:flex justify-center" title={hasPic ? "Tem foto" : "Sem foto"}>
                     {hasPic ? (
-                      <Camera className="h-3.5 w-3.5 text-emerald-400" title="Tem foto" />
+                      <Camera className="h-3.5 w-3.5 text-emerald-400" />
                     ) : (
-                      <Camera className="h-3.5 w-3.5 text-muted-foreground/30" title="Sem foto" />
+                      <Camera className="h-3.5 w-3.5 text-muted-foreground/30" />
                     )}
                   </div>
 
                   {/* SEO indicator */}
-                  <div className="hidden md:flex justify-center">
+                  <div className="hidden md:flex justify-center" title={hasSeo ? "SEO configurado" : "Sem tags SEO"}>
                     {hasSeo ? (
-                      <Tag className="h-3.5 w-3.5 text-emerald-400" title="SEO configurado" />
+                      <Tag className="h-3.5 w-3.5 text-emerald-400" />
                     ) : (
-                      <Tag className="h-3.5 w-3.5 text-amber-400/60" title="Sem tags SEO" />
+                      <Tag className="h-3.5 w-3.5 text-amber-400/60" />
                     )}
                   </div>
 

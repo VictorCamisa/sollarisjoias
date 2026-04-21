@@ -33,7 +33,7 @@ async function refreshAccessToken(refreshToken: string): Promise<{ access_token:
   return data;
 }
 
-async function getValidToken(supabaseAdmin: ReturnType<typeof createClient>, userId: string): Promise<{ token: string; integration: Integration }> {
+async function getValidToken(supabaseAdmin: any, userId: string): Promise<{ token: string; integration: Integration }> {
   const { data, error } = await supabaseAdmin
     .from("google_integrations")
     .select("*")
@@ -41,7 +41,7 @@ async function getValidToken(supabaseAdmin: ReturnType<typeof createClient>, use
     .maybeSingle();
   if (error || !data) throw new Error("Google não conectado para este usuário");
 
-  const integration = data as Integration;
+  const integration = data as unknown as Integration;
   const expiresAt = new Date(integration.expires_at).getTime();
   if (Date.now() < expiresAt) {
     return { token: integration.access_token, integration };
