@@ -109,10 +109,13 @@ const AdminOrders = () => {
           ))}
         </div>
       ) : !filtered?.length ? (
-        <div className="text-center py-20">
-          <ShoppingCart className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">Nenhum pedido encontrado.</p>
-          <Button variant="outline" size="sm" className="mt-4" onClick={() => setNewOrderOpen(true)}>
+        <div className="admin-empty">
+          <ShoppingCart className="admin-empty-icon" />
+          <p className="admin-empty-title">Nenhum pedido encontrado</p>
+          <p className="admin-empty-desc">
+            {search || filterStatus !== "all" ? "Tente outros filtros." : "Registre vendas para começar."}
+          </p>
+          <Button variant="outline" size="sm" className="mt-5" onClick={() => setNewOrderOpen(true)}>
             <Plus className="h-3.5 w-3.5 mr-1.5" />
             Criar primeiro pedido
           </Button>
