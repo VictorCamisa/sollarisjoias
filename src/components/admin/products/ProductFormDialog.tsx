@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "@/hooks/useStore";
+import heic2any from "heic2any";
 import {
   Package, Image as ImageIcon, Tag, Settings2,
   Sparkles, Loader2, CheckCircle2, RefreshCw, Wand2, DollarSign, TrendingUp,
@@ -127,34 +128,83 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     onError: (err: any) => toast.error(err.message),
   });
 
+  const isHeicLike = (fileNameOrUrl: string, mimeType?: string) => {
+    const lower = fileNameOrUrl.toLowerCase();
+    return lower.endsWith(".heic") || lower.endsWith(".heif") || mimeType === "image/heic" || mimeType === "image/heif";
+  };
+
+  const ensureSingleBlob = (result: Blob | Blob[]) => Array.isArray(result) ? result[0] : result;
+
+  const blobToDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Falha ao converter imagem"));
+    reader.onerror = () => reject(new Error("Falha ao ler imagem convertida"));
+    reader.readAsDataURL(blob);
+  });
+
+  const normalizeUploadImage = async (file: File): Promise<File> => {
+    if (!isHeicLike(file.name, file.type)) return file;
+
+    const converted = ensureSingleBlob(await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+      quality: 0.92,
+    }) as Blob | Blob[]);
+
+    const safeName = file.name.replace(/\.(heic|heif)$/i, "") || "produto";
+    return new File([converted], `${safeName}.jpg`, { type: "image/jpeg" });
+  };
+
+  const normalizeImageForAi = async (imageUrl: string) => {
+    if (!isHeicLike(imageUrl)) return imageUrl;
+
+    const response = await fetch(imageUrl);
+    if (!response.ok) throw new Error("Não consegui carregar a foto original para converter.");
+
+    const originalBlob = await response.blob();
+    const converted = ensureSingleBlob(await heic2any({
+      blob: originalBlob,
+      toType: "image/jpeg",
+      quality: 0.92,
+    }) as Blob | Blob[]);
+
+    return blobToDataUrl(converted);
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, slot?: string) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     setUploading(true);
     const updatedForm = { ...form };
-    for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file);
-      if (error) { toast.error(`Erro: ${file.name}`); continue; }
-      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
-      if (slot) {
-        (updatedForm as any)[slot] = urlData.publicUrl;
-      } else {
-        updatedForm.images = [...updatedForm.images, urlData.publicUrl];
+    try {
+      for (const rawFile of Array.from(files)) {
+        const file = await normalizeUploadImage(rawFile);
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type || `image/${ext}` });
+        if (error) { toast.error(`Erro: ${rawFile.name}`); continue; }
+        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+        if (slot) {
+          (updatedForm as any)[slot] = urlData.publicUrl;
+        } else {
+          updatedForm.images = [...updatedForm.images, urlData.publicUrl];
+        }
       }
+      setForm(updatedForm);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
-    setForm(updatedForm);
-    setUploading(false);
   };
 
   // AI: process a photo through the marketing AI (catalog/mockup/lifestyle)
   const handleAiPhoto = async (slot: string, imageUrl: string, style: "catalog" | "mockup" | "lifestyle") => {
     setAiPhotoLoading((prev) => ({ ...prev, [slot]: true }));
     try {
+      const normalizedImageUrl = await normalizeImageForAi(imageUrl);
       const { data, error } = await supabase.functions.invoke("process-product-photo", {
         body: {
-          imageUrl,
+          imageUrl: normalizedImageUrl,
           productName: form.name,
           banho: form.banho,
           pedra: form.pedra,
