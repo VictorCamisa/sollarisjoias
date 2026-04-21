@@ -73,7 +73,7 @@ export const NewOrderDialog = ({
   const [productSearch, setProductSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customer, setCustomer] = useState({
-    name: "", phone: "", email: "", notes: "", payment_method: "pix",
+    name: "", phone: "", email: "", notes: "", payment_method: "pix", installments: 1,
   });
   const searchRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
