@@ -455,10 +455,10 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
                 <div>
                   <Label className="text-xs font-medium text-muted-foreground mb-2 block">Fotos do Produto</Label>
                   <div className="grid grid-cols-4 gap-3">
-                    <FotoSlot label="Frontal" field="foto_frontal" />
-                    <FotoSlot label="Lateral" field="foto_lateral" />
-                    <FotoSlot label="Lifestyle" field="foto_lifestyle" />
-                    <FotoSlot label="Detalhe" field="foto_detalhe" />
+                    {FotoSlot({ label: "Frontal", field: "foto_frontal" })}
+                    {FotoSlot({ label: "Lateral", field: "foto_lateral" })}
+                    {FotoSlot({ label: "Lifestyle", field: "foto_lifestyle" })}
+                    {FotoSlot({ label: "Detalhe", field: "foto_detalhe" })}
                   </div>
                 </div>
 
