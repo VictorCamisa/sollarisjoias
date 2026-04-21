@@ -3,79 +3,79 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart,
   Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket,
-  ChevronLeft, ChevronDown, Store, Megaphone, Zap, Brain,
+  ChevronLeft, Store, Megaphone, Zap, Briefcase, Boxes, Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { BrainFAB } from "@/components/admin/BrainFAB";
+import { pageEnter, pageTransition } from "@/lib/motion";
 
-const navGroups = [
+/* ─── 3 hubs of the admin ─── */
+type Hub = "comercial" | "operacao" | "financas";
+
+const hubs: {
+  key: Hub;
+  label: string;
+  icon: typeof Briefcase;
+  colorVar: string;
+  items: { to: string; icon: typeof Package; label: string }[];
+}[] = [
   {
-    label: "Principal",
+    key: "comercial",
+    label: "Comercial",
+    icon: Briefcase,
+    colorVar: "var(--hub-comercial)",
     items: [
-      { to: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
       { to: "/admin/pedidos", icon: ShoppingCart, label: "Vendas" },
-      { to: "/admin/produtos", icon: Package, label: "Produtos" },
-      { to: "/admin/categorias", icon: FolderOpen, label: "Categorias" },
-    ],
-  },
-  {
-    label: "Gestão",
-    items: [
-      { to: "/admin/financeiro", icon: DollarSign, label: "Financeiro" },
       { to: "/admin/clientes", icon: Users, label: "Clientes" },
-      { to: "/admin/fornecedores", icon: Truck, label: "Fornecedores" },
-      { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
+      { to: "/admin/marketing", icon: Megaphone, label: "Marketing" },
+      { to: "/admin/automacoes", icon: Zap, label: "Dept. Comercial" },
     ],
   },
   {
-    label: "Operacional",
+    key: "operacao",
+    label: "Operação",
+    icon: Boxes,
+    colorVar: "var(--hub-operacao)",
     items: [
+      { to: "/admin/produtos", icon: Package, label: "Estoque" },
+      { to: "/admin/categorias", icon: FolderOpen, label: "Categorias" },
+      { to: "/admin/fornecedores", icon: Truck, label: "Fornecedores" },
       { to: "/admin/tarefas", icon: ListTodo, label: "Tarefas" },
       { to: "/admin/notas", icon: StickyNote, label: "Notas" },
       { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
     ],
   },
   {
-    label: "Crescimento",
+    key: "financas",
+    label: "Finanças",
+    icon: Wallet,
+    colorVar: "var(--hub-financas)",
     items: [
-      { to: "/admin/marketing", icon: Megaphone, label: "Marketing" },
-      { to: "/admin/automacoes", icon: Zap, label: "Dept. Comercial" },
-    ],
-  },
-  {
-    label: "Inteligência",
-    items: [
-      { to: "/admin/brain-nalu", icon: Brain, label: "Brain Sollaris" },
+      { to: "/admin/financeiro", icon: DollarSign, label: "Financeiro" },
+      { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
     ],
   },
 ];
 
-const allItems = navGroups.flatMap((g) => g.items);
+const topItems = [
+  { to: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
+];
 
-const STORAGE_KEY = "sollaris-admin-nav-collapsed-groups";
+const allItems = [
+  ...topItems,
+  ...hubs.flatMap((h) => h.items),
+  { to: "/admin/configuracoes", icon: Settings, label: "Configurações" },
+  { to: "/admin/brain-nalu", icon: Briefcase, label: "Brain Sollaris" },
+];
 
 const AdminLayout = () => {
   const { isAdmin, loading, signOut, user } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-
-  // Persisted collapsed-group state per group label
-  const [closedGroups, setClosedGroups] = useState<Record<string, boolean>>(() => {
-    if (typeof window === "undefined") return {};
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch { return {}; }
-  });
-
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(closedGroups)); } catch {}
-  }, [closedGroups]);
-
-  const toggleGroup = (label: string) =>
-    setClosedGroups((prev) => ({ ...prev, [label]: !prev[label] }));
 
   if (loading) {
     return (
@@ -88,39 +88,89 @@ const AdminLayout = () => {
     );
   }
 
-  if (!isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  if (!isAdmin) return <Navigate to="/admin/login" replace />;
 
-  const isActive = (item: typeof allItems[0]) => {
-    if (item.exact) return location.pathname === item.to;
-    return location.pathname.startsWith(item.to);
-  };
+  const isActive = (to: string, exact?: boolean) =>
+    exact ? location.pathname === to : location.pathname.startsWith(to);
 
-  const groupHasActive = (group: typeof navGroups[0]) => group.items.some(isActive);
-
-  const currentPage = allItems.find((item) => isActive(item));
+  const currentPage = allItems.find((i: any) => isActive(i.to, i.exact));
+  const currentHub = hubs.find((h) => h.items.some((i) => isActive(i.to)));
   const initials = user?.email?.slice(0, 2).toUpperCase() || "AD";
+
+  /* ─── Reusable nav row ─── */
+  const NavLinkRow = ({
+    to, icon: Icon, label, exact, hubColor,
+  }: { to: string; icon: any; label: string; exact?: boolean; hubColor?: string }) => {
+    const active = isActive(to, exact);
+    const el = (
+      <Link
+        to={to}
+        className={cn(
+          "admin-nav-item relative overflow-hidden",
+          collapsed ? "h-9 w-9 justify-center mx-auto" : "px-2.5 py-1.5 w-full",
+          active
+            ? "bg-card text-foreground font-semibold shadow-notion-sm"
+            : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/70"
+        )}
+      >
+        {active && !collapsed && (
+          <span
+            className="absolute left-0 inset-y-1.5 w-[3px] rounded-r-full"
+            style={{ background: hubColor ? `hsl(${hubColor})` : "hsl(var(--accent))" }}
+            aria-hidden
+          />
+        )}
+        <Icon
+          className={cn("h-[15px] w-[15px] flex-shrink-0")}
+          style={active && hubColor ? { color: `hsl(${hubColor})` } : undefined}
+        />
+        <AnimatePresence>
+          {!collapsed && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              className="whitespace-nowrap text-[13px]"
+            >
+              {label}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </Link>
+    );
+    if (collapsed) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>{el}</TooltipTrigger>
+          <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">{label}</TooltipContent>
+        </Tooltip>
+      );
+    }
+    return el;
+  };
 
   return (
     <TooltipProvider delayDuration={0}>
       <div className="h-screen flex bg-background overflow-hidden">
 
-        {/* ══ Desktop Sidebar ══ */}
+        {/* ══════════ Desktop Sidebar ══════════ */}
         <motion.aside
-          animate={{ width: collapsed ? 56 : 216 }}
+          animate={{ width: collapsed ? 60 : 240 }}
           transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-          className="hidden md:flex flex-col border-r border-sidebar-border bg-sidebar relative overflow-visible flex-shrink-0"
-          style={{ background: "hsl(var(--sidebar-background))" }}
+          className="hidden md:flex flex-col border-r border-sidebar-border bg-sidebar relative flex-shrink-0"
         >
           {/* Logo */}
           <div className={cn(
-            "flex items-center h-12 border-b border-sidebar-border/60 flex-shrink-0",
+            "flex items-center h-14 border-b border-sidebar-border flex-shrink-0",
             collapsed ? "justify-center px-1" : "px-4"
           )}>
             <Link to="/" className="flex items-center gap-2.5 group min-w-0">
-              <div className="h-7 w-7 rounded-md bg-accent/15 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/25 transition-colors">
-                <Store className="h-3.5 w-3.5 text-accent" />
+              <div
+                className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 text-accent-foreground"
+                style={{ background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--sollaris-champagne-light)) 100%)" }}
+              >
+                <Store className="h-4 w-4" strokeWidth={2.2} />
               </div>
               <AnimatePresence>
                 {!collapsed && (
@@ -129,186 +179,99 @@ const AdminLayout = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -4 }}
                     transition={{ duration: 0.12 }}
-                    className="min-w-0"
+                    className="min-w-0 flex flex-col"
                   >
-                    <p className="font-serif text-[13px] tracking-[0.18em] text-sidebar-foreground group-hover:text-accent transition-colors whitespace-nowrap leading-none">
-                      SOLLARIS
-                    </p>
-                    <p className="text-[9px] text-muted-foreground/50 tracking-[0.08em] mt-0.5 whitespace-nowrap">
-                      admin
-                    </p>
+                    <span className="text-[14px] font-semibold tracking-tight text-foreground leading-none">
+                      Sollaris
+                    </span>
+                    <span className="text-[10px] text-muted-foreground tracking-[0.12em] uppercase mt-0.5">
+                      Admin
+                    </span>
                   </motion.div>
                 )}
               </AnimatePresence>
             </Link>
 
-            {/* Collapse toggle — inside logo row */}
-            <AnimatePresence>
-              {!collapsed && (
-                <motion.button
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setCollapsed(true)}
-                  className="ml-auto p-1 rounded-md text-muted-foreground/40 hover:text-muted-foreground hover:bg-sidebar-accent/40 transition-colors flex-shrink-0"
-                  title="Recolher menu"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </motion.button>
-              )}
-            </AnimatePresence>
+            {!collapsed && (
+              <button
+                onClick={() => setCollapsed(true)}
+                className="ml-auto p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+                title="Recolher"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Nav */}
           <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-hide">
-            {navGroups.map((group, gi) => {
-              const isClosed = !!closedGroups[group.label];
-              const hasActive = groupHasActive(group);
-              // Force open when a child is active
-              const open = hasActive ? true : !isClosed;
+            {/* Top items (Dashboard) */}
+            <div className="px-2 space-y-px mb-4">
+              {topItems.map((item) => (
+                <NavLinkRow key={item.to} {...item} />
+              ))}
+            </div>
 
-              return (
-                <div key={group.label} className={cn(gi > 0 && "mt-3")}>
-                  {/* Group header — clickable to collapse */}
-                  {!collapsed ? (
-                    <button
-                      onClick={() => toggleGroup(group.label)}
-                      className={cn(
-                        "w-full flex items-center justify-between px-3 mb-1.5 group/grp",
-                        "text-[9px] font-bold uppercase tracking-[0.18em] select-none transition-colors",
-                        hasActive ? "text-accent/80" : "text-muted-foreground/60 hover:text-foreground/80"
-                      )}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <span className={cn(
-                          "h-px w-3 transition-colors",
-                          hasActive ? "bg-accent/60" : "bg-border group-hover/grp:bg-foreground/40"
-                        )} />
-                        {group.label}
-                      </span>
-                      <ChevronDown className={cn(
-                        "h-3 w-3 transition-transform duration-200",
-                        open ? "rotate-0" : "-rotate-90",
-                        "opacity-50 group-hover/grp:opacity-100"
-                      )} />
-                    </button>
-                  ) : (
-                    gi > 0 && <div className="mx-3 mb-2 border-t border-sidebar-border/60" />
-                  )}
-
-                  {/* Items */}
-                  <AnimatePresence initial={false}>
-                    {(collapsed || open) && (
-                      <motion.div
-                        initial={collapsed ? false : { height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <div className="space-y-px px-2 pb-1">
-                          {group.items.map((item) => {
-                            const active = isActive(item);
-                            const linkEl = (
-                              <Link
-                                key={item.to}
-                                to={item.to}
-                                className={cn(
-                                  "admin-nav-item relative overflow-hidden",
-                                  collapsed ? "h-8 w-8 justify-center mx-auto" : "px-2.5 py-1.5 w-full",
-                                  active
-                                    ? "text-accent bg-accent/12 font-semibold"
-                                    : "text-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
-                                )}
-                              >
-                                {active && !collapsed && (
-                                  <span className="absolute left-0 inset-y-1 w-[3px] rounded-r-full bg-accent" aria-hidden="true" />
-                                )}
-                                <item.icon className={cn(
-                                  "h-[14px] w-[14px] flex-shrink-0",
-                                  active ? "text-accent" : "text-foreground/55"
-                                )} />
-                                <AnimatePresence>
-                                  {!collapsed && (
-                                    <motion.span
-                                      initial={{ opacity: 0 }}
-                                      animate={{ opacity: 1 }}
-                                      exit={{ opacity: 0 }}
-                                      transition={{ duration: 0.1 }}
-                                      className="whitespace-nowrap"
-                                    >
-                                      {item.label}
-                                    </motion.span>
-                                  )}
-                                </AnimatePresence>
-                              </Link>
-                            );
-
-                            if (collapsed) {
-                              return (
-                                <Tooltip key={item.to}>
-                                  <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
-                                  <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">
-                                    {item.label}
-                                  </TooltipContent>
-                                </Tooltip>
-                              );
-                            }
-                            return <div key={item.to}>{linkEl}</div>;
-                          })}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+            {/* Hubs */}
+            {hubs.map((hub, hi) => (
+              <div key={hub.key} className={cn(hi > 0 && "mt-5")}>
+                {!collapsed ? (
+                  <div className="flex items-center gap-2 px-3 mb-2">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                      style={{ background: `hsl(${hub.colorVar})` }}
+                    />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      {hub.label}
+                    </span>
+                    <div className="flex-1 h-px bg-sidebar-border" />
+                  </div>
+                ) : (
+                  hi > 0 && (
+                    <div className="flex justify-center mb-2 mt-1">
+                      <span
+                        className="h-1 w-1 rounded-full"
+                        style={{ background: `hsl(${hub.colorVar})` }}
+                      />
+                    </div>
+                  )
+                )}
+                <div className="px-2 space-y-px">
+                  {hub.items.map((item) => (
+                    <NavLinkRow key={item.to} {...item} hubColor={hub.colorVar} />
+                  ))}
                 </div>
-              );
-            })}
+              </div>
+            ))}
+
+            {/* Settings */}
+            <div className="mt-5 px-2">
+              {!collapsed && (
+                <div className="flex items-center gap-2 px-1 mb-2">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                    Sistema
+                  </span>
+                  <div className="flex-1 h-px bg-sidebar-border" />
+                </div>
+              )}
+              <NavLinkRow to="/admin/configuracoes" icon={Settings} label="Configurações" />
+            </div>
           </nav>
 
-          {/* Footer */}
-          <div className="border-t border-sidebar-border/60 p-2 space-y-px">
-            {/* Settings */}
-            {(() => {
-              const settingsActive = location.pathname === "/admin/configuracoes";
-              const settingsLink = (
-                <Link
-                  to="/admin/configuracoes"
-                  className={cn(
-                    "admin-nav-item relative overflow-hidden",
-                    collapsed ? "h-8 w-8 justify-center mx-auto" : "px-2.5 py-[5px] w-full",
-                    settingsActive
-                      ? "text-accent bg-accent/10"
-                      : "text-muted-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-                  )}
-                >
-                  {settingsActive && !collapsed && (
-                    <span className="absolute left-0 inset-y-1 w-[3px] rounded-r-full bg-accent" aria-hidden="true" />
-                  )}
-                  <Settings className="h-[14px] w-[14px] flex-shrink-0" />
-                  {!collapsed && <span>Configurações</span>}
-                </Link>
-              );
-              if (collapsed) {
-                return (
-                  <Tooltip>
-                    <TooltipTrigger asChild>{settingsLink}</TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">Configurações</TooltipContent>
-                  </Tooltip>
-                );
-              }
-              return settingsLink;
-            })()}
-
-            {/* User row */}
+          {/* Footer — user */}
+          <div className="border-t border-sidebar-border p-2">
             <div className={cn(
-              "flex items-center gap-2 rounded-md py-1.5 mt-1",
+              "flex items-center gap-2 rounded-md py-1.5",
               collapsed ? "justify-center px-0" : "px-2"
             )}>
-              <div className={cn(
-                "rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0",
-                collapsed ? "h-7 w-7" : "h-6 w-6"
-              )}>
-                <span className={cn("font-bold text-accent", collapsed ? "text-[10px]" : "text-[9px]")}>{initials}</span>
+              <div
+                className={cn(
+                  "rounded-full flex items-center justify-center flex-shrink-0 text-accent-foreground font-semibold",
+                  collapsed ? "h-8 w-8 text-[11px]" : "h-7 w-7 text-[10px]"
+                )}
+                style={{ background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--sollaris-champagne-light)) 100%)" }}
+              >
+                {initials}
               </div>
               <AnimatePresence>
                 {!collapsed && (
@@ -318,7 +281,7 @@ const AdminLayout = () => {
                     exit={{ opacity: 0 }}
                     className="flex-1 min-w-0"
                   >
-                    <p className="text-[11px] font-medium truncate text-muted-foreground/70">
+                    <p className="text-[12px] font-medium truncate text-foreground">
                       {user?.email?.split("@")[0]}
                     </p>
                   </motion.div>
@@ -329,9 +292,9 @@ const AdminLayout = () => {
                   <TooltipTrigger asChild>
                     <button
                       onClick={signOut}
-                      className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                     >
-                      <LogOut className="h-[13px] w-[13px]" />
+                      <LogOut className="h-3.5 w-3.5" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="right" sideOffset={8} className="text-xs font-medium">Sair</TooltipContent>
@@ -339,7 +302,7 @@ const AdminLayout = () => {
               ) : (
                 <button
                   onClick={signOut}
-                  className="p-1 rounded-md text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors ml-auto"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors ml-auto"
                   title="Sair"
                 >
                   <LogOut className="h-3.5 w-3.5" />
@@ -348,36 +311,37 @@ const AdminLayout = () => {
             </div>
           </div>
 
-          {/* Expand button — only visible when collapsed */}
+          {/* Expand button */}
           {collapsed && (
             <button
               onClick={() => setCollapsed(false)}
-              className="absolute -right-3 top-[3.25rem] h-6 w-6 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-accent hover:border-accent/30 transition-colors z-20 shadow-sm"
-              title="Expandir menu"
+              className="absolute -right-3 top-[3.75rem] h-6 w-6 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-accent hover:border-accent/40 transition-colors z-20 shadow-notion-sm"
+              title="Expandir"
             >
               <ChevronLeft className="h-3 w-3 rotate-180" />
             </button>
           )}
         </motion.aside>
 
-        {/* ══ Mobile Header ══ */}
-        <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar/95 backdrop-blur-xl border-b border-sidebar-border/60">
+        {/* ══════════ Mobile Header ══════════ */}
+        <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar/95 backdrop-blur-xl border-b border-sidebar-border">
           <div className="flex items-center justify-between px-4 h-12">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-md bg-accent/15 flex items-center justify-center">
-                <Store className="h-3.5 w-3.5 text-accent" />
+              <div
+                className="h-7 w-7 rounded-md flex items-center justify-center text-accent-foreground"
+                style={{ background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--sollaris-champagne-light)) 100%)" }}
+              >
+                <Store className="h-3.5 w-3.5" />
               </div>
-              <span className="font-serif text-[12px] tracking-[0.16em] text-foreground">SOLLARIS</span>
+              <span className="text-[13px] font-semibold tracking-tight text-foreground">Sollaris</span>
             </Link>
             <div className="flex items-center gap-3">
               {currentPage && (
-                <span className="text-[11px] font-medium text-muted-foreground">
-                  {currentPage.label}
-                </span>
+                <span className="text-[11px] font-medium text-muted-foreground">{currentPage.label}</span>
               )}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="p-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors"
+                className="p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
               >
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -385,7 +349,7 @@ const AdminLayout = () => {
           </div>
         </div>
 
-        {/* ══ Mobile Menu ══ */}
+        {/* ══════════ Mobile Menu ══════════ */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
@@ -393,26 +357,42 @@ const AdminLayout = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="md:hidden fixed inset-0 z-40 pt-12"
-              style={{ background: "hsl(var(--sidebar-background))" }}
+              className="md:hidden fixed inset-0 z-40 pt-12 bg-sidebar"
             >
-              <nav className="p-3 space-y-3 overflow-y-auto h-full pb-20">
-                {navGroups.map((group) => (
-                  <div key={group.label}>
-                    <p className="px-2 mb-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
-                      {group.label}
-                    </p>
+              <nav className="p-3 space-y-4 overflow-y-auto h-full pb-20">
+                {topItems.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium",
+                      isActive(item.to, item.exact)
+                        ? "bg-card text-foreground font-semibold shadow-notion-sm"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                ))}
+                {hubs.map((hub) => (
+                  <div key={hub.key}>
+                    <div className="flex items-center gap-2 px-2 mb-2">
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: `hsl(${hub.colorVar})` }} />
+                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{hub.label}</p>
+                    </div>
                     <div className="space-y-px">
-                      {group.items.map((item) => (
+                      {hub.items.map((item) => (
                         <Link
                           key={item.to}
                           to={item.to}
                           onClick={() => setMobileOpen(false)}
                           className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium transition-colors",
-                            isActive(item)
-                              ? "bg-accent/10 text-accent font-semibold"
-                              : "text-muted-foreground/70 active:bg-sidebar-accent/60"
+                            "flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium",
+                            isActive(item.to)
+                              ? "bg-card text-foreground font-semibold shadow-notion-sm"
+                              : "text-muted-foreground"
                           )}
                         >
                           <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -422,18 +402,18 @@ const AdminLayout = () => {
                     </div>
                   </div>
                 ))}
-                <div className="border-t border-sidebar-border/40 pt-3 space-y-px">
+                <div className="border-t border-sidebar-border pt-3 space-y-px">
                   <Link
                     to="/admin/configuracoes"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium text-muted-foreground/70 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium text-muted-foreground"
                   >
                     <Settings className="h-4 w-4" />
                     Configurações
                   </Link>
                   <button
                     onClick={() => { signOut(); setMobileOpen(false); }}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium text-muted-foreground/70 hover:text-destructive transition-colors w-full"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium text-muted-foreground hover:text-destructive transition-colors w-full"
                   >
                     <LogOut className="h-4 w-4" />
                     Sair
@@ -444,12 +424,39 @@ const AdminLayout = () => {
           )}
         </AnimatePresence>
 
-        {/* ══ Main Content — no breadcrumb header, page titles own the hierarchy ══ */}
+        {/* ══════════ Main Content ══════════ */}
         <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-          <div className="flex-1 p-4 sm:p-5 lg:p-6 pt-[3.75rem] md:pt-5">
-            <Outlet />
+          {/* Topbar */}
+          <div className="hidden md:flex items-center justify-between h-12 px-6 border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-30 flex-shrink-0">
+            <div className="flex items-center gap-1.5 text-[12px]">
+              {currentHub && (
+                <>
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: `hsl(${currentHub.colorVar})` }} />
+                  <span className="text-muted-foreground">{currentHub.label}</span>
+                  <span className="text-muted-foreground/50 mx-1">/</span>
+                </>
+              )}
+              <span className="text-foreground font-medium">{currentPage?.label || "Admin"}</span>
+            </div>
           </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              variants={pageEnter}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={pageTransition}
+              className="flex-1 p-4 sm:p-5 lg:p-6 pt-[3.75rem] md:pt-5"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
+
+        {/* Floating Brain Sollaris */}
+        <BrainFAB />
       </div>
     </TooltipProvider>
   );
