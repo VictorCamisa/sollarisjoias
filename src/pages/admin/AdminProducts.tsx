@@ -88,6 +88,14 @@ const AdminProducts = () => {
       internal_notes: p.internal_notes || "", foto_frontal: p.foto_frontal || "",
       foto_lateral: p.foto_lateral || "", foto_lifestyle: p.foto_lifestyle || "",
       foto_detalhe: p.foto_detalhe || "", images: p.images || [],
+      cost_unit: p.cost_unit ? String(p.cost_unit) : "",
+      cost_packaging: p.cost_packaging ? String(p.cost_packaging) : "",
+      cost_shipping: p.cost_shipping ? String(p.cost_shipping) : "",
+      cost_taxes: p.cost_taxes ? String(p.cost_taxes) : "",
+      cost_fees: p.cost_fees ? String(p.cost_fees) : "",
+      supplier_name: p.supplier_name || "",
+      supplier_code: p.supplier_code || "",
+      purchase_date: p.purchase_date || "",
     });
     setFormOpen(true);
   };
