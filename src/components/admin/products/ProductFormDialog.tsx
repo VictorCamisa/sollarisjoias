@@ -299,6 +299,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
                 <TabsTrigger value="info" className="text-xs gap-1.5 h-7"><Package className="h-3 w-3" />Geral</TabsTrigger>
                 <TabsTrigger value="media" className="text-xs gap-1.5 h-7"><ImageIcon className="h-3 w-3" />Mídia</TabsTrigger>
                 <TabsTrigger value="details" className="text-xs gap-1.5 h-7"><Tag className="h-3 w-3" />Detalhes</TabsTrigger>
+                <TabsTrigger value="costs" className="text-xs gap-1.5 h-7"><DollarSign className="h-3 w-3" />Custos</TabsTrigger>
                 <TabsTrigger value="seo" className="text-xs gap-1.5 h-7"><Settings2 className="h-3 w-3" />SEO & Notas</TabsTrigger>
               </TabsList>
             </div>
