@@ -104,24 +104,25 @@ const AdminCategories = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {[
-          { label: "Total Categorias", value: categories?.length ?? 0, icon: Layers, color: "text-primary", bg: "bg-primary/10" },
-          { label: "Total Produtos", value: totalProducts, icon: Package, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-          { label: "Sem Produtos", value: emptyCategories, icon: FolderOpen, color: "text-orange-400", bg: "bg-orange-400/10" },
+          { label: "Total Categorias", value: categories?.length ?? 0, icon: Layers, color: "text-primary", bg: "bg-primary/10", sub: "no catálogo" },
+          { label: "Total Produtos", value: totalProducts, icon: Package, color: "text-emerald-400", bg: "bg-emerald-400/10", sub: "distribuídos" },
+          { label: "Sem Produtos", value: emptyCategories, icon: FolderOpen, color: "text-orange-400", bg: "bg-orange-400/10", sub: emptyCategories > 0 ? "precisam de atenção" : "tudo em ordem" },
         ].map((card, i) => (
           <motion.div
             key={card.label}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="admin-card p-4 flex flex-col gap-2"
+            className="admin-card p-4 flex flex-col gap-1.5"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{card.label}</span>
-              <div className={`${card.bg} ${card.color} p-1.5 rounded-lg`}>
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{card.label}</span>
+              <div className={`${card.bg} ${card.color} p-1.5 rounded-lg shrink-0`}>
                 <card.icon className="h-3.5 w-3.5" />
               </div>
             </div>
-            <span className="text-xl font-bold tabular-nums">{card.value}</span>
+            <span className="text-[22px] font-bold tabular-nums leading-none">{card.value}</span>
+            <span className="text-[10px] text-muted-foreground leading-none">{card.sub}</span>
           </motion.div>
         ))}
       </div>
@@ -138,13 +139,16 @@ const AdminCategories = () => {
           {[1, 2, 3].map((i) => <div key={i} className="h-12 bg-card/50 rounded-lg animate-pulse" />)}
         </div>
       ) : !filtered?.length ? (
-        <div className="text-center py-20">
-          <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">
-            {search ? "Nenhuma categoria encontrada." : "Nenhuma categoria cadastrada."}
+        <div className="admin-empty">
+          <FolderOpen className="admin-empty-icon" />
+          <p className="admin-empty-title">
+            {search ? "Nenhuma categoria encontrada" : "Nenhuma categoria cadastrada"}
+          </p>
+          <p className="admin-empty-desc">
+            {search ? "Tente outros termos de busca." : "Crie categorias para organizar os produtos da loja."}
           </p>
           {!search && (
-            <Button variant="outline" size="sm" className="mt-4" onClick={() => setOpen(true)}>
+            <Button variant="outline" size="sm" className="mt-5" onClick={() => setOpen(true)}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               Criar primeira categoria
             </Button>

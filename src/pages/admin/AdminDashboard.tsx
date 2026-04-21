@@ -212,13 +212,13 @@ const AdminDashboard = () => {
       {/* ─── Goal + Revenue Chart ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-3">
         {/* Revenue Chart */}
-        <div className="admin-card p-3">
-          <div className="flex items-center justify-between mb-2">
+        <div className="admin-card p-4">
+          <div className="admin-card-header">
             <div>
-              <h2 className="text-[13px] font-semibold">Faturamento</h2>
-              <p className="text-[10px] text-muted-foreground">Últimos 12 meses</p>
+              <h2 className="admin-card-title">Faturamento</h2>
+              <p className="admin-card-subtitle">Últimos 12 meses</p>
             </div>
-            <span className="text-[11px] font-semibold text-accent">{fmt(analytics?.totalRevenue ?? 0)}</span>
+            <span className="text-[13px] font-semibold text-accent tabular-nums">{fmt(analytics?.totalRevenue ?? 0)}</span>
           </div>
           <div className="h-[180px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -241,10 +241,12 @@ const AdminDashboard = () => {
         </div>
 
         {/* Goal Card */}
-        <div className="admin-card p-3 flex flex-col">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Target className="h-3.5 w-3.5 text-accent" />
-            <span className="text-[13px] font-semibold">Meta Mensal</span>
+        <div className="admin-card p-4 flex flex-col">
+          <div className="admin-card-header">
+            <div className="flex items-center gap-1.5">
+              <Target className="h-3.5 w-3.5 text-accent" />
+              <h2 className="admin-card-title">Meta Mensal</h2>
+            </div>
           </div>
           <div className="flex items-baseline gap-1 mb-1">
             <span className="text-xl font-bold">{(analytics?.goalProgress ?? 0).toFixed(0)}%</span>
@@ -270,9 +272,9 @@ const AdminDashboard = () => {
       {/* ─── Top Products + Lists ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Top Products */}
-        <div className="admin-card p-3 lg:col-span-1">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[13px] font-semibold">Mais Vendidos</h2>
+        <div className="admin-card p-4 lg:col-span-1">
+          <div className="admin-card-header">
+            <h2 className="admin-card-title">Mais Vendidos</h2>
           </div>
           {analytics?.topProducts?.length ? (
             <div className="h-[200px]">
@@ -296,12 +298,13 @@ const AdminDashboard = () => {
         </div>
 
         {/* Low stock */}
-        <div className="admin-card p-3">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[13px] font-semibold flex items-center gap-1.5">
-              <AlertTriangle className="h-3 w-3 text-amber-500" /> Estoque Baixo
-            </h2>
-            <Link to="/admin/produtos" className="text-[10px] text-accent hover:underline">Ver todos</Link>
+        <div className="admin-card p-4">
+          <div className="admin-card-header">
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+              <h2 className="admin-card-title">Estoque Baixo</h2>
+            </div>
+            <Link to="/admin/produtos" className="text-[10px] text-accent hover:text-accent/80 transition-colors">Ver todos →</Link>
           </div>
           {!lowStockProducts?.length ? (
             <p className="text-[11px] text-muted-foreground py-4">Tudo em ordem 🎉</p>
@@ -323,10 +326,10 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent orders */}
-        <div className="admin-card p-3">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[13px] font-semibold">Últimos Pedidos</h2>
-            <Link to="/admin/pedidos" className="text-[10px] text-accent hover:underline">Ver todos</Link>
+        <div className="admin-card p-4">
+          <div className="admin-card-header">
+            <h2 className="admin-card-title">Últimos Pedidos</h2>
+            <Link to="/admin/pedidos" className="text-[10px] text-accent hover:text-accent/80 transition-colors">Ver todos →</Link>
           </div>
           {!recentOrders?.length ? (
             <p className="text-[11px] text-muted-foreground py-4">Nenhum pedido ainda.</p>

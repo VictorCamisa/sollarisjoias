@@ -206,15 +206,20 @@ const AdminProducts = () => {
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />)}
         </div>
       ) : !filtered?.length ? (
-        <div className="text-center py-20">
-          <ImageIcon className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">
-            {activeFiltersCount > 0 ? "Nenhum produto com esses filtros." : "Nenhum produto encontrado."}
+        <div className="admin-empty">
+          <ImageIcon className="admin-empty-icon" />
+          <p className="admin-empty-title">
+            {activeFiltersCount > 0 ? "Nenhum produto com esses filtros" : "Nenhum produto cadastrado"}
+          </p>
+          <p className="admin-empty-desc">
+            {activeFiltersCount > 0
+              ? "Ajuste os filtros para ver outros produtos."
+              : "Adicione produtos ao catálogo para começar."}
           </p>
           {activeFiltersCount > 0 ? (
-            <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>Limpar filtros</Button>
+            <Button variant="outline" size="sm" className="mt-5" onClick={clearFilters}>Limpar filtros</Button>
           ) : (
-            <Button variant="outline" size="sm" className="mt-4" onClick={openNew}>
+            <Button variant="outline" size="sm" className="mt-5" onClick={openNew}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               Cadastrar produto
             </Button>

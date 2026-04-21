@@ -1,4 +1,4 @@
-import { ShoppingCart, Clock, CheckCircle2, TrendingUp, XCircle } from "lucide-react";
+import { ShoppingCart, Clock, CheckCircle2, TrendingUp, XCircle, Package } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface OrderStats {
@@ -21,20 +21,23 @@ export const OrderStatsCards = ({ stats }: { stats: OrderStats }) => {
       icon: ShoppingCart,
       color: "text-primary",
       bg: "bg-primary/10",
+      sub: `${stats.confirmed} confirmados`,
     },
     {
       label: "Pendentes",
       value: stats.pending,
       icon: Clock,
-      color: "text-amber-400",
-      bg: "bg-amber-400/10",
+      color: stats.pending > 0 ? "text-amber-400" : "text-muted-foreground",
+      bg: stats.pending > 0 ? "bg-amber-400/10" : "bg-secondary/60",
+      sub: stats.pending > 0 ? "aguardando ação" : "sem pendências",
     },
     {
       label: "Confirmados",
       value: stats.confirmed,
-      icon: CheckCircle2,
+      icon: Package,
       color: "text-blue-400",
       bg: "bg-blue-400/10",
+      sub: "em andamento",
     },
     {
       label: "Entregues",
@@ -42,6 +45,15 @@ export const OrderStatsCards = ({ stats }: { stats: OrderStats }) => {
       icon: CheckCircle2,
       color: "text-emerald-400",
       bg: "bg-emerald-400/10",
+      sub: "concluídos",
+    },
+    {
+      label: "Cancelados",
+      value: stats.cancelled,
+      icon: XCircle,
+      color: stats.cancelled > 0 ? "text-red-400" : "text-muted-foreground",
+      bg: stats.cancelled > 0 ? "bg-red-400/10" : "bg-secondary/60",
+      sub: stats.cancelled > 0 ? "atenção necessária" : "nenhum cancelamento",
     },
     {
       label: "Receita Total",
@@ -50,30 +62,32 @@ export const OrderStatsCards = ({ stats }: { stats: OrderStats }) => {
       color: "text-primary",
       bg: "bg-primary/10",
       isText: true,
+      sub: "de todos os pedidos",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {cards.map((card, i) => (
         <motion.div
           key={card.label}
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05 }}
-          className="admin-card p-4 flex flex-col gap-2"
+          className="admin-card p-4 flex flex-col gap-1.5"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between mb-0.5">
+            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider leading-tight">
               {card.label}
             </span>
-            <div className={`${card.bg} ${card.color} p-1.5 rounded-lg`}>
+            <div className={`${card.bg} ${card.color} p-1.5 rounded-lg shrink-0`}>
               <card.icon className="h-3.5 w-3.5" />
             </div>
           </div>
-          <span className="text-xl font-bold tabular-nums">
-            {card.isText ? card.value : card.value}
+          <span className="text-[22px] font-bold tabular-nums leading-none">
+            {card.value}
           </span>
+          <span className="text-[10px] text-muted-foreground leading-none">{card.sub}</span>
         </motion.div>
       ))}
     </div>

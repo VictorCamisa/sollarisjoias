@@ -125,18 +125,29 @@
 }
 
 @layer components {
-  /* ─── Admin Design System v2 — compact, hierarchy-driven ─── */
+  /* ─── Admin Design System v3 — clear hierarchy, consistent density ─── */
 
-  /* Card — tighter, cleaner */
+  /* ── Cards ── */
   .admin-card {
     @apply bg-card border border-border rounded-lg transition-all duration-150;
   }
   .admin-card-interactive {
     @apply admin-card cursor-pointer;
-    @apply hover:border-primary/20 hover:bg-card/80;
+    @apply hover:border-primary/25 hover:bg-card/80;
   }
 
-  /* Table styling */
+  /* Card internal section header */
+  .admin-card-header {
+    @apply flex items-start justify-between gap-3 mb-3;
+  }
+  .admin-card-title {
+    @apply text-[13px] font-semibold text-foreground leading-none;
+  }
+  .admin-card-subtitle {
+    @apply text-[10px] text-muted-foreground mt-1 leading-none;
+  }
+
+  /* ── Tables ── */
   .admin-table {
     @apply w-full text-sm;
   }
@@ -154,57 +165,69 @@
     @apply px-3 py-2.5;
   }
 
-  /* Section label */
+  /* ── Labels & Sections ── */
   .admin-section-label {
     @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
   }
-
-  /* Stat badge */
   .admin-stat-pill {
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border;
   }
 
-  /* Input — compact */
+  /* ── Input — h-9 matches shadcn Select default ── */
   .admin-input {
-    @apply h-8 text-[13px] bg-secondary/40 border-border rounded-md;
+    @apply h-9 text-[13px] bg-secondary/40 border-border rounded-md;
     @apply focus:border-primary/40 focus:ring-1 focus:ring-primary/20;
     @apply placeholder:text-muted-foreground/40 transition-all duration-150;
   }
 
-  /* Nav item */
+  /* ── Navigation ── */
   .admin-nav-item {
     @apply flex items-center gap-2 rounded-md text-[13px] font-medium;
     @apply transition-colors duration-150;
   }
 
-  /* ── Page Layout Pattern ── */
+  /* ── Page Layout ── */
   .admin-page-header {
     @apply flex items-center justify-between gap-3;
   }
+  /* Page title: 18px gives clear hierarchy over body text (13-14px) */
   .admin-page-title {
-    @apply text-base font-semibold tracking-tight leading-tight;
+    @apply text-[18px] font-semibold tracking-tight leading-tight;
   }
   .admin-page-subtitle {
-    @apply text-[11px] text-muted-foreground mt-0.5;
+    @apply text-xs text-muted-foreground mt-0.5;
   }
-
-  /* Toolbar — unified filter/action bar */
   .admin-toolbar {
     @apply flex flex-wrap items-center gap-2;
   }
 
-  /* Compact stat card for KPI rows */
+  /* ── KPI Cards (horizontal: icon + value) ── */
   .admin-kpi {
-    @apply admin-card p-3 flex items-center gap-3;
+    @apply admin-card p-4 flex items-center gap-3;
   }
   .admin-kpi-icon {
-    @apply h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0;
+    @apply h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0;
   }
+  /* KPI value: 22px — prominent number, clear hierarchy */
   .admin-kpi-value {
-    @apply text-lg font-bold tracking-tight leading-none;
+    @apply text-[22px] font-bold tracking-tight leading-none;
   }
   .admin-kpi-label {
-    @apply text-[10px] text-muted-foreground mt-0.5 leading-tight;
+    @apply text-[11px] text-muted-foreground mt-1 leading-tight;
+  }
+
+  /* ── Empty States (consistent across all pages) ── */
+  .admin-empty {
+    @apply flex flex-col items-center justify-center py-16 text-center;
+  }
+  .admin-empty-icon {
+    @apply h-10 w-10 mx-auto text-muted-foreground/20 mb-3;
+  }
+  .admin-empty-title {
+    @apply text-sm font-medium text-muted-foreground/70;
+  }
+  .admin-empty-desc {
+    @apply text-xs text-muted-foreground/50 mt-1 max-w-[200px] mx-auto leading-relaxed;
   }
 }
 
