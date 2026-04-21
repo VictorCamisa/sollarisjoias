@@ -3,13 +3,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart,
   Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket,
-  ChevronLeft, Store, Megaphone, Zap, Briefcase, Boxes, Wallet,
+  ChevronLeft, Store, Megaphone, Zap, Briefcase, Boxes, Wallet, CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BrainFAB } from "@/components/admin/BrainFAB";
+import { ThemeToggle } from "@/components/admin/ThemeToggle";
 import { pageEnter, pageTransition } from "@/lib/motion";
 
 /* ─── 3 hubs of the admin ─── */
@@ -55,6 +56,7 @@ const hubs: {
     colorVar: "var(--hub-financas)",
     items: [
       { to: "/admin/financeiro", icon: DollarSign, label: "Financeiro" },
+      { to: "/admin/crediario", icon: CreditCard, label: "Crediário" },
       { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
     ],
   },
@@ -437,6 +439,9 @@ const AdminLayout = () => {
                 </>
               )}
               <span className="text-foreground font-medium">{currentPage?.label || "Admin"}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
             </div>
           </div>
 
