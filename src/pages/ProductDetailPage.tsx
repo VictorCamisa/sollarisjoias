@@ -230,9 +230,169 @@ const RelatedCard = ({ product }: { product: any }) => {
   );
 };
 
-/* ═══════════════════════════════════════════════════════
-   PRODUCT DETAIL PAGE
-═══════════════════════════════════════════════════════ */
+/* ─── Product Info Tabs (Descrição, Especificações, Cuidados, Frete) ─── */
+const ProductInfoTabs = ({ product }: { product: any }) => {
+  const [active, setActive] = useState<"desc" | "specs" | "care" | "shipping">("desc");
+
+  const specs = [
+    { label: "Material", value: product.material },
+    { label: "Banho", value: product.banho },
+    { label: "Pedra", value: product.pedra },
+    { label: "Peso", value: product.weight_g ? `${product.weight_g}g` : null },
+    { label: "Referência (SKU)", value: product.sku },
+    { label: "Tamanhos disponíveis", value: product.sizes?.length ? product.sizes.join(", ") : null },
+    { label: "Cores", value: product.colors?.length ? product.colors.join(", ") : null },
+  ].filter((s) => s.value);
+
+  const tabs = [
+    { id: "desc" as const, label: "Descrição" },
+    { id: "specs" as const, label: "Especificações" },
+    { id: "care" as const, label: "Cuidados" },
+    { id: "shipping" as const, label: "Frete & Devolução" },
+  ];
+
+  return (
+    <div className="mt-16 md:mt-24 border-t border-border/40 pt-10">
+      {/* Tab triggers */}
+      <div className="flex gap-1 overflow-x-auto scrollbar-hide mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setActive(t.id)}
+            className={cn(
+              "relative px-4 sm:px-6 py-3 font-sans text-[10px] sm:text-[11px] tracking-[0.18em] uppercase whitespace-nowrap transition-colors",
+              active === t.id ? "text-accent" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {t.label}
+            {active === t.id && (
+              <motion.span
+                layoutId="tab-underline"
+                className="absolute left-0 right-0 bottom-0 h-px bg-accent"
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Panels */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-3xl"
+        >
+          {active === "desc" && (
+            <div className="space-y-4">
+              <p className="font-sans text-sm md:text-base text-muted-foreground leading-relaxed">
+                {product.description ||
+                  "Cada peça SOLLARIS é selecionada com intenção. Curadoria silenciosa, design atemporal e acabamento que resiste ao tempo — para mulheres que escolhem com propósito."}
+              </p>
+              <div className="flex items-center gap-3 pt-2 text-accent">
+                <Gem className="h-4 w-4" strokeWidth={1.5} />
+                <span className="font-sans text-[10px] tracking-[0.25em] uppercase">
+                  Curadoria com intenção
+                </span>
+              </div>
+            </div>
+          )}
+
+          {active === "specs" && (
+            <div className="grid sm:grid-cols-2 gap-x-12 gap-y-0">
+              {specs.length === 0 ? (
+                <p className="font-sans text-sm text-muted-foreground">Especificações em atualização.</p>
+              ) : (
+                specs.map((s, i) => (
+                  <div
+                    key={s.label}
+                    className={cn(
+                      "flex justify-between items-center py-3.5 border-b border-border/30",
+                      i >= specs.length - 2 && "sm:border-b-0"
+                    )}
+                  >
+                    <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground">
+                      {s.label}
+                    </span>
+                    <span className="font-sans text-sm text-foreground text-right">{s.value}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {active === "care" && (
+            <div className="space-y-5 font-sans text-sm text-muted-foreground leading-relaxed">
+              <p>
+                Para preservar o brilho e prolongar a vida da sua peça SOLLARIS, siga
+                cuidados simples — joias respondem ao carinho diário.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  "Evite contato com perfumes, cremes, álcool e produtos de limpeza.",
+                  "Retire ao dormir, praticar exercícios ou entrar no mar/piscina.",
+                  "Limpe com flanela seca após o uso — nunca use água quente.",
+                  "Guarde em local seco, separada de outras peças, na embalagem original.",
+                ].map((tip) => (
+                  <li key={tip} className="flex gap-3">
+                    <Sparkles className="h-3.5 w-3.5 text-accent flex-shrink-0 mt-1" strokeWidth={1.5} />
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {active === "shipping" && (
+            <div className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-border/40 p-5 bg-secondary/20">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <Truck className="h-4 w-4 text-accent" strokeWidth={1.5} />
+                    <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-foreground">
+                      Envio para todo o Brasil
+                    </span>
+                  </div>
+                  <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+                    Calculamos o frete por CEP no checkout. <span className="text-accent">Frete grátis</span> em
+                    pedidos acima de R$ 500. Embalagem premium incluída.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/40 p-5 bg-secondary/20">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <RotateCcw className="h-4 w-4 text-accent" strokeWidth={1.5} />
+                    <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-foreground">
+                      Trocas em até 7 dias
+                    </span>
+                  </div>
+                  <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+                    Você tem 7 dias corridos após o recebimento para solicitar troca,
+                    conforme Código de Defesa do Consumidor. Peça deve estar sem uso.
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-xl border border-accent/20 bg-accent/5 p-5 flex items-start gap-3">
+                <ShieldCheck className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                <div>
+                  <p className="font-sans text-[10px] tracking-[0.18em] uppercase text-foreground mb-1">
+                    Garantia SOLLARIS — 6 meses
+                  </p>
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                    Cobrimos defeitos de fabricação no banho e na estrutura. Falamos
+                    diretamente pelo WhatsApp para resolver com agilidade.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+};
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: product, isLoading } = useProduct(id || "");
