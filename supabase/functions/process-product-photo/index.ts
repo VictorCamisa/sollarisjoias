@@ -213,67 +213,83 @@ serve(async (req) => {
     const imageData = await fetchImageBytes(imageUrl);
     if (!imageData) return jsonError(400, "Não foi possível carregar a imagem original.");
 
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     let imageBase64: string | null = null;
+    let lastError: Error | null = null;
 
+    // 1. Try OpenAI (gpt-image-1) first
     if (OPENAI_API_KEY) {
       try {
         imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style);
       } catch (e: any) {
-        console.error("OpenAI failed, trying Gemini fallback:", e.message);
-        if (GOOGLE_API_KEY) {
-          imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
-        } else {
-          throw e;
-        }
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: finalPrompt },
-              { type: "image_url", image_url: { url: imageUrl } },
-            ],
-          },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
-
-    if (!aiRes.ok) {
-      const errText = await aiRes.text();
-      console.error("lovable image edit error:", aiRes.status, errText);
-      if (aiRes.status === 429) return jsonError(429, "Limite de requisições atingido. Tente em alguns segundos.");
-      if (aiRes.status === 402) return jsonError(402, "Créditos de IA insuficientes no workspace.");
-      return jsonError(500, `Falha ao processar a foto (${aiRes.status}).`);
-    }
-
-    const aiData = await aiRes.json();
-    const generatedUrl = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!generatedUrl) return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
-
-    let imageBase64: string | undefined;
-    if (generatedUrl.startsWith("data:image/")) {
-      const base64Part = generatedUrl.split(",")[1];
-      imageBase64 = base64Part;
-    } else {
-      const fetched = await fetchImageBytes(generatedUrl);
-      if (fetched) {
-        let bin = "";
-        for (let i = 0; i < fetched.bytes.length; i++) bin += String.fromCharCode(fetched.bytes[i]);
-        imageBase64 = btoa(bin);
+        console.error("OpenAI failed:", e.message);
+        lastError = e;
       }
-    } else if (GOOGLE_API_KEY) {
-      imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
     }
 
-    if (!imageBase64) return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
+    // 2. Fallback to Google Gemini direct API
+    if (!imageBase64 && GOOGLE_API_KEY) {
+      try {
+        imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
+      } catch (e: any) {
+        console.error("Gemini direct failed:", e.message);
+        lastError = e;
+      }
+    }
+
+    // 3. Last resort: Lovable AI Gateway
+    if (!imageBase64 && LOVABLE_API_KEY) {
+      try {
+        const dataUrl = `data:${imageData.contentType};base64,${encodeBase64(imageData.bytes)}`;
+        const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image",
+            messages: [
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: prompt },
+                  { type: "image_url", image_url: { url: dataUrl } },
+                ],
+              },
+            ],
+            modalities: ["image", "text"],
+          }),
+        });
+
+        if (!aiRes.ok) {
+          const errText = await aiRes.text();
+          console.error("lovable image edit error:", aiRes.status, errText);
+          if (aiRes.status === 429) return jsonError(429, "Limite de requisições atingido. Tente em alguns segundos.");
+          if (aiRes.status === 402) return jsonError(402, "Créditos de IA insuficientes no workspace. Adicione saldo em Settings > Cloud & AI balance ou configure OPENAI_API_KEY/GOOGLE_API_KEY.");
+          throw new Error(`Lovable AI retornou ${aiRes.status}.`);
+        }
+
+        const aiData = await aiRes.json();
+        const generatedUrl = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+        if (generatedUrl) {
+          if (generatedUrl.startsWith("data:image/")) {
+            imageBase64 = generatedUrl.split(",")[1];
+          } else {
+            const fetched = await fetchImageBytes(generatedUrl);
+            if (fetched) imageBase64 = encodeBase64(fetched.bytes);
+          }
+        }
+      } catch (e: any) {
+        console.error("Lovable AI failed:", e.message);
+        lastError = e;
+      }
+    }
+
+    if (!imageBase64) {
+      const msg = lastError?.message || "Nenhum provedor de IA disponível conseguiu gerar a imagem.";
+      return jsonError(500, msg);
+    }
 
     const imageBytes = decodeBase64(imageBase64);
     const fileName = `product-ai/${Date.now()}-${style}.png`;
