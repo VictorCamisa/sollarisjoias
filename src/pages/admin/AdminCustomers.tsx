@@ -314,7 +314,7 @@ const AdminCustomers = () => {
 
           {/* Tab: Info */}
           <TabsContent value="info" className="mt-4">
-            <div className="admin-card p-5 space-y-4 max-w-lg">
+            <div className="admin-card p-5 space-y-4 max-w-2xl">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</label>
@@ -324,6 +324,20 @@ const AdminCustomers = () => {
                   <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</label>
                   <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="admin-input" />
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">CPF</label>
+                  <Input value={editCpf} onChange={(e) => setEditCpf(e.target.value)} placeholder="000.000.000-00" maxLength={14} className="admin-input" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Aniversário</label>
+                  <Input type="date" value={editBirthday} onChange={(e) => setEditBirthday(e.target.value)} className="admin-input" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">E-mail</label>
+                <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="cliente@email.com" className="admin-input" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Endereço</label>
