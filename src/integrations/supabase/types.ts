@@ -14,6 +14,180 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_carts: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          is_open: boolean
+          item_count: number
+          items: Json
+          session_id: string
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          is_open?: boolean
+          item_count?: number
+          items?: Json
+          session_id: string
+          total_value?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          is_open?: boolean
+          item_count?: number
+          items?: Json
+          session_id?: string
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          path: string | null
+          product_id: string | null
+          product_name: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          path?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          path?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
+      analytics_pageviews: {
+        Row: {
+          duration_ms: number | null
+          entered_at: string
+          id: string
+          left_at: string | null
+          path: string
+          referrer: string | null
+          session_id: string
+          title: string | null
+        }
+        Insert: {
+          duration_ms?: number | null
+          entered_at?: string
+          id?: string
+          left_at?: string | null
+          path: string
+          referrer?: string | null
+          session_id: string
+          title?: string | null
+        }
+        Update: {
+          duration_ms?: number | null
+          entered_at?: string
+          id?: string
+          left_at?: string | null
+          path?: string
+          referrer?: string | null
+          session_id?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
+      analytics_sessions: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          device_type: string | null
+          ended_at: string | null
+          id: string
+          is_active: boolean
+          landing_page: string | null
+          last_seen_at: string
+          os: string | null
+          pageview_count: number
+          referrer: string | null
+          region: string | null
+          session_id: string
+          started_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          landing_page?: string | null
+          last_seen_at?: string
+          os?: string | null
+          pageview_count?: number
+          referrer?: string | null
+          region?: string | null
+          session_id: string
+          started_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          landing_page?: string | null
+          last_seen_at?: string
+          os?: string | null
+          pageview_count?: number
+          referrer?: string | null
+          region?: string | null
+          session_id?: string
+          started_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       brain_conversations: {
         Row: {
           created_at: string
@@ -1285,6 +1459,7 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_inactive_sessions: { Args: never; Returns: undefined }
       get_or_create_customer_profile: {
         Args: { _name: string; _phone: string }
         Returns: string
