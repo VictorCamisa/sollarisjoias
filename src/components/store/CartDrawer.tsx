@@ -1,14 +1,27 @@
-import { X, Minus, Plus, Trash2, MessageCircle, QrCode } from "lucide-react";
+import { X, Minus, Plus, Trash2, MessageCircle, CreditCard, Loader2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useStore";
+import { useMercadoPagoCheckout } from "@/hooks/useMercadoPagoCheckout";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
-import PixCheckoutDialog from "@/components/checkout/PixCheckoutDialog";
+import { useEffect } from "react";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
   const { data: settings } = useSettings();
-  const [pixOpen, setPixOpen] = useState(false);
+  const { startCheckout, loading: checkoutLoading } = useMercadoPagoCheckout();
+
+  const handleMpCheckout = () => {
+    if (items.length === 0) return;
+    startCheckout({
+      items: items.map((i) => ({
+        id: i.id,
+        title: i.name,
+        quantity: i.quantity,
+        unit_price: i.price,
+        picture_url: i.image,
+      })),
+    });
+  };
 
   // Lock body scroll when open
   useEffect(() => {
@@ -148,11 +161,16 @@ const CartDrawer = () => {
                   </span>
                 </div>
                 <button
-                  onClick={() => setPixOpen(true)}
-                  className="w-full h-12 sm:h-13 bg-accent text-accent-foreground font-sans text-[11px] tracking-[0.2em] uppercase rounded-full flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform"
+                  onClick={handleMpCheckout}
+                  disabled={checkoutLoading}
+                  className="w-full h-12 sm:h-13 bg-accent text-accent-foreground font-sans text-[11px] tracking-[0.2em] uppercase rounded-full flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform disabled:opacity-60"
                 >
-                  <QrCode className="h-4 w-4" />
-                  Pagar com Pix
+                  {checkoutLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="h-4 w-4" />
+                  )}
+                  {checkoutLoading ? "Redirecionando..." : "Pagar com Pix ou Cartão"}
                 </button>
                 <button
                   onClick={handleCheckout}
@@ -172,16 +190,6 @@ const CartDrawer = () => {
           </motion.div>
         </>
       )}
-      <PixCheckoutDialog
-        open={pixOpen}
-        onOpenChange={setPixOpen}
-        amount={totalPrice}
-        description={`Pedido Sollaris (${items.length} ${items.length === 1 ? "item" : "itens"})`}
-        onPaid={() => {
-          clearCart();
-          setIsOpen(false);
-        }}
-      />
     </AnimatePresence>
   );
 };
