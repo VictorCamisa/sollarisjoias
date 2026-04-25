@@ -76,6 +76,7 @@
     --hub-comercial: 245 65% 55%;       /* indigo profundo */
     --hub-operacao: 158 62% 38%;        /* emerald escuro */
     --hub-financas: 32 88% 46%;         /* amber rico */
+    --hub-ecommerce: 270 60% 58%;       /* violeta ecommerce */
 
     /* Chart palette */
     --chart-gold: 36 60% 46%;
@@ -145,6 +146,7 @@
     --hub-comercial: 245 80% 68%;
     --hub-operacao: 158 65% 50%;
     --hub-financas: 38 95% 58%;
+    --hub-ecommerce: 270 75% 70%;       /* violeta ecommerce luminoso */
 
     /* Sombras dark — pretas profundas */
     --shadow-notion-sm: 0 1px 2px hsl(0 0% 0% / 0.30), 0 1px 1px hsl(0 0% 0% / 0.20);

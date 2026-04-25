@@ -20,6 +20,19 @@ function jsonError(status: number, error: string) {
   });
 }
 
+function decodeBase64(base64: string): Uint8Array {
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+function encodeBase64(bytes: Uint8Array): string {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
 async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; contentType: string } | null> {
   try {
     if (url.startsWith("data:")) {
@@ -31,23 +44,133 @@ async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; conten
       if (isBase64) return { bytes: decodeBase64(payload), contentType };
       return { bytes: new TextEncoder().encode(decodeURIComponent(payload)), contentType };
     }
-
     const res = await fetch(url);
     if (!res.ok) return null;
     const contentType = res.headers.get("content-type") || "image/jpeg";
     const buf = await res.arrayBuffer();
     return { bytes: new Uint8Array(buf), contentType };
   } catch (e) {
-    console.error("Failed to fetch image:", url, e);
+    console.error("fetchImageBytes error:", e);
     return null;
   }
 }
 
-function decodeBase64(base64: string): Uint8Array {
-  const raw = atob(base64);
-  const arr = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-  return arr;
+function buildPrompt(style: string, productDetails: string): string {
+  const PRESERVE =
+    "CRITICAL RULE — THIS IS PHOTO RETOUCHING, NOT IMAGE GENERATION. " +
+    "You MUST preserve the exact jewelry piece from the reference photo with absolute fidelity: " +
+    "identical silhouette, gemstone color and cut, chain/link pattern, metal finish (gold/silver/rose), " +
+    "proportions and scale, orientation, prong count, engraving, and every visible detail. " +
+    "DO NOT redesign, restyle, or change any element. DO NOT invent new features. " +
+    "DO NOT add logos, brand marks, watermarks, text, typography, or any graphic overlay. " +
+    "The image must be completely free of text and brand elements.";
+
+  const DARK =
+    "Background: deep obsidian black (#090909–#0D0D0F). This is the permanent Sollaris luxury ecommerce standard — non-negotiable.";
+
+  const prompts: Record<string, string> = {
+    catalog:
+      `${PRESERVE} ${DARK} Replace ONLY the background with a perfectly seamless obsidian black backdrop. ` +
+      `Apply luxury jewelry studio lighting: soft key light from slightly above-front, subtle champagne-gold rim highlights on metal edges, zero harsh shadows. ` +
+      `Center the jewelry. Photorealistic, ultra-sharp product photography. NO text, NO logo, NO watermark under any circumstances.`,
+    mockup:
+      `${PRESERVE} ${DARK} Compose the exact same jewelry in a luxury editorial scene: obsidian black environment, ` +
+      `barely-visible dark reflective surface, dramatic warm champagne side lighting. ` +
+      `Ultra-photorealistic premium fashion editorial. NO text, NO logo, NO watermark.`,
+    lifestyle:
+      `${PRESERVE} ${DARK} Place the exact same jewelry in a dark editorial lifestyle scene: obsidian mood, ` +
+      `soft warm champagne highlights, premium fashion styling. The jewelry must be the visual hero, ` +
+      `visually identical to the input. Photorealistic. NO text, NO logo, NO watermark.`,
+  };
+
+  const base = prompts[style] || prompts.catalog;
+  return productDetails ? `${base}\n\nProduct reference: ${productDetails}.` : base;
+}
+
+/* ─── OpenAI gpt-image-1 ─── */
+async function processWithOpenAI(
+  imageData: { bytes: Uint8Array; contentType: string },
+  prompt: string,
+  apiKey: string,
+  style: string,
+): Promise<string | null> {
+  const ext = imageData.contentType.includes("png") ? "png"
+    : imageData.contentType.includes("webp") ? "webp"
+    : "jpeg";
+  const fileName = `product.${ext}`;
+  const blob = new Blob([imageData.bytes], { type: imageData.contentType });
+
+  const formData = new FormData();
+  formData.append("image[]", blob, fileName);
+  formData.append("prompt", prompt);
+  formData.append("model", "gpt-image-1");
+  formData.append("n", "1");
+  formData.append("size", "1024x1024");
+  formData.append("quality", "high");
+
+  const res = await fetch("https://api.openai.com/v1/images/edits", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("OpenAI error:", res.status, errText);
+    if (res.status === 429) throw new Error("Limite de requisições OpenAI atingido. Tente em alguns segundos.");
+    if (res.status === 402 || res.status === 403) throw new Error("Créditos ou permissão insuficiente na conta OpenAI.");
+    throw new Error(`OpenAI retornou status ${res.status}.`);
+  }
+
+  const data = await res.json();
+  const b64 = data.data?.[0]?.b64_json as string | undefined;
+  return b64 || null;
+}
+
+/* ─── Google Gemini 2.0 Flash (fallback) ─── */
+async function processWithGemini(
+  imageData: { bytes: Uint8Array; contentType: string },
+  prompt: string,
+  apiKey: string,
+): Promise<string | null> {
+  const base64Image = encodeBase64(imageData.bytes);
+  const mimeType = imageData.contentType.split(";")[0] || "image/jpeg";
+
+  const body = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: prompt },
+          { inline_data: { mime_type: mimeType, data: base64Image } },
+        ],
+      },
+    ],
+    generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
+  };
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Gemini error:", res.status, errText);
+    if (res.status === 429) throw new Error("Limite de requisições Gemini atingido. Tente em alguns segundos.");
+    throw new Error(`Gemini retornou status ${res.status}.`);
+  }
+
+  const data = await res.json();
+  const parts = data.candidates?.[0]?.content?.parts ?? [];
+  for (const part of parts) {
+    if (part.inline_data?.data) return part.inline_data.data as string;
+  }
+  return null;
 }
 
 serve(async (req) => {
@@ -60,13 +183,19 @@ serve(async (req) => {
       banho = "",
       pedra = "",
       material = "",
-      style = "catalog", // "catalog" | "mockup" | "lifestyle"
+      style = "catalog",
     } = await req.json();
 
     if (!imageUrl) return jsonError(400, "imageUrl é obrigatório");
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+
+    if (!OPENAI_API_KEY && !GOOGLE_API_KEY) {
+      return jsonError(500,
+        "Nenhuma chave de IA configurada. Adicione OPENAI_API_KEY ou GOOGLE_API_KEY nas variáveis de ambiente do Supabase."
+      );
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -79,72 +208,30 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    const BRAND_PRESERVE =
-      "ABSOLUTE RULE: This is a PHOTO RETOUCH task, NOT a new design. Preserve the original jewelry exactly: same silhouette, same gemstone color and cut, same chain pattern, same metal finish, same proportions, same orientation, same prongs, same visible details. Do not redesign, do not restyle, do not change the product structure. Only improve the photo treatment, background and lighting.";
+    const prompt = buildPrompt(style, productDetails);
 
-    const stylePrompts: Record<string, string> = {
-      catalog:
-        `${BRAND_PRESERVE} Replace only the background with a seamless obsidian black backdrop (#0A0A0B). Use luxury studio lighting, soft frontal light, subtle champagne highlights, clean premium jewelry e-commerce aesthetic, centered composition, photorealistic. No text, no logo, no watermark, no typography.`,
-      mockup:
-        `${BRAND_PRESERVE} Keep the exact same jewelry piece and place it in a luxury editorial product scene with obsidian black environment, subtle reflective surface, dramatic warm champagne side light, photorealistic, premium fashion jewelry direction. No text, no logo, no watermark, no typography.`,
-      lifestyle:
-        `${BRAND_PRESERVE} Keep the exact same jewelry piece and place it in a dark editorial lifestyle scene with obsidian black mood, soft warm highlights, premium fashion styling, but the jewelry must remain the hero and visually identical to the input. Photorealistic. No text, no logo, no watermark, no typography.`,
-    };
+    const imageData = await fetchImageBytes(imageUrl);
+    if (!imageData) return jsonError(400, "Não foi possível carregar a imagem original.");
 
-    const styleDesc = stylePrompts[style] || stylePrompts.catalog;
-    const finalPrompt = productDetails
-      ? `${styleDesc}\n\nProduct reference: ${productDetails}.`
-      : styleDesc;
+    let imageBase64: string | null = null;
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: finalPrompt },
-              { type: "image_url", image_url: { url: imageUrl } },
-            ],
-          },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
-
-    if (!aiRes.ok) {
-      const errText = await aiRes.text();
-      console.error("lovable image edit error:", aiRes.status, errText);
-      if (aiRes.status === 429) return jsonError(429, "Limite de requisições atingido. Tente em alguns segundos.");
-      if (aiRes.status === 402) return jsonError(402, "Créditos de IA insuficientes no workspace.");
-      return jsonError(500, `Falha ao processar a foto (${aiRes.status}).`);
-    }
-
-    const aiData = await aiRes.json();
-    const generatedUrl = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!generatedUrl) return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
-
-    let imageBase64: string | undefined;
-    if (generatedUrl.startsWith("data:image/")) {
-      const base64Part = generatedUrl.split(",")[1];
-      imageBase64 = base64Part;
-    } else {
-      const fetched = await fetchImageBytes(generatedUrl);
-      if (fetched) {
-        let bin = "";
-        for (let i = 0; i < fetched.bytes.length; i++) bin += String.fromCharCode(fetched.bytes[i]);
-        imageBase64 = btoa(bin);
+    if (OPENAI_API_KEY) {
+      try {
+        imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style);
+      } catch (e: any) {
+        console.error("OpenAI failed, trying Gemini fallback:", e.message);
+        if (GOOGLE_API_KEY) {
+          imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
+        } else {
+          throw e;
+        }
       }
+    } else if (GOOGLE_API_KEY) {
+      imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
     }
 
     if (!imageBase64) return jsonError(500, "Nenhuma imagem foi gerada. Tente novamente.");
 
-    // Upload to storage
     const imageBytes = decodeBase64(imageBase64);
     const fileName = `product-ai/${Date.now()}-${style}.png`;
 
@@ -158,7 +245,6 @@ serve(async (req) => {
     }
 
     const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(fileName);
-
     return jsonOk({ image_url: publicUrl.publicUrl, style });
   } catch (e) {
     console.error("process-product-photo error:", e);
