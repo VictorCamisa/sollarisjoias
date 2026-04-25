@@ -32,7 +32,7 @@ const AdminTarefas = () => {
   const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
-  const [form, setForm] = useState({ title: "", description: "", due_date: "", priority: "medium" });
+  const [form, setForm] = useState({ title: "", description: "", due_date: "", priority: "medium", assigned_to: "" });
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["admin-tasks"],
@@ -43,19 +43,31 @@ const AdminTarefas = () => {
     },
   });
 
+  const { data: adminProfiles } = useQuery({
+    queryKey: ["admin-profiles"],
+    queryFn: async () => {
+      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
+      if (!roles?.length) return [];
+      const ids = roles.map((r) => r.user_id);
+      const { data } = await supabase.from("profiles").select("id, full_name").in("id", ids);
+      return data || [];
+    },
+  });
+
   const createTask = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("tasks").insert({
         title: form.title, description: form.description || null,
         due_date: form.due_date || null, priority: form.priority, created_by: user?.id,
-      });
+        assigned_to: form.assigned_to && form.assigned_to !== "none" ? form.assigned_to : null,
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-tasks"] });
       toast.success("Tarefa criada!");
       setDialogOpen(false);
-      setForm({ title: "", description: "", due_date: "", priority: "medium" });
+      setForm({ title: "", description: "", due_date: "", priority: "medium", assigned_to: "" });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -88,7 +100,7 @@ const AdminTarefas = () => {
     <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Tarefas</h1>
+          <h1 className="text-xl font-semibold">Tarefas</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Organize seu dia a dia</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -96,7 +108,7 @@ const AdminTarefas = () => {
             <Button size="sm" className="rounded-lg gap-2 h-9 text-xs"><Plus className="h-3.5 w-3.5" /> Nova tarefa</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle className="font-serif">Nova Tarefa</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle >Nova Tarefa</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Título</Label>
@@ -120,6 +132,18 @@ const AdminTarefas = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div>
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Responsável</Label>
+                <Select value={form.assigned_to} onValueChange={(v) => setForm({ ...form, assigned_to: v })}>
+                  <SelectTrigger className="rounded-lg h-9 mt-1"><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Ninguém</SelectItem>
+                    {adminProfiles?.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.full_name || "Sem nome"}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <Button onClick={() => createTask.mutate()} disabled={!form.title} className="w-full rounded-lg h-9">Criar tarefa</Button>
             </div>
@@ -181,6 +205,11 @@ const AdminTarefas = () => {
                 </div>
                 <div className="hidden sm:flex items-center gap-2">
                   <Badge variant="outline" className={`text-[10px] ${p.color}`}>{p.label}</Badge>
+                  {(task as any).assigned_to && (
+                    <Badge variant="secondary" className="text-[9px]">
+                      {adminProfiles?.find((ap) => ap.id === (task as any).assigned_to)?.full_name?.split(" ")[0] || "—"}
+                    </Badge>
+                  )}
                   {task.due_date && (
                     <span className="text-[10px] text-muted-foreground">
                       {new Date(task.due_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}

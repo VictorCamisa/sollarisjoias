@@ -54,7 +54,7 @@ const AutomacoesAgendamentos = () => {
   const { data: appointments = [], isLoading } = useQuery({
     queryKey: ["sales-appointments"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_appointments").select("*, sales_leads(name)").order("scheduled_at", { ascending: true });
+      const { data } = await (supabase.from as any)("sales_appointments").select("*, sales_leads(name)").order("scheduled_at", { ascending: true });
       return data || [];
     },
   });
@@ -62,7 +62,7 @@ const AutomacoesAgendamentos = () => {
   const { data: leads = [] } = useQuery({
     queryKey: ["sales-leads-slim"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_leads").select("id, name, phone").order("name");
+      const { data } = await (supabase.from as any)("sales_leads").select("id, name, phone").order("name");
       return data || [];
     },
   });
@@ -70,7 +70,7 @@ const AutomacoesAgendamentos = () => {
   const saveMutation = useMutation({
     mutationFn: async () => {
       const scheduled_at = `${form.scheduled_at}T${form.scheduled_time}:00`;
-      await supabase.from("sales_appointments").insert({
+      await (supabase.from as any)("sales_appointments").insert({
         client_name: form.client_name,
         client_phone: form.client_phone || null,
         lead_id: form.lead_id || null,
@@ -94,7 +94,7 @@ const AutomacoesAgendamentos = () => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      await supabase.from("sales_appointments").update({ status }).eq("id", id);
+      await (supabase.from as any)("sales_appointments").update({ status }).eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-appointments"] });
@@ -104,7 +104,7 @@ const AutomacoesAgendamentos = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_appointments").delete().eq("id", id);
+      await (supabase.from as any)("sales_appointments").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-appointments"] });

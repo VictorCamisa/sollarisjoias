@@ -1,72 +1,112 @@
 
 
-## Analise: O que precisa ser adaptado no sistema LARIFA
+## Plano: Conectar Google Sheets ao Brain (OAuth + leitura/escrita)
 
-Com base no conceito **LARIFA AI Fashion** (marca AI-First de moda feminina) extraido da apresentacao anterior e nos dois documentos de business plan que voce enviou, aqui esta minha analise do que o sistema atual **ja tem** vs **o que falta**.
-
----
-
-### O que ja esta implementado
-
-- Identidade visual editorial quente (creme, terracotta, Playfair Display + Inter)
-- Catalogo de produtos com categorias, filtros, busca
-- Carrinho com persistencia local + checkout via WhatsApp
-- Painel admin com CRUD de produtos, categorias e configuracoes
-- Autenticacao admin com roles (RLS)
-- 30 produtos mockados com fotos Unsplash
+### Visão geral
+Você clica **"Conectar Google"** no admin → autoriza UMA vez → o Brain ganha acesso pra **ler e escrever** em qualquer planilha sua. Depois é só conversar: *"no meu controle de vendas, soma a coluna F do mês de março"* ou *"adiciona uma linha com a venda de hoje na planilha de caixa"*.
 
 ---
 
-### O que precisa ser adaptado/adicionado
+### Pré-requisitos (você precisa fazer 1 vez, ~5 min)
 
-#### 1. Conceito AI-First na experiencia do cliente
-O sistema atual e um e-commerce tradicional. O diferencial LARIFA e ser **AI-First** -- a inteligencia artificial deveria estar presente na experiencia:
+Vou te passar o passo a passo detalhado depois, mas o resumo é:
 
-- **Assistente de estilo IA**: Chat ou widget onde a cliente descreve a ocasiao/estilo e recebe sugestoes de looks montados com produtos da loja
-- **Recomendacoes personalizadas**: Secao "Feito para voce" na home baseada em historico/preferencias
-- **Descricoes geradas por IA**: Textos de produto com tom editorial, gerados automaticamente
+1. **Google Cloud Console** → criar projeto (ou usar existente)
+2. **Habilitar a Google Sheets API** + **Google Drive API** (pra listar planilhas)
+3. **Criar credenciais OAuth Client ID** (tipo: Web Application)
+4. Adicionar como **Authorized redirect URI**: a URL da edge function `google-oauth-callback` (te passo depois de criar)
+5. Copiar **Client ID** e **Client Secret** → você cola no Lovable como secrets
 
-#### 2. Paginas institucionais ausentes
-- **Sobre / Quem Somos**: Historia da marca, conceito AI-First, proposta de valor
-- **Politicas**: Trocas, devolucoes, privacidade
-- **FAQ**: Perguntas frequentes sobre tamanhos, envio, etc.
-
-#### 3. Funcionalidades de e-commerce faltantes
-- **Gestao de pedidos**: Tabela `orders` para rastrear pedidos (hoje so manda WhatsApp sem registro)
-- **Cupons/descontos**: Sistema de promocoes
-- **Frete e CEP**: Calculo de frete ou pelo menos informacao de envio
-- **Favoritos/wishlist**: Salvar produtos que a cliente gostou
-- **Avaliacoes/reviews**: Social proof nos produtos
-
-#### 4. Marketing e conversao
-- **Banner rotativo na home**: Em vez de hero estatico, carousel com campanhas/promocoes
-- **Secao Instagram/Social**: Feed ou link para redes sociais
-- **Newsletter/captacao de leads**: Campo de email no footer ou popup
-- **SEO**: Meta tags, Open Graph, sitemap
-
-#### 5. Experiencia mobile
-- **PWA**: App-like experience no celular
-- **Compartilhar produto**: Botao de compartilhar via WhatsApp/redes
-
-#### 6. Admin mais robusto
-- **Painel de pedidos**: Visualizar pedidos recebidos via WhatsApp (ou internamente)
-- **Relatorios**: Produtos mais vistos, cliques no WhatsApp, conversao
-- **Gestao de banners**: Admin para trocar hero/banners sem codigo
-- **Gestao de cupons**: Criar e gerenciar codigos de desconto
+Custo: **R$ 0** — Google Sheets API tem cota grátis altíssima (300 requests/min).
 
 ---
 
-### Prioridades recomendadas (ordem de impacto)
+### Arquitetura
 
-| Prioridade | Adaptacao | Justificativa |
-|---|---|---|
-| 1 | Assistente de estilo IA | Diferencial central da marca |
-| 2 | Pagina "Sobre" com conceito AI-First | Posicionamento de marca |
-| 3 | Registro de pedidos no banco | Controle basico de vendas |
-| 4 | Newsletter + SEO | Captacao e descoberta |
-| 5 | Favoritos + Compartilhar | Engajamento do cliente |
+**1. Tabela nova: `google_integrations`**
+Armazena tokens OAuth da Ana (e futuros usuários).
+- `user_id` (auth.users)
+- `access_token`, `refresh_token`, `expires_at`
+- `scopes`, `email_google`, `connected_at`
+- RLS: cada usuário vê só os próprios tokens
+
+**2. Edge function: `google-oauth-callback`**
+Recebe o `code` do Google, troca por tokens, salva no DB.
+
+**3. Edge function: `google-sheets-proxy`**
+Proxy autenticado que o Brain chama. Renova access_token automaticamente quando expira (usa refresh_token). Endpoints:
+- `list_sheets` — lista planilhas da Ana
+- `read_range` — lê valores de um intervalo (ex: `Vendas!A1:F100`)
+- `write_range` — escreve/sobrescreve valores
+- `append_row` — adiciona linha no fim
+- `update_cell` — edita célula específica
+- `create_sheet` — cria planilha nova (bonus)
+
+**4. Tools novas no Brain (`brain-nalu`)**
+- `list_my_sheets` — "quais planilhas eu tenho?"
+- `read_sheet` — lê dados de uma planilha (parâmetros: nome ou URL, intervalo)
+- `write_sheet` — escreve (com confirmação obrigatória antes)
+- `append_to_sheet` — adiciona linha
+- `analyze_sheet` — lê + envia pro modelo pra análise
+
+System prompt atualizado: *"Antes de ESCREVER em qualquer planilha, sempre mostre o que vai fazer e peça confirmação 'sim' explícita."*
+
+**5. UI: novo card em Configurações ou no Brain**
+- Botão **"Conectar Google Sheets"** (estado: desconectado / conectado como `email@gmail.com`)
+- Lista das planilhas detectadas
+- Botão **"Desconectar"**
+
+**6. Secrets necessários** (você adiciona depois de criar no Google Cloud):
+- `GOOGLE_OAUTH_CLIENT_ID`
+- `GOOGLE_OAUTH_CLIENT_SECRET`
 
 ---
 
-Se quiser, posso comecar implementando qualquer um desses itens. Qual voce quer priorizar?
+### Fluxo de uso (depois de conectado)
+
+**Você no WhatsApp:** *"Brain, vê na planilha 'Caixa Mar/25' quanto entrou de PIX essa semana"*
+
+**Brain:**
+1. Chama `list_my_sheets` → acha "Caixa Mar/25"
+2. Chama `read_sheet` no intervalo provável
+3. Calcula e responde: *"Ana, essa semana entraram **R$ 4.230** via PIX (12 transações). Quer que eu detalhe?"*
+
+**Você:** *"Adiciona aí a venda do colar Sol pra Maria, R$ 480, dinheiro, hoje"*
+
+**Brain:** *"Vou adicionar na aba 'Vendas' da planilha 'Caixa Mar/25':*
+*Data: 18/04/2026 | Cliente: Maria | Produto: Colar Sol | Valor: R$ 480 | Pagamento: Dinheiro*
+*Confirma? (sim/não)"*
+
+**Você:** *"sim"* → Brain executa e confirma com print da linha.
+
+---
+
+### Segurança
+- Tokens criptografados no DB (RLS por user_id)
+- Nenhum secret exposto no frontend
+- Brain SEMPRE pede confirmação antes de escrever
+- Refresh automático de tokens expirados
+- Você pode revogar acesso a qualquer momento (botão "Desconectar" + revoga no Google)
+
+---
+
+### Limitações honestas
+- Brain precisa do **nome da planilha ou URL** — não advinha qual planilha. Se você tiver muitas, podemos cadastrar "favoritas" depois.
+- Pra planilhas MUITO grandes (>10k linhas), ler tudo é lento — usaremos ranges específicos.
+- Brain não vê **gráficos** ou **formatação visual** — só dados e fórmulas.
+
+---
+
+### Ordem de implementação
+1. Migração SQL (tabela `google_integrations`)
+2. Edge functions (callback + proxy)
+3. Tools no `brain-nalu` + system prompt atualizado
+4. UI de conexão
+5. Eu te passo o passo a passo do Google Cloud Console
+6. Você adiciona os 2 secrets
+7. Testa fim-a-fim
+
+---
+
+**Posso começar?** Se sim, eu já crio a migração e as edge functions agora, e enquanto eu faço isso te mando o tutorial do Google Cloud Console pra você ir adiantando.
 

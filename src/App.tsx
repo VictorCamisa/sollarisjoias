@@ -29,6 +29,7 @@ import AdminTarefas from "./pages/admin/AdminTarefas";
 import AdminNotas from "./pages/admin/AdminNotas";
 import AdminFornecedores from "./pages/admin/AdminFornecedores";
 import AdminCupons from "./pages/admin/AdminCupons";
+import AdminCrediario from "./pages/admin/AdminCrediario";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import AutomacoesLayout from "./pages/admin/automacoes/AutomacoesLayout";
 import AutomacoesOverview from "./pages/admin/automacoes/AutomacoesOverview";
@@ -38,6 +39,7 @@ import AutomacoesConhecimento from "./pages/admin/automacoes/AutomacoesConhecime
 import AutomacoesIA from "./pages/admin/automacoes/AutomacoesIA";
 import AutomacoesCampanhas from "./pages/admin/automacoes/AutomacoesCampanhas";
 import AutomacoesAgendamentos from "./pages/admin/automacoes/AutomacoesAgendamentos";
+import BrainNalu from "./pages/admin/BrainNalu";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +74,7 @@ const App = () => (
                 <Route path="clientes" element={<AdminCustomers />} />
                 <Route path="fornecedores" element={<AdminFornecedores />} />
                 <Route path="cupons" element={<AdminCupons />} />
+                <Route path="crediario" element={<AdminCrediario />} />
                 <Route path="tarefas" element={<AdminTarefas />} />
                 <Route path="notas" element={<AdminNotas />} />
                 <Route path="marketing" element={<AdminMarketing />} />
@@ -85,6 +88,7 @@ const App = () => (
                   <Route path="agendamentos" element={<AutomacoesAgendamentos />} />
                 </Route>
                 <Route path="configuracoes" element={<AdminSettings />} />
+                <Route path="brain-nalu" element={<BrainNalu />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

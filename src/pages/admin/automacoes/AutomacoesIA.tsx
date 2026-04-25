@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Bot, Save, Send, RefreshCw, Sparkles, Settings, MessageSquare, Clock } from "lucide-react";
+import { Bot, Save, Send, RefreshCw, Sparkles, Settings, MessageSquare, Clock, Route, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -208,7 +208,7 @@ const AutomacoesIA = () => {
   const { data: savedConfig } = useQuery({
     queryKey: ["sales-ai-config"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_ai_config").select("*").single();
+      const { data } = await (supabase.from as any)("sales_ai_config").select("*").single();
       return data;
     },
     onSuccess: (data: any) => {
@@ -230,16 +230,16 @@ const AutomacoesIA = () => {
   const { data: knowledgeDocs = [] } = useQuery({
     queryKey: ["sales-knowledge"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_knowledge_docs").select("title, content, category");
+      const { data } = await (supabase.from as any)("sales_knowledge_docs").select("title, content, category");
       return data || [];
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const { data: existing } = await supabase.from("sales_ai_config").select("id").single();
+      const { data: existing } = await (supabase.from as any)("sales_ai_config").select("id").single();
       if (existing?.id) {
-        await supabase.from("sales_ai_config").update({
+        await (supabase.from as any)("sales_ai_config").update({
           enabled: config.enabled,
           system_prompt: config.system_prompt,
           temperature: config.temperature,
@@ -249,6 +249,17 @@ const AutomacoesIA = () => {
           schedule_days: config.schedule_days,
           only_outside_hours: config.only_outside_hours,
         }).eq("id", existing.id);
+      } else {
+        await (supabase.from as any)("sales_ai_config").insert({
+          enabled: config.enabled,
+          system_prompt: config.system_prompt,
+          temperature: config.temperature,
+          scenario_key: config.scenario_key,
+          schedule_start: config.schedule_start,
+          schedule_end: config.schedule_end,
+          schedule_days: config.schedule_days,
+          only_outside_hours: config.only_outside_hours,
+        });
       }
     },
     onSuccess: () => {
@@ -272,12 +283,12 @@ const AutomacoesIA = () => {
     setConfig({ ...config, schedule_days: days });
   };
 
-  // Simulated AI response (replace with real OpenAI/Claude call when ready)
   const sendMessage = async () => {
     if (!input.trim()) return;
     const userMsg = input.trim();
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    const newMessages: Message[] = [...messages, { role: "user", content: userMsg }];
+    setMessages(newMessages);
     setIsTyping(true);
 
     // Build context from knowledge base
@@ -316,9 +327,38 @@ const AutomacoesIA = () => {
         reply = `Entendi! Para te ajudar da melhor forma: você está procurando uma joia para uso próprio ou para presentear alguém especial? Com essa informação já consigo te indicar as peças certas da nossa coleção 💎`;
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      // Flush remaining
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantSoFar += content;
+              const currentText = assistantSoFar;
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant") {
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: currentText } : m);
+                }
+                return [...prev, { role: "assistant", content: currentText }];
+              });
+            }
+          } catch { /* ignore */ }
+        }
+      }
+    } catch (err) {
+      console.error("AI chat error:", err);
+      toast.error("Erro ao conectar com a IA");
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   useEffect(() => {
@@ -355,6 +395,7 @@ const AutomacoesIA = () => {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="h-8">
           <TabsTrigger value="config" className="text-xs h-6"><Settings className="h-3 w-3 mr-1" />Configuração</TabsTrigger>
+          <TabsTrigger value="routing" className="text-xs h-6"><Route className="h-3 w-3 mr-1" />Roteamento</TabsTrigger>
           <TabsTrigger value="test" className="text-xs h-6"><MessageSquare className="h-3 w-3 mr-1" />Simular Chat</TabsTrigger>
         </TabsList>
 
@@ -465,6 +506,118 @@ const AutomacoesIA = () => {
           )}
         </TabsContent>
 
+        <TabsContent value="routing" className="space-y-5 mt-4">
+          {/* Routing explanation */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sistema de Roteamento Híbrido</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-[12px] text-muted-foreground leading-relaxed">
+                O roteamento híbrido combina <strong>regras automáticas</strong> baseadas nos dados do lead com a <strong>classificação da IA</strong> que analisa a intenção da mensagem. O admin também pode forçar um perfil específico na ficha do lead.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-[11px] font-semibold mb-1">1. Override Manual</p>
+                  <p className="text-[10px] text-muted-foreground">Se o lead tem um perfil forçado na ficha, esse é usado diretamente.</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-[11px] font-semibold mb-1">2. Regras por Dados</p>
+                  <p className="text-[10px] text-muted-foreground">Status, origem, engajamento e métricas determinam o perfil padrão.</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-[11px] font-semibold mb-1">3. Classificação da IA</p>
+                  <p className="text-[10px] text-muted-foreground">A IA pode trocar o perfil se detectar uma intenção diferente na mensagem.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Routing rules table */}
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Regras de Roteamento Automático</Label>
+            <p className="text-[10px] text-muted-foreground mt-0.5 mb-3">Avaliadas em ordem de prioridade. A primeira regra que corresponder define o perfil.</p>
+            <div className="border border-border rounded-xl overflow-hidden">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-muted/30 border-b border-border">
+                    <th className="text-left px-4 py-2 font-semibold text-muted-foreground text-[11px]">Condição do Lead</th>
+                    <th className="text-center px-4 py-2 font-semibold text-muted-foreground text-[11px]"></th>
+                    <th className="text-left px-4 py-2 font-semibold text-muted-foreground text-[11px]">Perfil IA Usado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { condition: "Override manual definido na ficha", profile: "Perfil escolhido pelo admin", priority: "Máxima" },
+                    { condition: "Mensagem contém reclamação / problema", profile: "Atendimento Geral", priority: "Alta" },
+                    { condition: 'Status = "convertido" ou pedido recente', profile: "Pós-Venda & Fidelização", priority: "Alta" },
+                    { condition: 'Status = "qualificado" + budget definido', profile: "Vendedora Ativa", priority: "Média" },
+                    { condition: 'Status = "novo" ou "em_contato"', profile: "Consultora de Joias", priority: "Normal" },
+                    { condition: "Nenhuma regra corresponde", profile: "Consultora de Joias (fallback)", priority: "Baixa" },
+                  ].map((rule, i) => (
+                    <tr key={i} className="border-b border-border/50 last:border-0">
+                      <td className="px-4 py-2.5 text-[12px]">{rule.condition}</td>
+                      <td className="px-2 py-2.5 text-center"><ArrowRight className="h-3 w-3 text-muted-foreground mx-auto" /></td>
+                      <td className="px-4 py-2.5">
+                        <Badge variant="secondary" className="text-[10px]">{rule.profile}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Context data used */}
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dados do Lead Enviados como Contexto</Label>
+            <p className="text-[10px] text-muted-foreground mt-0.5 mb-3">Esses dados são injetados no prompt junto com o perfil selecionado para personalizar a resposta.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {[
+                { label: "Identificação", items: "Nome, telefone, e-mail" },
+                { label: "Perfil", items: "Status, origem, interesse, ocasião" },
+                { label: "Financeiro", items: "Orçamento, ticket médio, valor total gasto" },
+                { label: "Histórico", items: "Última compra, pedidos anteriores, preferências" },
+                { label: "Engajamento", items: "Score, tempo de resposta, produtos visualizados" },
+                { label: "Campanhas", items: "Campanhas recebidas, interações, conversões" },
+              ].map((g) => (
+                <div key={g.label} className="border border-border rounded-lg p-2.5">
+                  <p className="text-[11px] font-semibold mb-0.5">{g.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{g.items}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How IA classification works */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Classificação pela IA (Camada Inteligente)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[12px] text-muted-foreground leading-relaxed mb-3">
+                Mesmo com as regras definindo o perfil padrão, a IA analisa cada mensagem do lead e pode <strong>trocar o perfil em tempo real</strong> se detectar uma intenção diferente:
+              </p>
+              <div className="space-y-1.5">
+                {[
+                  { from: "Vendedora", trigger: "Lead faz reclamação", to: "Atendimento" },
+                  { from: "Consultora", trigger: "Lead pede preço/desconto", to: "Vendedora" },
+                  { from: "Atendimento", trigger: "Lead mostra interesse em nova peça", to: "Consultora" },
+                  { from: "Qualquer", trigger: "Lead menciona compra recente", to: "Pós-Venda" },
+                ].map((e, i) => (
+                  <div key={i} className="flex items-center gap-2 text-[11px]">
+                    <Badge variant="outline" className="text-[10px] min-w-[80px] justify-center">{e.from}</Badge>
+                    <span className="text-muted-foreground">+</span>
+                    <span className="text-muted-foreground flex-1">"{e.trigger}"</span>
+                    <ArrowRight className="h-3 w-3 text-accent" />
+                    <Badge className="bg-accent/10 text-accent border-accent/20 text-[10px] min-w-[80px] justify-center">{e.to}</Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="test" className="mt-4">
           <div className="border border-border rounded-xl overflow-hidden" style={{ height: 520 }}>
             {/* Chat header */}
@@ -534,7 +687,7 @@ const AutomacoesIA = () => {
             </div>
           </div>
           <div className="flex items-center justify-between mt-2">
-            <p className="text-[10px] text-muted-foreground">Simulação local · Conecte sua API de IA para respostas reais</p>
+            <p className="text-[10px] text-muted-foreground">Simulação com IA real · Perfil: {SCENARIOS.find((s) => s.key === config.scenario_key)?.label}</p>
             <button onClick={() => setMessages([])} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
               <RefreshCw className="h-2.5 w-2.5" /> Limpar chat
             </button>

@@ -74,15 +74,15 @@ const AdminNotas = () => {
     <div className="space-y-5 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-serif font-semibold">Notas</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{notes?.length ?? 0} notas</p>
+          <h1 className="text-xl font-semibold">Notas</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Bloco de anotações internas — lembretes, ideias e registros operacionais</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="rounded-lg gap-2 h-9 text-xs"><Plus className="h-3.5 w-3.5" /> Nova nota</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle className="font-serif">Nova Nota</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle >Nova Nota</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Título</Label>

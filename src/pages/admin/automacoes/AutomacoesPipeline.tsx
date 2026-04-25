@@ -40,8 +40,7 @@ const AutomacoesPipeline = () => {
   const { data: opportunities = [] } = useQuery({
     queryKey: ["sales-pipeline"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("sales_opportunities")
+      const { data } = await (supabase.from as any)("sales_opportunities")
         .select("*, sales_leads(id, name, phone, interest, budget)")
         .order("created_at", { ascending: true });
       return data || [];
@@ -51,14 +50,14 @@ const AutomacoesPipeline = () => {
   const { data: leads = [] } = useQuery({
     queryKey: ["sales-leads-slim"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_leads").select("id, name, phone, interest").order("name");
+      const { data } = await (supabase.from as any)("sales_leads").select("id, name, phone, interest").order("name");
       return data || [];
     },
   });
 
   const addMutation = useMutation({
     mutationFn: async () => {
-      await supabase.from("sales_opportunities").insert({
+      await (supabase.from as any)("sales_opportunities").insert({
         lead_id: form.lead_id,
         stage_key: form.stage_key,
         value: form.value ? Number(form.value) : null,
@@ -77,14 +76,14 @@ const AutomacoesPipeline = () => {
 
   const moveMutation = useMutation({
     mutationFn: async ({ id, stage_key }: { id: string; stage_key: string }) => {
-      await supabase.from("sales_opportunities").update({ stage_key, stage_entered_at: new Date().toISOString() }).eq("id", id);
+      await (supabase.from as any)("sales_opportunities").update({ stage_key, stage_entered_at: new Date().toISOString() }).eq("id", id);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sales-pipeline"] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_opportunities").delete().eq("id", id);
+      await (supabase.from as any)("sales_opportunities").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-pipeline"] });

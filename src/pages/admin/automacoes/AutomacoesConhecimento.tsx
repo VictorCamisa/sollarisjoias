@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   BookOpen, Plus, Search, Trash2, Eye, FileText, Tag,
-  GraduationCap, ShieldCheck, Ruler, HelpCircle, Star,
+  GraduationCap, ShieldCheck, Ruler, HelpCircle, Star, Table2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType; 
   medidas:   { label: "Medidas",     icon: Ruler,         color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   faq:       { label: "FAQ",         icon: HelpCircle,    color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
   politicas: { label: "Políticas",   icon: FileText,      color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+  planilhas: { label: "Planilhas",   icon: Table2,        color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
   outros:    { label: "Outros",      icon: BookOpen,      color: "bg-secondary text-muted-foreground border-border" },
 };
 
@@ -276,6 +277,41 @@ Avaliamos caso a caso. Envie fotos pelo WhatsApp para orçamento.
 Têm programa de fidelidade?
 Sim! Clientes Sollaris acumulam benefícios: manutenção gratuita, acesso a lançamentos exclusivos e desconto por indicação. Consulte nossa equipe.`,
   },
+  {
+    title: "📊 Sheets — Fórmulas Essenciais",
+    category: "planilhas",
+    content: `**Fórmulas essenciais do Google Sheets**\n\n**SOMA / MÉDIA / CONTAGEM**\n- \`=SUM(A2:A100)\` — soma intervalo\n- \`=AVERAGE(A2:A100)\` — média\n- \`=COUNT(A2:A100)\` — conta números\n- \`=COUNTA(A2:A100)\` — conta tudo (texto + números)\n\n**IF — condicional**\n- \`=IF(A2>100; "Alto"; "Baixo")\`\n- Aninhado: \`=IF(A2>100; "Alto"; IF(A2>50; "Médio"; "Baixo"))\`\n\n**IFS — múltiplas condições (mais limpo que IF aninhado)**\n- \`=IFS(A2>100; "Alto"; A2>50; "Médio"; TRUE; "Baixo")\`\n\n**SUMIF / SUMIFS — soma condicional**\n- \`=SUMIF(B2:B100; "Pago"; C2:C100)\` — soma C onde B = "Pago"\n- \`=SUMIFS(C2:C100; B2:B100; "Pago"; A2:A100; ">"&DATE(2025;1;1))\`\n\n**COUNTIF / COUNTIFS**\n- \`=COUNTIF(A2:A100; "Sim")\` — conta quantas vezes "Sim" aparece\n- \`=COUNTIFS(A2:A; "Pago"; B2:B; ">100")\`\n\n**Erros comuns:**\n- Usar \`,\` em vez de \`;\` (no Brasil é ponto-e-vírgula)\n- Esquecer aspas em texto: \`"Pago"\` ✅, \`Pago\` ❌\n- Misturar tipos (texto e número) na mesma coluna`,
+  },
+  {
+    title: "📊 Sheets — Lookups (PROCV, INDEX/MATCH, XLOOKUP)",
+    category: "planilhas",
+    content: `**Buscar valor em outra tabela**\n\n**VLOOKUP / PROCV** — clássico, busca da esquerda pra direita\n\`\`\`\n=VLOOKUP(A2; Produtos!A:D; 4; FALSE)\n\`\`\`\n- A2: o que buscar\n- Produtos!A:D: onde buscar (a chave PRECISA estar na 1ª coluna)\n- 4: qual coluna retornar\n- FALSE: correspondência exata (use sempre FALSE)\n\n**INDEX + MATCH** — mais flexível, busca em qualquer direção\n\`\`\`\n=INDEX(Produtos!D:D; MATCH(A2; Produtos!A:A; 0))\n\`\`\`\n- Funciona mesmo se a chave não estiver na 1ª coluna\n- Mais rápido em planilhas grandes\n\n**XLOOKUP** — o moderno (Google Sheets já suporta)\n\`\`\`\n=XLOOKUP(A2; Produtos!A:A; Produtos!D:D; "Não encontrado")\n\`\`\`\n- Sintaxe limpa\n- Retorno padrão se não achar (4º parâmetro)\n- Busca em qualquer direção\n\n**Erros comuns:**\n- #N/A → valor não existe na tabela. Envolva com IFERROR: \`=IFERROR(VLOOKUP(...); "")\`\n- Coluna errada no índice (VLOOKUP)\n- Esquecer FALSE → retorna match aproximado e quebra tudo`,
+  },
+  {
+    title: "📊 Sheets — QUERY (o superpoder)",
+    category: "planilhas",
+    content: `**QUERY — SQL dentro do Google Sheets**\n\nUma das funções mais poderosas. Use sintaxe parecida com SQL.\n\n**Exemplos:**\n\n**Filtrar:**\n\`\`\`\n=QUERY(A1:E1000; "SELECT * WHERE B = 'Pago' AND C > 100")\n\`\`\`\n\n**Agrupar e somar:**\n\`\`\`\n=QUERY(A1:E1000; "SELECT B, SUM(D) WHERE C IS NOT NULL GROUP BY B LABEL SUM(D) 'Total'")\n\`\`\`\n\n**Ordenar e limitar:**\n\`\`\`\n=QUERY(A1:E1000; "SELECT A, D ORDER BY D DESC LIMIT 10")\n\`\`\`\n\n**Com referência dinâmica:**\n\`\`\`\n=QUERY(A1:E1000; "SELECT * WHERE B = '"&F1&"'")\n\`\`\`\n(F1 contém o filtro digitado pela usuária)\n\n**Funções suportadas:**\n- SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, OFFSET\n- SUM, AVG, MIN, MAX, COUNT\n- LABEL (rename), FORMAT (formatação)\n\n**Erros comuns:**\n- Aspas: use \`'\` (simples) dentro da query, \`"\` (duplas) só pra delimitar\n- Colunas se referenciam por LETRA (A, B, C...) e não pelo nome\n- Cabeçalho vai virar parte dos dados se você incluir a linha 1`,
+  },
+  {
+    title: "📊 Sheets — ARRAYFORMULA + FILTER + SORT + UNIQUE",
+    category: "planilhas",
+    content: `**Trabalhar com colunas inteiras de uma vez**\n\n**ARRAYFORMULA** — aplica fórmula em toda a coluna\n\`\`\`\n=ARRAYFORMULA(IF(A2:A="";"";A2:A * B2:B))\n\`\`\`\nUma fórmula só, em vez de arrastar para 1000 linhas.\n\n**FILTER** — filtra linhas por condição\n\`\`\`\n=FILTER(A2:D1000; B2:B1000="Pago"; C2:C1000>100)\n\`\`\`\nRetorna todas as linhas onde B="Pago" E C>100.\n\n**SORT** — ordena\n\`\`\`\n=SORT(A2:C1000; 3; FALSE)\n\`\`\`\nOrdena pela coluna 3, decrescente.\n\n**UNIQUE** — valores únicos\n\`\`\`\n=UNIQUE(A2:A1000)\n\`\`\`\n\n**Combinações poderosas:**\n\`\`\`\n=SORT(UNIQUE(FILTER(A2:A; B2:B="Ativo")); 1; TRUE)\n\`\`\`\nLista única e ordenada de A onde B="Ativo".\n\n**Erros comuns:**\n- ARRAYFORMULA não funciona com toda função (ex: SUMIF precisa adaptação)\n- FILTER retorna #N/A quando nada bate → envolva com IFERROR\n- Modificar uma célula no meio do range quebra a fórmula`,
+  },
+  {
+    title: "📊 Sheets — Datas e Texto",
+    category: "planilhas",
+    content: `**Manipulação de datas e texto**\n\n**Datas:**\n- \`=TODAY()\` — data de hoje\n- \`=NOW()\` — data + hora\n- \`=DATE(2025;3;15)\` — montar data\n- \`=YEAR(A2)\`, \`=MONTH(A2)\`, \`=DAY(A2)\`\n- \`=DATEDIF(A2;B2;"D")\` — dias entre datas (\`"M"\` meses, \`"Y"\` anos)\n- \`=EOMONTH(A2;0)\` — último dia do mês\n- \`=TEXT(A2;"DD/MM/YYYY")\` — formatar como texto\n- \`=TEXT(A2;"MMMM")\` — nome do mês ("março")\n\n**Texto:**\n- \`=CONCATENATE(A2;" - ";B2)\` ou \`=A2&" - "&B2\`\n- \`=UPPER(A2)\`, \`=LOWER(A2)\`, \`=PROPER(A2)\`\n- \`=LEN(A2)\` — tamanho\n- \`=LEFT(A2;3)\`, \`=RIGHT(A2;4)\`, \`=MID(A2;3;5)\`\n- \`=TRIM(A2)\` — remove espaços extras\n- \`=SUBSTITUTE(A2;"-";"")\` — substituir\n- \`=SPLIT(A2;",")\` — divide em colunas\n- \`=JOIN(", ";A2:A10)\` — junta\n\n**REGEX (poderoso):**\n- \`=REGEXEXTRACT(A2;"\\d+")\` — extrai números\n- \`=REGEXMATCH(A2;"@gmail")\` — verifica padrão\n- \`=REGEXREPLACE(A2;"\\s+";" ")\` — limpa espaços\n\n**Erros comuns:**\n- Data armazenada como texto não calcula → use DATEVALUE\n- Acentos em SUBSTITUTE: cuidado com encoding\n- TRIM não remove caracteres invisíveis (use CLEAN também)`,
+  },
+  {
+    title: "📊 Sheets — Importação e Conexões",
+    category: "planilhas",
+    content: `**Importar dados de fora**\n\n**IMPORTRANGE** — puxa dados de OUTRA planilha\n\`\`\`\n=IMPORTRANGE("URL_DA_PLANILHA"; "Aba1!A1:D100")\n\`\`\`\n- Primeira vez precisa autorizar (aparece botão "Permitir acesso")\n- Combine com QUERY: \`=QUERY(IMPORTRANGE(...); "SELECT Col1 WHERE Col2='X'")\`\n\n**IMPORTHTML** — tabelas de sites\n\`\`\`\n=IMPORTHTML("https://site.com/pagina"; "table"; 1)\n\`\`\`\n\n**IMPORTXML** — qualquer dado de página web (XPath)\n\`\`\`\n=IMPORTXML("https://site.com"; "//h1")\n\`\`\`\n\n**IMPORTDATA** — CSV/TSV de URL pública\n\`\`\`\n=IMPORTDATA("https://site.com/dados.csv")\n\`\`\`\n\n**GOOGLEFINANCE** — cotações em tempo real\n\`\`\`\n=GOOGLEFINANCE("USDBRL")\n=GOOGLEFINANCE("PETR4"; "price")\n=GOOGLEFINANCE("USDBRL"; "close"; TODAY()-30; TODAY())\n\`\`\`\n\n**Erros comuns:**\n- IMPORTRANGE precisa autorização entre as planilhas\n- IMPORT* não atualiza em tempo real (cache de ~1h)\n- Sites com JavaScript não funcionam em IMPORTHTML/XML\n- Limite: máx ~50 IMPORT* por planilha sem ficar lenta`,
+  },
+  {
+    title: "📊 Sheets — Dicas Avançadas",
+    category: "planilhas",
+    content: `**Recursos pro do Google Sheets**\n\n**1. Validação de Dados (dropdown)**\nDados → Validação de dados → Lista de itens\n→ Cria menu suspenso na célula. Use para padronizar entradas (status, categorias).\n\n**2. Formatação Condicional**\nFormatar → Formatação condicional\n- Pintar células > X de vermelho\n- Destacar duplicados: \`=COUNTIF(A:A;A1)>1\`\n- Linha inteira baseada em condição: \`=$B1="Pago"\` (cifrão na coluna trava)\n\n**3. Tabelas Dinâmicas (Pivot)**\nInserir → Tabela dinâmica\n- Resumo automático sem fórmula\n- Arraste campos: Linhas, Colunas, Valores, Filtros\n- Atualiza sozinha quando dados mudam\n\n**4. Intervalos Nomeados**\nDados → Intervalos nomeados\n- Em vez de \`A2:A100\`, use \`Vendas\`\n- Fórmulas ficam legíveis: \`=SUM(Vendas)\`\n\n**5. Apps Script (automação)**\nExtensões → Apps Script. JavaScript que automatiza:\n\`\`\`javascript\nfunction enviarRelatorio() {\n  const sheet = SpreadsheetApp.getActiveSheet();\n  const total = sheet.getRange("B100").getValue();\n  MailApp.sendEmail("ana@sollaris.com", "Relatório", "Total: " + total);\n}\n\`\`\`\nDá pra agendar (Acionadores → +).\n\n**6. Atalhos essenciais (Mac/Windows)**\n- \`Cmd/Ctrl + ;\` — data de hoje\n- \`Cmd/Ctrl + Shift + V\` — colar só valores\n- \`Cmd/Ctrl + Alt + V\` — colar especial\n- \`Cmd/Ctrl + K\` — inserir link\n- \`Alt + Enter\` — quebra de linha dentro da célula\n- \`Cmd/Ctrl + Shift + 5\` — formato porcentagem\n\n**7. Performance**\n- Evite IMPORTRANGE em cascata\n- Substitua arrays gigantes por ARRAYFORMULA\n- Limpe linhas vazias do final (deixa o arquivo leve)`,
+  },
 ];
 
 const emptyForm = { title: "", content: "", category: "outros", tags: "" };
@@ -291,14 +327,14 @@ const AutomacoesConhecimento = () => {
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["sales-knowledge"],
     queryFn: async () => {
-      const { data } = await supabase.from("sales_knowledge_docs").select("*").order("created_at", { ascending: false });
+      const { data } = await (supabase.from as any)("sales_knowledge_docs").select("*").order("created_at", { ascending: false });
       return data || [];
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      await supabase.from("sales_knowledge_docs").insert({
+      await (supabase.from as any)("sales_knowledge_docs").insert({
         title: form.title,
         content: form.content,
         category: form.category,
@@ -317,7 +353,7 @@ const AutomacoesConhecimento = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from("sales_knowledge_docs").delete().eq("id", id);
+      await (supabase.from as any)("sales_knowledge_docs").delete().eq("id", id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales-knowledge"] });

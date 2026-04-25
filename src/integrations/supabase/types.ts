@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      brain_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      brain_messages: {
+        Row: {
+          actions: string[] | null
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          actions?: string[] | null
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          actions?: string[] | null
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "brain_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brand_assets: {
+        Row: {
+          content: string | null
+          created_at: string
+          file_url: string | null
+          id: string
+          is_active: boolean
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -103,13 +192,19 @@ export type Database = {
           amount: number
           category_id: string | null
           created_at: string
+          customer_name: string | null
+          customer_phone: string | null
           description: string
           due_date: string | null
           id: string
+          installment_number: number | null
+          installments: number | null
           notes: string | null
           order_id: string | null
           paid_date: string | null
+          payment_method: string | null
           status: string
+          sub_type: string | null
           type: string
           updated_at: string
         }
@@ -117,13 +212,19 @@ export type Database = {
           amount?: number
           category_id?: string | null
           created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
           description: string
           due_date?: string | null
           id?: string
+          installment_number?: number | null
+          installments?: number | null
           notes?: string | null
           order_id?: string | null
           paid_date?: string | null
+          payment_method?: string | null
           status?: string
+          sub_type?: string | null
           type: string
           updated_at?: string
         }
@@ -131,13 +232,19 @@ export type Database = {
           amount?: number
           category_id?: string | null
           created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
           description?: string
           due_date?: string | null
           id?: string
+          installment_number?: number | null
+          installments?: number | null
           notes?: string | null
           order_id?: string | null
           paid_date?: string | null
+          payment_method?: string | null
           status?: string
+          sub_type?: string | null
           type?: string
           updated_at?: string
         }
@@ -154,6 +261,104 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_integrations: {
+        Row: {
+          access_token: string
+          connected_at: string
+          email_google: string
+          expires_at: string
+          id: string
+          refresh_token: string
+          scopes: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          connected_at?: string
+          email_google: string
+          expires_at: string
+          id?: string
+          refresh_token: string
+          scopes: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          connected_at?: string
+          email_google?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string
+          scopes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketing_posts: {
+        Row: {
+          best_time: string | null
+          caption: string
+          created_at: string
+          created_by: string | null
+          hashtags: string[] | null
+          id: string
+          image_url: string | null
+          platform: string
+          platform_tips: string | null
+          product_id: string | null
+          prompt: string
+          status: string
+          style: string | null
+          updated_at: string
+          visual_suggestion: string | null
+        }
+        Insert: {
+          best_time?: string | null
+          caption: string
+          created_at?: string
+          created_by?: string | null
+          hashtags?: string[] | null
+          id?: string
+          image_url?: string | null
+          platform?: string
+          platform_tips?: string | null
+          product_id?: string | null
+          prompt: string
+          status?: string
+          style?: string | null
+          updated_at?: string
+          visual_suggestion?: string | null
+        }
+        Update: {
+          best_time?: string | null
+          caption?: string
+          created_at?: string
+          created_by?: string | null
+          hashtags?: string[] | null
+          id?: string
+          image_url?: string | null
+          platform?: string
+          platform_tips?: string | null
+          product_id?: string | null
+          prompt?: string
+          status?: string
+          style?: string | null
+          updated_at?: string
+          visual_suggestion?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_posts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -217,8 +422,14 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id: string
+          installments: number
           items: Json
           notes: string | null
+          payment_method: string | null
+          sale_channel: string | null
+          sold_at: string | null
+          sold_by: string | null
+          sold_by_name: string | null
           status: string
           total: number
           updated_at: string
@@ -230,8 +441,14 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id?: string
+          installments?: number
           items?: Json
           notes?: string | null
+          payment_method?: string | null
+          sale_channel?: string | null
+          sold_at?: string | null
+          sold_by?: string | null
+          sold_by_name?: string | null
           status?: string
           total?: number
           updated_at?: string
@@ -243,13 +460,26 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           id?: string
+          installments?: number
           items?: Json
           notes?: string | null
+          payment_method?: string | null
+          sale_channel?: string | null
+          sold_at?: string | null
+          sold_by?: string | null
+          sold_by_name?: string | null
           status?: string
           total?: number
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_summary"
+            referencedColumns: ["customer_id"]
+          },
           {
             foreignKeyName: "orders_customer_id_fkey"
             columns: ["customer_id"]
@@ -264,6 +494,12 @@ export type Database = {
           banho: string | null
           category_id: string | null
           colors: string[] | null
+          cost_fees: number | null
+          cost_packaging: number | null
+          cost_shipping: number | null
+          cost_taxes: number | null
+          cost_total: number | null
+          cost_unit: number | null
           created_at: string
           description: string | null
           foto_detalhe: string | null
@@ -274,16 +510,21 @@ export type Database = {
           images: string[] | null
           internal_notes: string | null
           is_featured: boolean
+          markup_percent: number | null
           material: string | null
           name: string
           original_price: number | null
           pedra: string | null
           price: number
           priority: string | null
+          profit_amount: number | null
+          purchase_date: string | null
           sizes: string[] | null
           sku: string | null
           stock_quantity: number | null
           stock_status: boolean
+          supplier_code: string | null
+          supplier_name: string | null
           tags: string[] | null
           tags_seo: string | null
           updated_at: string
@@ -293,6 +534,12 @@ export type Database = {
           banho?: string | null
           category_id?: string | null
           colors?: string[] | null
+          cost_fees?: number | null
+          cost_packaging?: number | null
+          cost_shipping?: number | null
+          cost_taxes?: number | null
+          cost_total?: number | null
+          cost_unit?: number | null
           created_at?: string
           description?: string | null
           foto_detalhe?: string | null
@@ -303,16 +550,21 @@ export type Database = {
           images?: string[] | null
           internal_notes?: string | null
           is_featured?: boolean
+          markup_percent?: number | null
           material?: string | null
           name: string
           original_price?: number | null
           pedra?: string | null
           price?: number
           priority?: string | null
+          profit_amount?: number | null
+          purchase_date?: string | null
           sizes?: string[] | null
           sku?: string | null
           stock_quantity?: number | null
           stock_status?: boolean
+          supplier_code?: string | null
+          supplier_name?: string | null
           tags?: string[] | null
           tags_seo?: string | null
           updated_at?: string
@@ -322,6 +574,12 @@ export type Database = {
           banho?: string | null
           category_id?: string | null
           colors?: string[] | null
+          cost_fees?: number | null
+          cost_packaging?: number | null
+          cost_shipping?: number | null
+          cost_taxes?: number | null
+          cost_total?: number | null
+          cost_unit?: number | null
           created_at?: string
           description?: string | null
           foto_detalhe?: string | null
@@ -332,16 +590,21 @@ export type Database = {
           images?: string[] | null
           internal_notes?: string | null
           is_featured?: boolean
+          markup_percent?: number | null
           material?: string | null
           name?: string
           original_price?: number | null
           pedra?: string | null
           price?: number
           priority?: string | null
+          profit_amount?: number | null
+          purchase_date?: string | null
           sizes?: string[] | null
           sku?: string | null
           stock_quantity?: number | null
           stock_status?: boolean
+          supplier_code?: string | null
+          supplier_name?: string | null
           tags?: string[] | null
           tags_seo?: string | null
           updated_at?: string
@@ -360,7 +623,11 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          cargo: string | null
           created_at: string
+          credit_blocked: boolean | null
+          credit_limit: number | null
+          credit_score: number | null
           full_name: string | null
           id: string
           notes: string | null
@@ -369,7 +636,11 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          cargo?: string | null
           created_at?: string
+          credit_blocked?: boolean | null
+          credit_limit?: number | null
+          credit_score?: number | null
           full_name?: string | null
           id: string
           notes?: string | null
@@ -378,7 +649,11 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          cargo?: string | null
           created_at?: string
+          credit_blocked?: boolean | null
+          credit_limit?: number | null
+          credit_score?: number | null
           full_name?: string | null
           id?: string
           notes?: string | null
@@ -387,9 +662,300 @@ export type Database = {
         }
         Relationships: []
       }
-      settings: {
+      sales_ai_config: {
         Row: {
           created_at: string
+          enabled: boolean
+          id: string
+          only_outside_hours: boolean | null
+          routing_rules: Json | null
+          scenario_key: string | null
+          schedule_days: number[] | null
+          schedule_end: string | null
+          schedule_start: string | null
+          system_prompt: string | null
+          temperature: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          only_outside_hours?: boolean | null
+          routing_rules?: Json | null
+          scenario_key?: string | null
+          schedule_days?: number[] | null
+          schedule_end?: string | null
+          schedule_start?: string | null
+          system_prompt?: string | null
+          temperature?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          only_outside_hours?: boolean | null
+          routing_rules?: Json | null
+          scenario_key?: string | null
+          schedule_days?: number[] | null
+          schedule_end?: string | null
+          schedule_start?: string | null
+          system_prompt?: string | null
+          temperature?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_appointments: {
+        Row: {
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          lead_id: string | null
+          location: string | null
+          notes: string | null
+          scheduled_at: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_appointments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_campaigns: {
+        Row: {
+          channel: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          message_template: string | null
+          name: string
+          scheduled_at: string | null
+          segment_interest: string[] | null
+          segment_status: string[] | null
+          sent_count: number | null
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          message_template?: string | null
+          name: string
+          scheduled_at?: string | null
+          segment_interest?: string[] | null
+          segment_status?: string[] | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          message_template?: string | null
+          name?: string
+          scheduled_at?: string | null
+          segment_interest?: string[] | null
+          segment_status?: string[] | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_knowledge_docs: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          processed: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          processed?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          processed?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_leads: {
+        Row: {
+          ai_profile_override: string | null
+          avg_response_time_minutes: number | null
+          budget: number | null
+          campaigns_received: string[] | null
+          created_at: string
+          email: string | null
+          engagement_score: number | null
+          id: string
+          interest: string | null
+          last_interaction_at: string | null
+          name: string
+          notes: string | null
+          occasion: string | null
+          phone: string | null
+          products_viewed: string[] | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_profile_override?: string | null
+          avg_response_time_minutes?: number | null
+          budget?: number | null
+          campaigns_received?: string[] | null
+          created_at?: string
+          email?: string | null
+          engagement_score?: number | null
+          id?: string
+          interest?: string | null
+          last_interaction_at?: string | null
+          name: string
+          notes?: string | null
+          occasion?: string | null
+          phone?: string | null
+          products_viewed?: string[] | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_profile_override?: string | null
+          avg_response_time_minutes?: number | null
+          budget?: number | null
+          campaigns_received?: string[] | null
+          created_at?: string
+          email?: string | null
+          engagement_score?: number | null
+          id?: string
+          interest?: string | null
+          last_interaction_at?: string | null
+          name?: string
+          notes?: string | null
+          occasion?: string | null
+          phone?: string | null
+          products_viewed?: string[] | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_opportunities: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          notes: string | null
+          stage_entered_at: string | null
+          stage_key: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          stage_entered_at?: string | null
+          stage_key?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          stage_entered_at?: string | null
+          stage_key?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_opportunities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          bank_balance: number | null
+          created_at: string
+          evolution_instance: string | null
           id: string
           monthly_goal: number | null
           pix_discount_percent: number | null
@@ -398,7 +964,9 @@ export type Database = {
           whatsapp_number: string
         }
         Insert: {
+          bank_balance?: number | null
           created_at?: string
+          evolution_instance?: string | null
           id?: string
           monthly_goal?: number | null
           pix_discount_percent?: number | null
@@ -407,7 +975,9 @@ export type Database = {
           whatsapp_number?: string
         }
         Update: {
+          bank_balance?: number | null
           created_at?: string
+          evolution_instance?: string | null
           id?: string
           monthly_goal?: number | null
           pix_discount_percent?: number | null
@@ -417,8 +987,108 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          movement_type: string
+          new_stock: number | null
+          notes: string | null
+          order_id: string | null
+          previous_stock: number | null
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type: string
+          new_stock?: number | null
+          notes?: string | null
+          order_id?: string | null
+          previous_stock?: number | null
+          product_id: string
+          quantity: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type?: string
+          new_stock?: number | null
+          notes?: string | null
+          order_id?: string | null
+          previous_stock?: number | null
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: []
+      }
+      supplier_quotations: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          items: Json | null
+          notes: string | null
+          requested_at: string | null
+          responded_at: string | null
+          status: string
+          supplier_id: string | null
+          supplier_name_external: string | null
+          title: string
+          total: number | null
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          items?: Json | null
+          notes?: string | null
+          requested_at?: string | null
+          responded_at?: string | null
+          status?: string
+          supplier_id?: string | null
+          supplier_name_external?: string | null
+          title: string
+          total?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          items?: Json | null
+          notes?: string | null
+          requested_at?: string | null
+          responded_at?: string | null
+          status?: string
+          supplier_id?: string | null
+          supplier_name_external?: string | null
+          title?: string
+          total?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_quotations_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
+          category: string | null
+          city: string | null
           contact_name: string | null
           created_at: string
           email: string | null
@@ -426,9 +1096,16 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          rating: number | null
+          state: string | null
+          status: string | null
+          tags: string[] | null
           updated_at: string
+          website: string | null
         }
         Insert: {
+          category?: string | null
+          city?: string | null
           contact_name?: string | null
           created_at?: string
           email?: string | null
@@ -436,9 +1113,16 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          rating?: number | null
+          state?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
+          category?: string | null
+          city?: string | null
           contact_name?: string | null
           created_at?: string
           email?: string | null
@@ -446,12 +1130,18 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          rating?: number | null
+          state?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
       tasks: {
         Row: {
+          assigned_to: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -463,6 +1153,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -474,6 +1165,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -506,9 +1198,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      crediario_summary: {
+        Row: {
+          credit_blocked: boolean | null
+          credit_limit: number | null
+          credit_score: number | null
+          customer_id: string | null
+          full_name: string | null
+          last_payment_date: string | null
+          next_due_date: string | null
+          open_installments: number | null
+          overdue_installments: number | null
+          phone: string | null
+          total_overdue: number | null
+          total_owed: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_or_create_customer_profile: {
+        Args: { _name: string; _phone: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
