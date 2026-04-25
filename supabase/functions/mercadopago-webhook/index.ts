@@ -71,20 +71,46 @@ Deno.serve(async (req) => {
     const updates: Record<string, unknown> = {
       status: localStatus,
       raw_response: payment,
+      mp_payment_id: String(paymentId),
     };
     if (localStatus === "paid") {
       updates.paid_at = new Date().toISOString();
     }
 
-    const { data: pixRow, error: updErr } = await supabase
-      .from("pix_transactions")
-      .update(updates)
-      .eq("mp_payment_id", String(paymentId))
-      .select()
-      .single();
+    // Tenta localizar pelo payment_id direto OU pelo external_reference (Checkout Pro)
+    const externalRef = payment.external_reference;
+    let pixRow: any = null;
 
-    if (updErr) {
-      console.error("Erro ao atualizar pix_transaction:", updErr);
+    const { data: byPaymentId } = await supabase
+      .from("pix_transactions")
+      .select("*")
+      .eq("mp_payment_id", String(paymentId))
+      .maybeSingle();
+
+    if (byPaymentId) {
+      const { data } = await supabase
+        .from("pix_transactions")
+        .update(updates)
+        .eq("id", byPaymentId.id)
+        .select()
+        .single();
+      pixRow = data;
+    } else if (externalRef) {
+      // Busca pelo external_reference (Checkout Pro grava como order_id ou no raw_response)
+      const { data: byOrder } = await supabase
+        .from("pix_transactions")
+        .select("*")
+        .or(`order_id.eq.${externalRef},mp_payment_id.eq.pref_${externalRef}`)
+        .maybeSingle();
+      if (byOrder) {
+        const { data } = await supabase
+          .from("pix_transactions")
+          .update(updates)
+          .eq("id", byOrder.id)
+          .select()
+          .single();
+        pixRow = data;
+      }
     }
 
     // Se pago e tem order vinculada, marca order como paga
