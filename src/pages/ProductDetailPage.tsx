@@ -2,10 +2,11 @@ import { useParams, Link } from "react-router-dom";
 import { useProduct, useSettings, useFeaturedProducts } from "@/hooks/useStore";
 import { useCart } from "@/contexts/CartContext";
 import { ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, ZoomIn, Share2, Check, Heart, ShoppingBag, Minus, Plus } from "lucide-react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 
 /* ─── helpers ─── */
 const fmt = (v: number) =>
@@ -243,6 +244,18 @@ const ProductDetailPage = () => {
   const [addedToCart, setAddedToCart] = useState(false);
 
   const phone = settings?.whatsapp_number || "";
+
+  // Track view_product
+  useEffect(() => {
+    if (product?.id) {
+      trackEvent("view_product", {
+        productId: product.id,
+        productName: (product as any).name,
+        metadata: { price: (product as any).price },
+      }).catch(() => {});
+    }
+  }, [product?.id]);
+
 
   // Related products (same category, excluding current)
   const relatedProducts = featuredProducts
