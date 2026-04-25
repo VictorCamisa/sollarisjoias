@@ -19,6 +19,15 @@ interface CheckoutItem {
   picture_url?: string;
 }
 
+interface CheckoutCustomerInfo {
+  name: string;
+  email: string;
+  phone?: string;
+  paymentMethod: "pix" | "cartao";
+  paymentStatus: "paid" | "pending";
+  installments?: number;
+}
+
 interface NativeCheckoutDialogProps {
   open: boolean;
   onClose: () => void;
@@ -28,7 +37,7 @@ interface NativeCheckoutDialogProps {
   customerEmail?: string;
   customerPhone?: string;
   orderId?: string;
-  onSuccess?: (paymentId: string) => void;
+  onSuccess?: (paymentId: string, customer?: CheckoutCustomerInfo) => void;
 }
 
 type Tab = "pix" | "card";
