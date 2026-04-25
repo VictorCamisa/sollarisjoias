@@ -323,7 +323,7 @@ export const NewOrderDialog = ({
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="text-center">
-                        <p className="text-[13px] font-semibold">{title}</p>
+                        <p className="text-[13px] font-semibold text-foreground">{title}</p>
                         <p className="text-[10px] text-muted-foreground">{desc}</p>
                       </div>
                       <span className="text-[9px] text-muted-foreground/70 bg-secondary/50 px-2 py-0.5 rounded-full">{badge}</span>
