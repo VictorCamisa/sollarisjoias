@@ -19,6 +19,15 @@ interface CheckoutItem {
   picture_url?: string;
 }
 
+interface CheckoutCustomerInfo {
+  name: string;
+  email: string;
+  phone?: string;
+  paymentMethod: "pix" | "cartao";
+  paymentStatus: "paid" | "pending";
+  installments?: number;
+}
+
 interface NativeCheckoutDialogProps {
   open: boolean;
   onClose: () => void;
@@ -28,7 +37,7 @@ interface NativeCheckoutDialogProps {
   customerEmail?: string;
   customerPhone?: string;
   orderId?: string;
-  onSuccess?: (paymentId: string) => void;
+  onSuccess?: (paymentId: string, customer?: CheckoutCustomerInfo) => void;
 }
 
 type Tab = "pix" | "card";
@@ -151,7 +160,14 @@ const NativeCheckoutDialog = ({
         .maybeSingle();
       if (data?.status === "paid") {
         setPhase("approved");
-        onSuccess?.(pixData.payment_id);
+        onSuccess?.(pixData.payment_id, {
+          name: pixForm.name,
+          email: pixForm.email,
+          phone: customerPhone,
+          paymentMethod: "pix",
+          paymentStatus: "paid",
+          installments: 1,
+        });
       } else if (data?.status === "cancelled") {
         setPhase("rejected");
         setErrorMsg("Pagamento cancelado ou expirado");
@@ -290,7 +306,14 @@ const NativeCheckoutDialog = ({
 
       if (data?.status === "approved") {
         setPhase("approved");
-        onSuccess?.(String(data.payment_id));
+        onSuccess?.(String(data.payment_id), {
+          name: cardForm.cardholderName,
+          email: cardForm.email,
+          phone: customerPhone,
+          paymentMethod: "cartao",
+          paymentStatus: "paid",
+          installments: cardForm.installments,
+        });
       } else if (data?.status === "rejected") {
         setPhase("rejected");
         setErrorMsg(data?.status_detail || "Pagamento recusado pela operadora");
