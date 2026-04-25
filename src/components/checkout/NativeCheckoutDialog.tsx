@@ -582,7 +582,7 @@ const NativeCheckoutDialog = ({
               </div>
             )}
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>,
     document.body
