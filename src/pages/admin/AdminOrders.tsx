@@ -160,7 +160,7 @@ const AdminOrders = () => {
                   <div className="text-[11px] text-muted-foreground truncate">
                     {items.map((item: any) => `${item.name} ×${item.quantity}`).join(", ")}
                   </div>
-                  <span className="text-[13px] font-semibold text-right tabular-nums">{fmt(Number(order.total))}</span>
+                  <span className="text-[13px] font-semibold text-right tabular-nums text-foreground">{fmt(Number(order.total))}</span>
                   <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                     <Select value={order.status} onValueChange={(v) => updateStatus.mutate({ id: order.id, status: v })}>
                       <SelectTrigger className={`w-full h-7 text-[10px] rounded-md border ${st.color}`}>
