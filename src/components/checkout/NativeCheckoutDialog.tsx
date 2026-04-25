@@ -415,7 +415,7 @@ const NativeCheckoutDialog = ({
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-4">
+        <div className="dark fixed inset-0 z-[100] flex items-center justify-center sm:p-4 bg-background">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
