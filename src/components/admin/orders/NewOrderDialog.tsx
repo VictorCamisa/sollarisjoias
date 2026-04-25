@@ -599,14 +599,14 @@ export const NewOrderDialog = ({
                     {cart.map((item) => (
                       <div key={item.id} className="flex items-center gap-2 text-[11px]">
                         {item.image && <img src={item.image} alt="" className="w-7 h-7 rounded-md object-cover" />}
-                        <span className="flex-1 truncate">{item.name}</span>
+                        <span className="flex-1 truncate text-foreground">{item.name}</span>
                         <span className="text-muted-foreground">×{item.quantity}</span>
-                        <span className="font-semibold tabular-nums">{fmt(item.price * item.quantity)}</span>
+                        <span className="font-semibold tabular-nums text-foreground">{fmt(item.price * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-between pt-2.5 mt-2.5 border-t border-border/60">
-                    <span className="text-[13px] font-bold">Total</span>
+                    <span className="text-[13px] font-bold text-foreground">Total</span>
                     <span className="text-[15px] font-bold text-primary tabular-nums">{fmt(total)}</span>
                   </div>
                 </div>
