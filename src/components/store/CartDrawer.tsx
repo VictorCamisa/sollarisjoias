@@ -1,12 +1,14 @@
-import { X, Minus, Plus, Trash2, MessageCircle } from "lucide-react";
+import { X, Minus, Plus, Trash2, MessageCircle, QrCode } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import PixCheckoutDialog from "@/components/checkout/PixCheckoutDialog";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
   const { data: settings } = useSettings();
+  const [pixOpen, setPixOpen] = useState(false);
 
   // Lock body scroll when open
   useEffect(() => {
@@ -146,8 +148,15 @@ const CartDrawer = () => {
                   </span>
                 </div>
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => setPixOpen(true)}
                   className="w-full h-12 sm:h-13 bg-accent text-accent-foreground font-sans text-[11px] tracking-[0.2em] uppercase rounded-full flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform"
+                >
+                  <QrCode className="h-4 w-4" />
+                  Pagar com Pix
+                </button>
+                <button
+                  onClick={handleCheckout}
+                  className="w-full h-12 sm:h-13 border border-border text-foreground font-sans text-[11px] tracking-[0.2em] uppercase rounded-full flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Finalizar pelo WhatsApp
