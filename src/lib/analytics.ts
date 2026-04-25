@@ -209,7 +209,7 @@ export const trackEvent = async (
   payload?: { productId?: string; productName?: string; metadata?: Record<string, unknown> }
 ) => {
   const sessionId = getOrCreateSession();
-  await supabase.from("analytics_events").insert({
+  await (supabase.from("analytics_events") as any).insert({
     session_id: sessionId,
     event_type: eventType,
     product_id: payload?.productId || null,
@@ -238,7 +238,7 @@ export const syncCart = async (
 
   const row = {
     session_id: sessionId,
-    items: items as unknown as object,
+    items: items,
     item_count: itemCount,
     total_value: totalValue,
     customer_name: customer?.name || null,
@@ -247,9 +247,9 @@ export const syncCart = async (
   };
 
   if (existing) {
-    await supabase.from("analytics_carts").update(row).eq("session_id", sessionId);
+    await (supabase.from("analytics_carts") as any).update(row).eq("session_id", sessionId);
   } else if (isOpen) {
-    await supabase.from("analytics_carts").insert(row);
+    await (supabase.from("analytics_carts") as any).insert(row);
   }
   touchSession();
 };
