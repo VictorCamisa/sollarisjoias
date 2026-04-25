@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Loader2, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -307,7 +308,7 @@ const NativeCheckoutDialog = ({
   // Parcelas: 1-3x sem juros, 4-12x com juros (display info)
   const installmentOptions = Array.from({ length: 12 }, (_, i) => i + 1);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -583,7 +584,8 @@ const NativeCheckoutDialog = ({
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 
