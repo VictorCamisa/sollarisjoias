@@ -545,12 +545,22 @@ const ProductDetailPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* ─── Breadcrumb ─── */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pt-18 sm:pt-20 md:pt-24">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pt-3 sm:pt-6 md:pt-12">
+        {/* Mobile: compact back link */}
+        <Link
+          to="/colecao"
+          className="md:hidden inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground hover:text-accent transition-colors mb-3"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Voltar à coleção
+        </Link>
+
+        {/* Desktop: full breadcrumb */}
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-2 font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground mb-8 md:mb-12"
+          className="hidden md:flex items-center gap-2 font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground mb-8 md:mb-12"
         >
           <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
           <span className="text-border">/</span>
@@ -565,7 +575,7 @@ const ProductDetailPage = () => {
       </div>
 
       {/* ─── Main content ─── */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-20 md:pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-20">
           {/* Left: Gallery */}
           <motion.div
