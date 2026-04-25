@@ -538,6 +538,9 @@ const CollectionPage = () => {
                         originalPrice={product.original_price}
                         image={product.foto_frontal || product.images?.[0] || null}
                         category={(product.categories as any)?.name}
+                        stockQuantity={product.stock_quantity}
+                        createdAt={product.created_at}
+                        pixDiscountPercent={pixDiscount}
                       />
                     </motion.div>
                   ))}
