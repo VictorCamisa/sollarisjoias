@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.mercadopago-process-payment]
 verify_jwt = false
+
+[functions.mercadopago-public-key]
+verify_jwt = false
