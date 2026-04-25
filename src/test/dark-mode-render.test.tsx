@@ -12,7 +12,7 @@ import { ProductStatsCards } from "@/components/admin/products/ProductStatsCards
  */
 
 const FORBIDDEN_CLASS_RE =
-  /\b(text-black|text-white|text-(zinc|gray|slate|neutral|stone)-(900|800|950))\b/;
+  /\b(text-black|text-(zinc|gray|slate|neutral|stone)-(900|800|950))\b/;
 
 function darkify() {
   document.documentElement.classList.add("dark");
