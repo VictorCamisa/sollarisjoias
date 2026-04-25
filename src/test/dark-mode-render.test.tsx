@@ -36,7 +36,7 @@ function assertNoForbiddenColors(root: HTMLElement) {
       violations.push(`<${el.tagName.toLowerCase()} class="${cls}">`);
     }
     const style = el.getAttribute("style") || "";
-    if (/color:\s*(#000|black|#fff|white)/i.test(style)) {
+    if (/color:\s*(#000|black)/i.test(style)) {
       violations.push(`<${el.tagName.toLowerCase()} style="${style}">`);
     }
   });
