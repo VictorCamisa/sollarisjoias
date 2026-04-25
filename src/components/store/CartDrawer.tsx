@@ -4,6 +4,8 @@ import { useSettings } from "@/hooks/useStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import NativeCheckoutDialog from "@/components/checkout/NativeCheckoutDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
@@ -188,7 +190,45 @@ const CartDrawer = () => {
           picture_url: i.image,
         }))}
         amount={totalPrice}
-        onSuccess={() => {
+        onSuccess={async (paymentId, customer) => {
+          // Cria o pedido no sistema após pagamento aprovado/iniciado
+          try {
+            const { data: order, error } = await supabase
+              .from("orders")
+              .insert({
+                customer_name: customer?.name || "Cliente Loja",
+                customer_phone: customer?.phone || "",
+                customer_email: customer?.email || null,
+                items: items.map((i) => ({
+                  product_id: i.id,
+                  name: i.name,
+                  quantity: i.quantity,
+                  price: i.price,
+                  image: i.image,
+                })),
+                total: totalPrice,
+                payment_method: customer?.paymentMethod || "pix",
+                sale_channel: "online",
+                status: customer?.paymentStatus === "paid" ? "paid" : "pending",
+                installments: customer?.installments || 1,
+                notes: `Mercado Pago • Payment ID: ${paymentId}`,
+              })
+              .select()
+              .single();
+
+            if (error) throw error;
+
+            // Vincula a transação Pix/cartão ao pedido criado
+            if (order?.id && paymentId) {
+              await supabase
+                .from("pix_transactions")
+                .update({ order_id: order.id })
+                .eq("mp_payment_id", paymentId);
+            }
+          } catch (err) {
+            console.error("Erro ao criar pedido:", err);
+            toast.error("Pagamento ok, mas houve erro ao registrar o pedido. Entre em contato.");
+          }
           clearCart();
           setIsOpen(false);
         }}
