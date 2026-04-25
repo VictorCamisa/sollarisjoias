@@ -154,15 +154,10 @@ const CartDrawer = () => {
                 </div>
                 <button
                   onClick={handleMpCheckout}
-                  disabled={checkoutLoading}
-                  className="w-full h-12 sm:h-13 bg-accent text-accent-foreground font-sans text-[11px] tracking-[0.2em] uppercase rounded-full flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform disabled:opacity-60"
+                  className="w-full h-12 sm:h-13 bg-accent text-accent-foreground font-sans text-[11px] tracking-[0.2em] uppercase rounded-full flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform"
                 >
-                  {checkoutLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <CreditCard className="h-4 w-4" />
-                  )}
-                  {checkoutLoading ? "Redirecionando..." : "Pagar com Pix ou Cartão"}
+                  <CreditCard className="h-4 w-4" />
+                  Pagar com Pix ou Cartão
                 </button>
                 <button
                   onClick={handleCheckout}
