@@ -669,9 +669,6 @@ export const NewOrderDialog = ({
         onClose={() => { setCheckoutData((d) => ({ ...d, open: false })); resetAndClose(); }}
         items={checkoutData.items}
         amount={checkoutData.amount}
-        customerName={checkoutData.name}
-        customerEmail={checkoutData.email}
-        customerPhone={checkoutData.phone}
         orderId={checkoutData.orderId}
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
