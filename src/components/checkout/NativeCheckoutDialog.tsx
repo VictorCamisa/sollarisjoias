@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Loader2, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -307,9 +308,29 @@ const NativeCheckoutDialog = ({
   // Parcelas: 1-3x sem juros, 4-12x com juros (display info)
   const installmentOptions = Array.from({ length: 12 }, (_, i) => i + 1);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={phase === "form" || phase === "rejected" ? onClose : undefined}
+            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-1.5rem)] max-w-md max-h-[90vh] bg-card border border-border rounded-2xl flex flex-col overflow-hidden shadow-2xl"
+          >__PORTAL_MARKER__</motion.div>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body
+  );
         <>
           <motion.div
             initial={{ opacity: 0 }}
