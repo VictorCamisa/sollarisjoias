@@ -123,13 +123,13 @@ const ProductCard = ({
           {category}
         </p>
       )}
-      <h3 className="font-sans text-sm text-foreground group-hover:text-accent transition-colors duration-500 leading-snug line-clamp-2 min-h-[2.5em]">
+      <h3 className="font-sans text-[13px] sm:text-sm text-foreground group-hover:text-accent transition-colors duration-500 leading-snug line-clamp-2 min-h-[2.4em]">
         {name}
       </h3>
 
-      {/* Price block */}
+      {/* Price block — denser on mobile */}
       <div className="mt-1.5 space-y-0.5">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 flex-wrap">
           <span className="font-sans text-[15px] text-foreground font-medium tabular-nums">
             {formatPrice(price)}
           </span>
@@ -139,10 +139,12 @@ const ProductCard = ({
             </span>
           )}
         </div>
+        {/* PIX line — always shown */}
         <p className="font-sans text-[10px] text-muted-foreground tabular-nums">
           ou <span className="text-accent">{formatPrice(pixPrice)}</span> no Pix
         </p>
-        <p className="font-sans text-[10px] text-muted-foreground tabular-nums">
+        {/* Installments — desktop only (saves vertical space) */}
+        <p className="hidden sm:block font-sans text-[10px] text-muted-foreground tabular-nums">
           em até <span className="text-foreground">{installments}× {formatPrice(installmentValue)}</span> sem juros
         </p>
       </div>
