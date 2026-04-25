@@ -361,7 +361,7 @@ const AdminCustomers = () => {
                       <div className="hidden md:flex justify-center">
                         <Badge variant="outline" className="text-[10px] capitalize">{o.status}</Badge>
                       </div>
-                      <span className="hidden md:block text-[13px] font-semibold text-right tabular-nums">{fmtBRL(Number(o.total))}</span>
+                      <span className="hidden md:block text-[13px] font-semibold text-right tabular-nums text-foreground">{fmtBRL(Number(o.total))}</span>
                       <div className="hidden md:flex justify-center">
                         <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
