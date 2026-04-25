@@ -129,14 +129,20 @@ const CheckoutSuccessPage = () => {
       return;
     }
     try {
-      const { error } = await (supabase.from("customer_extra_info") as any).insert({
-        order_id: orderId || null,
-        customer_phone: state.customerPhone || null,
-        customer_email: state.customerEmail || null,
-        cpf: extra.cpf || null,
-        full_address: extra.full_address || null,
-        birthday: extra.birthday || null,
-        wants_vip: extra.wants_vip,
+      // Roteia tudo pela edge function: enriquece profile + grava extras
+      const { error } = await supabase.functions.invoke("post-sale-automation", {
+        body: {
+          orderId: orderId || null,
+          paymentId: paymentId || null,
+          name: state.customerName || "Cliente",
+          phone: state.customerPhone || "",
+          email: state.customerEmail || null,
+          cpf: extra.cpf || null,
+          address: extra.full_address || null,
+          birthday: extra.birthday || null,
+          wantsVip: extra.wants_vip,
+          skipWhatsApp: true, // WA já foi enviado no momento da compra
+        },
       });
       if (error) throw error;
       setExtraSubmitted(true);
