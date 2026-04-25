@@ -3,6 +3,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NativeCheckoutDialog from "@/components/checkout/NativeCheckoutDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
   const { data: settings } = useSettings();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleMpCheckout = () => {
     if (items.length === 0) return;
