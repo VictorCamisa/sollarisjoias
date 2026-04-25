@@ -419,7 +419,7 @@ const CollectionPage = () => {
       </AnimatePresence>
 
       {/* ─── Main layout ─── */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pb-24">
+      <div className="max-w-[1400px] mx-auto px-5 md:px-12 pb-24">
         <div className="flex gap-12 lg:gap-16">
           {/* Desktop sidebar */}
           <aside className="hidden md:block w-[220px] lg:w-[240px] flex-shrink-0">
