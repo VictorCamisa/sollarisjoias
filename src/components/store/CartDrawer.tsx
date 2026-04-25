@@ -172,6 +172,16 @@ const CartDrawer = () => {
           </motion.div>
         </>
       )}
+      <PixCheckoutDialog
+        open={pixOpen}
+        onOpenChange={setPixOpen}
+        amount={totalPrice}
+        description={`Pedido Sollaris (${items.length} ${items.length === 1 ? "item" : "itens"})`}
+        onPaid={() => {
+          clearCart();
+          setIsOpen(false);
+        }}
+      />
     </AnimatePresence>
   );
 };
