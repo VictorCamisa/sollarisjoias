@@ -584,7 +584,7 @@ export const NewOrderDialog = ({
                 {/* Customer */}
                 <div className="rounded-lg bg-secondary/30 border border-border/60 p-3">
                   <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-wider mb-1.5">Cliente</p>
-                  <p className="text-[13px] font-semibold">{customer.name}</p>
+                  <p className="text-[13px] font-semibold text-foreground">{customer.name}</p>
                   <p className="text-[11px] text-muted-foreground">{customer.phone}</p>
                   {customer.email && <p className="text-[10px] text-muted-foreground">{customer.email}</p>}
                   {customer.notes && <p className="text-[10px] text-muted-foreground/70 italic mt-1">"{customer.notes}"</p>}
