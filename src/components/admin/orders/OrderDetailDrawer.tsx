@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Phone, Mail, Calendar, Package, StickyNote, Copy } from "lucide-react";
+import { Phone, Mail, Calendar, Package, StickyNote, Copy, MapPin, CreditCard, Truck, IdCard } from "lucide-react";
 
 const statusMap: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendente", color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
