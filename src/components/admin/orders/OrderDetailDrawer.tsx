@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Phone, Mail, Calendar, Package, StickyNote, Copy } from "lucide-react";
+import { Phone, Mail, Calendar, Package, StickyNote, Copy, MapPin, CreditCard, Truck, IdCard } from "lucide-react";
 
 const statusMap: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendente", color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
@@ -68,7 +68,7 @@ export const OrderDetailDrawer = ({ order, open, onOpenChange }: OrderDetailDraw
           <div className="space-y-3">
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Cliente</h3>
             <div className="space-y-2">
-              <p className="text-sm font-semibold">{order.customer_name}</p>
+              <p className="text-sm font-semibold text-foreground">{order.customer_name}</p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Phone className="h-3 w-3" />
                 <span>{order.customer_phone}</span>
@@ -79,6 +79,12 @@ export const OrderDetailDrawer = ({ order, open, onOpenChange }: OrderDetailDraw
                   <span>{order.customer_email}</span>
                 </div>
               )}
+              {order.customer_cpf && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <IdCard className="h-3 w-3" />
+                  <span className="tabular-nums">CPF {order.customer_cpf}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3" />
                 <span>
@@ -87,8 +93,46 @@ export const OrderDetailDrawer = ({ order, open, onOpenChange }: OrderDetailDraw
                   {date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
+              {order.payment_method && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <CreditCard className="h-3 w-3" />
+                  <span className="uppercase tracking-wider text-[10px]">{order.payment_method}</span>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Shipping info */}
+          {(order.shipping_zip || order.shipping_street) && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="h-3 w-3" />
+                Entrega
+              </h3>
+              <div className="space-y-1.5 text-xs text-muted-foreground bg-secondary/30 rounded-lg p-3">
+                {order.shipping_street && (
+                  <p className="text-sm text-foreground">
+                    {order.shipping_street}{order.shipping_number ? `, ${order.shipping_number}` : ""}
+                    {order.shipping_complement ? ` — ${order.shipping_complement}` : ""}
+                  </p>
+                )}
+                {(order.shipping_neighborhood || order.shipping_city) && (
+                  <p>
+                    {order.shipping_neighborhood ? `${order.shipping_neighborhood} • ` : ""}
+                    {order.shipping_city}{order.shipping_state ? ` / ${order.shipping_state}` : ""}
+                  </p>
+                )}
+                {order.shipping_zip && <p className="tabular-nums">CEP {order.shipping_zip}</p>}
+                {(order.shipping_carrier || order.shipping_eta_days) && (
+                  <div className="flex items-center gap-2 pt-2 mt-2 border-t border-border/40 text-[11px]">
+                    <Truck className="h-3 w-3" />
+                    <span>{order.shipping_carrier || "Frete"}</span>
+                    {order.shipping_eta_days && <span>• {order.shipping_eta_days} dias úteis</span>}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Items */}
           <div className="space-y-3">
@@ -100,15 +144,21 @@ export const OrderDetailDrawer = ({ order, open, onOpenChange }: OrderDetailDraw
               {items.map((item: any, i: number) => (
                 <div key={i} className="flex justify-between items-center py-2 px-3 rounded-lg bg-secondary/30">
                   <div>
-                    <p className="text-sm font-medium">{item.name}</p>
+                    <p className="text-sm font-medium text-foreground">{item.name}</p>
                     <p className="text-[11px] text-muted-foreground">Qtd: {item.quantity} × {fmt(item.price)}</p>
                   </div>
-                  <span className="text-sm font-semibold tabular-nums">{fmt(item.price * item.quantity)}</span>
+                  <span className="text-sm font-semibold tabular-nums text-foreground">{fmt(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
+            {Number(order.shipping_cost) > 0 && (
+              <div className="flex justify-between items-center text-xs text-muted-foreground pt-1">
+                <span>Frete ({order.shipping_carrier || "envio"})</span>
+                <span className="tabular-nums">{fmt(Number(order.shipping_cost))}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center pt-3 border-t border-border">
-              <span className="text-sm font-bold">Total</span>
+              <span className="text-sm font-bold text-foreground">Total</span>
               <span className="text-lg font-bold text-primary tabular-nums">{fmt(Number(order.total))}</span>
             </div>
           </div>
