@@ -414,7 +414,7 @@ const AdminCustomers = () => {
                             <Clock className="h-3.5 w-3.5 text-amber-400" />
                           )}
                           <div>
-                            <p className={`text-[13px] font-medium ${d.status === "paid" ? "line-through text-muted-foreground" : ""}`}>{d.description}</p>
+                            <p className={`text-[13px] font-medium ${d.status === "paid" ? "line-through text-muted-foreground" : "text-foreground"}`}>{d.description}</p>
                             <p className="text-[10px] text-muted-foreground">
                               Venc: {d.due_date ? fmtDate(d.due_date + "T12:00:00") : "—"}
                               {d.installments > 1 && ` · Parcela ${d.installment_number}/${d.installments}`}
