@@ -1,14 +1,27 @@
-import { X, Minus, Plus, Trash2, MessageCircle, QrCode } from "lucide-react";
+import { X, Minus, Plus, Trash2, MessageCircle, CreditCard, Loader2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useStore";
+import { useMercadoPagoCheckout } from "@/hooks/useMercadoPagoCheckout";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
-import PixCheckoutDialog from "@/components/checkout/PixCheckoutDialog";
+import { useEffect } from "react";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
   const { data: settings } = useSettings();
-  const [pixOpen, setPixOpen] = useState(false);
+  const { startCheckout, loading: checkoutLoading } = useMercadoPagoCheckout();
+
+  const handleMpCheckout = () => {
+    if (items.length === 0) return;
+    startCheckout({
+      items: items.map((i) => ({
+        id: i.id,
+        title: i.name,
+        quantity: i.quantity,
+        unit_price: i.price,
+        picture_url: i.image,
+      })),
+    });
+  };
 
   // Lock body scroll when open
   useEffect(() => {
