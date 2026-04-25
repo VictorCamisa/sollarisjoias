@@ -433,7 +433,7 @@ const NativeCheckoutDialog = ({
             className="relative w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-[480px] bg-card sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.45)] border border-border/40"
           >
             {/* HEADER */}
-            <div className="relative px-6 pt-6 pb-5 border-b border-border/60 flex-shrink-0">
+            <div className="relative px-6 pt-5 pb-5 border-b border-border/60 flex-shrink-0">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   {step === "payment" && phase === "form" && (
@@ -449,7 +449,7 @@ const NativeCheckoutDialog = ({
                     <p className="font-sans text-[9px] tracking-[0.32em] uppercase text-muted-foreground/70">
                       Sollaris · {step === "identity" ? "1 de 2" : "2 de 2"}
                     </p>
-                    <h2 className="font-serif text-[22px] leading-tight text-foreground mt-1.5">
+                    <h2 className="font-serif text-[20px] leading-tight text-foreground mt-1.5">
                       {phase === "approved" ? "Pedido confirmado" :
                         phase === "pix-pending" ? "Quase lá" :
                         phase === "processing" ? "Processando" :
@@ -468,6 +468,35 @@ const NativeCheckoutDialog = ({
                 </button>
               </div>
 
+              {/* Itens preview (mini gallery) */}
+              {items.length > 0 && (phase === "form" || phase === "rejected") && (
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    {items.slice(0, 3).map((it, i) => (
+                      <div
+                        key={i}
+                        className="w-9 h-9 rounded-lg border border-border/50 overflow-hidden bg-secondary flex-shrink-0"
+                      >
+                        {it.picture_url ? (
+                          <img src={it.picture_url} alt={it.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground/50 font-serif">S</div>
+                        )}
+                      </div>
+                    ))}
+                    {items.length > 3 && (
+                      <div className="w-9 h-9 rounded-lg border border-border/50 bg-secondary/80 flex items-center justify-center text-[10px] text-muted-foreground tabular-nums">
+                        +{items.length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {items.length} {items.length === 1 ? "peça" : "peças"} ·{" "}
+                    <span className="text-foreground/80">{items.reduce((s, i) => s + i.quantity, 0)} unid.</span>
+                  </p>
+                </div>
+              )}
+
               {/* Resumo total */}
               <div className="mt-4 space-y-1.5">
                 <div className="flex items-baseline justify-between text-[11px] text-muted-foreground">
@@ -476,10 +505,10 @@ const NativeCheckoutDialog = ({
                 </div>
                 <div className="flex items-baseline justify-between text-[11px] text-muted-foreground">
                   <span>Frete</span>
-                  <span className="tabular-nums text-foreground/80">
+                  <span className={`tabular-nums ${shippingQuote?.isFree ? "text-emerald-400" : "text-foreground/80"}`}>
                     {shippingQuote
-                      ? shippingQuote.isFree ? "Grátis" : formatBRL(shippingQuote.cost)
-                      : "—"}
+                      ? shippingQuote.isFree ? "Grátis ✨" : formatBRL(shippingQuote.cost)
+                      : "calcular no CEP"}
                   </span>
                 </div>
                 <div className="flex items-baseline justify-between pt-1.5 border-t border-border/40">
@@ -489,6 +518,15 @@ const NativeCheckoutDialog = ({
                   </span>
                 </div>
               </div>
+
+              {/* Trust strip */}
+              {(phase === "form" || phase === "rejected") && (
+                <div className="mt-3 flex items-center justify-between gap-2 text-[9px] tracking-[0.12em] uppercase text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5"><Lock className="h-2.5 w-2.5 text-accent" /> Pagamento seguro</span>
+                  <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-2.5 w-2.5 text-accent" /> Garantia 6 meses</span>
+                  <span className="inline-flex items-center gap-1.5"><Truck className="h-2.5 w-2.5 text-accent" /> Trocas em 7 dias</span>
+                </div>
+              )}
 
               {/* Progress */}
               <div className="absolute bottom-0 left-0 right-0 h-px bg-border overflow-hidden">
