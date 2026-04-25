@@ -489,6 +489,74 @@ export type Database = {
           },
         ]
       }
+      pix_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          mp_payment_id: string | null
+          order_id: string | null
+          paid_at: string | null
+          qr_code: string | null
+          qr_code_base64: string | null
+          raw_response: Json | null
+          status: string
+          ticket_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          mp_payment_id?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          raw_response?: Json | null
+          status?: string
+          ticket_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          mp_payment_id?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          raw_response?: Json | null
+          status?: string
+          ticket_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pix_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           banho: string | null
