@@ -78,8 +78,7 @@ export const NewOrderDialog = ({
   });
   const searchRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
-  const [pixOpen, setPixOpen] = useState(false);
-  const [pixContext, setPixContext] = useState<{ orderId?: string; amount: number; name: string; phone: string; email?: string } | null>(null);
+  const { startCheckout } = useMercadoPagoCheckout();
 
   const { data: userProfile } = useQuery({
     queryKey: ["my-profile", user?.id],
