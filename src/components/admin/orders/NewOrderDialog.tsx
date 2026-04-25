@@ -20,7 +20,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMercadoPagoCheckout } from "@/hooks/useMercadoPagoCheckout";
+import NativeCheckoutDialog from "@/components/checkout/NativeCheckoutDialog";
 
 interface CartItem {
   id: string;
@@ -78,7 +78,7 @@ export const NewOrderDialog = ({
   });
   const searchRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
-  const { startCheckout } = useMercadoPagoCheckout();
+  const [checkoutData, setCheckoutData] = useState<{ open: boolean; orderId?: string; items: any[]; amount: number; name: string; email: string; phone: string }>({ open: false, items: [], amount: 0, name: "", email: "", phone: "" });
 
   const { data: userProfile } = useQuery({
     queryKey: ["my-profile", user?.id],
@@ -209,9 +209,11 @@ export const NewOrderDialog = ({
       queryClient.invalidateQueries({ queryKey: ["admin-all-orders"] });
       toast.success(channel === "presencial" ? "✅ Venda presencial registrada!" : "✅ Venda online criada!");
 
-      // Se pagamento Pix ou Cartão (online), abre Checkout Pro do MP em nova aba
+      // Se pagamento Pix ou Cartão (online), abre Modal nativo de checkout
       if (channel === "online" && (customer.payment_method === "pix" || customer.payment_method === "credito")) {
-        startCheckout({
+        setCheckoutData({
+          open: true,
+          orderId: order?.id,
           items: cart.map((i) => ({
             id: i.id,
             title: i.name,
@@ -219,13 +221,14 @@ export const NewOrderDialog = ({
             unit_price: i.price,
             picture_url: i.image,
           })),
-          customerName: customer.name,
-          customerPhone: customer.phone,
-          customerEmail: customer.email,
-          orderId: order?.id,
+          amount: total,
+          name: customer.name,
+          email: customer.email || "",
+          phone: customer.phone,
         });
+      } else {
+        resetAndClose();
       }
-      resetAndClose();
     },
     onError: (e: any) => toast.error("Erro ao registrar venda: " + (e?.message || "")),
   });
