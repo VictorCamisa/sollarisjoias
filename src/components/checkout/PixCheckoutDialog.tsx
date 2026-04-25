@@ -150,7 +150,7 @@ const PixCheckoutDialog = ({
             <p className="text-2xl font-medium">{formatPrice(pix.amount)}</p>
 
             {pix.qr_code_base64 && (
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-background p-3 rounded-lg border border-border">
                 <img
                   src={`data:image/png;base64,${pix.qr_code_base64}`}
                   alt="QR Code Pix"
