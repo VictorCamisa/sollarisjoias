@@ -229,6 +229,21 @@ const CartDrawer = () => {
                 .update({ order_id: createdOrderId })
                 .eq("mp_payment_id", paymentId);
             }
+
+            // 🚀 Pós-venda automática: cria/enriquece profile + WhatsApp de agradecimento
+            if (createdOrderId) {
+              supabase.functions.invoke("post-sale-automation", {
+                body: {
+                  orderId: createdOrderId,
+                  paymentId,
+                  name: customer?.name || "Cliente Loja",
+                  phone: customer?.phone || "",
+                  email: customer?.email || null,
+                  total: orderTotal,
+                  paymentMethod: customer?.paymentMethod || "pix",
+                },
+              }).catch((e) => console.warn("post-sale-automation:", e));
+            }
           } catch (err) {
             console.error("Erro ao criar pedido:", err);
             toast.error("Pagamento ok, mas houve erro ao registrar o pedido. Entre em contato.");
