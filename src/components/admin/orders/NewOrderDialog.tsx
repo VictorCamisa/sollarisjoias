@@ -20,6 +20,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import PixCheckoutDialog from "@/components/checkout/PixCheckoutDialog";
 
 interface CartItem {
   id: string;
