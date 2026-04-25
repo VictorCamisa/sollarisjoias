@@ -635,6 +635,7 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          customer_cpf: string | null
           customer_email: string | null
           customer_id: string | null
           customer_name: string
@@ -645,6 +646,16 @@ export type Database = {
           notes: string | null
           payment_method: string | null
           sale_channel: string | null
+          shipping_carrier: string | null
+          shipping_city: string | null
+          shipping_complement: string | null
+          shipping_cost: number | null
+          shipping_eta_days: number | null
+          shipping_neighborhood: string | null
+          shipping_number: string | null
+          shipping_state: string | null
+          shipping_street: string | null
+          shipping_zip: string | null
           sold_at: string | null
           sold_by: string | null
           sold_by_name: string | null
@@ -654,6 +665,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          customer_cpf?: string | null
           customer_email?: string | null
           customer_id?: string | null
           customer_name: string
@@ -664,6 +676,16 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           sale_channel?: string | null
+          shipping_carrier?: string | null
+          shipping_city?: string | null
+          shipping_complement?: string | null
+          shipping_cost?: number | null
+          shipping_eta_days?: number | null
+          shipping_neighborhood?: string | null
+          shipping_number?: string | null
+          shipping_state?: string | null
+          shipping_street?: string | null
+          shipping_zip?: string | null
           sold_at?: string | null
           sold_by?: string | null
           sold_by_name?: string | null
@@ -673,6 +695,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          customer_cpf?: string | null
           customer_email?: string | null
           customer_id?: string | null
           customer_name?: string
@@ -683,6 +706,16 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           sale_channel?: string | null
+          shipping_carrier?: string | null
+          shipping_city?: string | null
+          shipping_complement?: string | null
+          shipping_cost?: number | null
+          shipping_eta_days?: number | null
+          shipping_neighborhood?: string | null
+          shipping_number?: string | null
+          shipping_state?: string | null
+          shipping_street?: string | null
+          shipping_zip?: string | null
           sold_at?: string | null
           sold_by?: string | null
           sold_by_name?: string | null
