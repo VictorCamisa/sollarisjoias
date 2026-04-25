@@ -30,19 +30,252 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType; 
 
 const TEMPLATES = [
   {
+    title: "Catálogo de Produtos & Materiais",
+    category: "catalogo",
+    content: `**Catálogo Sollaris — Materiais e Linhas**
+
+**OURO 18K**
+O ouro 18k (750) significa que 75% da liga é ouro puro. É o padrão nobre da Sollaris. Disponível em:
+- Ouro amarelo (clássico e atemporal)
+- Ouro branco (moderno, rhodiado para maior brilho e resistência)
+- Ouro rosé (romântico e contemporâneo)
+Característica: não causa alergia, não escurece, mantém o brilho com cuidados básicos.
+
+**PRATA 925**
+A prata 925 contém 92,5% de prata pura. Mais acessível, igualmente elegante.
+Característica: pode oxidar com o tempo (natural), recupera o brilho com flanela específica.
+
+**PEDRAS NATURAIS**
+Trabalhamos com: zircônia (brilho de diamante a custo acessível), quartzo rosa, topázio azul, esmeralda, rubi, turmalina rosa, ametista e citrino. Todas com laudo de autenticidade disponível mediante solicitação.
+
+**LINHAS DISPONÍVEIS**
+- Anéis: solitários, aparadores, cocktail, alianças, band rings
+- Colares: ponto de luz, gargantilha, colar longo, pingentes, escapulários
+- Brincos: argola, pressão, ear cuff, tiras, solitários com pedra
+- Pulseiras: tennis, riviera, berloque, bracelete
+- Alianças: lisos, cravejados, meia-cravação, com gravação personalizada
+- Joias sob medida: projeto exclusivo do zero
+
+**FAIXA DE PREÇOS (orientativa)**
+- Anéis simples: R$ 350 – R$ 1.200
+- Alianças (par): R$ 890 – R$ 3.500
+- Colares com pedras: R$ 480 – R$ 2.200
+- Brincos: R$ 280 – R$ 1.800
+- Joias personalizadas: a partir de R$ 1.200 (consulta necessária)`,
+  },
+  {
     title: "Guia de Cuidados com Joias",
     category: "cuidados",
-    content: `**Cuidados com suas joias Sollaris**\n\n**Ouro:**\n- Evite contato com produtos químicos como perfumes, cloro e cremes\n- Guarde em local seco, de preferência em caixinhas individuais\n- Limpe com pano macio seco ou levemente umedecido\n\n**Prata:**\n- Guarde em saquinhos antiestáticos para evitar oxidação\n- Limpe com flanela própria para prata\n- Retire ao tomar banho e praticar esportes\n\n**Pedras:**\n- Evite impactos e pressão excessiva\n- Limpe com escova macia e água morna\n- Leve para verificação anual na Sollaris`,
+    content: `**Cuidados com suas joias Sollaris**
+
+**OURO 18K:**
+- Evite contato direto com perfumes, cremes, cloro e produtos químicos (aplique antes de colocar a joia)
+- Retire ao praticar esportes, tomar banho e dormir
+- Guarde em local seco, em caixinhas individuais ou saquinhos de flanela
+- Limpe com pano macio seco — para brilho intenso, use pano de microfibra levemente umedecido
+- Leve para polimento profissional uma vez por ano na Sollaris (gratuito no primeiro ano)
+
+**PRATA 925:**
+- Guarde em saquinhos antiestáticos (evita oxidação) ou caixinhas fechadas
+- Limpe com flanela própria para prata — movimentos suaves em uma direção
+- Retire ao tomar banho, nadar e praticar esportes
+- Se escurecer: pasta específica para prata ou imersão de 5 minutos em água morna com bicarbonato
+- Rhodiagem recomendada a cada 12-18 meses para manter brilho
+
+**PEDRAS NATURAIS:**
+- Evite impactos, pressão excessiva e quedas
+- Limpe com escova macia de cerdas macias e água morna (nunca ultrassônico para pedras porosas)
+- Evite exposição prolongada ao sol (pode desbotaralgunas pedras como ametista)
+- Leve para verificação de cravação anual na Sollaris
+
+**ALIANÇAS:**
+- Retire para atividades com impacto (academia, trabalho manual)
+- Rhodiagem no ouro branco: a cada 12-18 meses para manter o aspecto prateado
+- Gravação interna: limpe com cotonete umedecido
+
+**DICA GERAL:**
+Guarde cada peça separadamente para evitar arranhões. Uma joia bem cuidada dura gerações.`,
   },
   {
     title: "Tabela de Numeração de Anéis",
     category: "medidas",
-    content: `**Numeração de Anéis — Tabela Brasileira**\n\nNúmero 10 = 14,0 mm de diâmetro interno\nNúmero 11 = 14,5 mm\nNúmero 12 = 15,0 mm\nNúmero 13 = 15,5 mm\nNúmero 14 = 16,0 mm\nNúmero 15 = 16,5 mm\nNúmero 16 = 17,0 mm\nNúmero 17 = 17,5 mm\nNúmero 18 = 18,0 mm\nNúmero 19 = 18,5 mm\nNúmero 20 = 19,0 mm\nNúmero 21 = 19,5 mm\nNúmero 22 = 20,0 mm\n\n**Como medir em casa:**\nEnrole um papel fino no dedo, marque onde se fecha e meça o comprimento. Divida por π (3,14) para obter o diâmetro.`,
+    content: `**Numeração de Anéis — Tabela Brasileira**
+
+Número 10 = 14,0 mm de diâmetro interno
+Número 11 = 14,5 mm
+Número 12 = 15,0 mm
+Número 13 = 15,5 mm
+Número 14 = 16,0 mm
+Número 15 = 16,5 mm
+Número 16 = 17,0 mm
+Número 17 = 17,5 mm
+Número 18 = 18,0 mm
+Número 19 = 18,5 mm
+Número 20 = 19,0 mm
+Número 21 = 19,5 mm
+Número 22 = 20,0 mm
+Número 23 = 20,5 mm
+Número 24 = 21,0 mm
+Número 25 = 21,5 mm
+
+**Como medir em casa (método papel):**
+1. Corte uma tira de papel fino com cerca de 0,5 cm de largura
+2. Enrole confortavelmente no dedo (não muito justo, não muito folgado)
+3. Marque onde o papel se sobrepõe
+4. Estique o papel e meça o comprimento em mm
+5. Divida por 3,14 para obter o diâmetro interno
+6. Compare com a tabela acima
+
+**Como medir com um anel existente:**
+Meça o diâmetro interno do anel em mm e compare com a tabela.
+
+**Dicas importantes:**
+- Meça no final do dia (dedos incham ao longo do dia)
+- Em climas frios, os dedos ficam um pouco menores
+- Para alianças: recomendamos visita presencial para garantir o ajuste perfeito
+- Realizamos ajuste gratuito na primeira vez para alianças compradas na Sollaris`,
   },
   {
-    title: "Perguntas Frequentes",
+    title: "Processo de Personalização",
+    category: "catalogo",
+    content: `**Joias Personalizadas Sollaris — Como Funciona**
+
+**O QUE É POSSÍVEL PERSONALIZAR**
+- Design exclusivo do zero (anel, colar, aliança, brinco, pulseira)
+- Gravação interna ou externa (nomes, data, frase, coordenada GPS)
+- Pedra escolhida pelo cliente (tipo, cor, tamanho, lapidação)
+- Combinação de metais (bicolor: ouro amarelo + branco, por exemplo)
+- Adaptação de modelo existente (adicionar pedra, mudar acabamento, ajustar design)
+
+**PROCESSO PASSO A PASSO**
+1. Consultoria inicial — presencial ou online — totalmente gratuita
+2. Briefing completo: estilo desejado, ocasião, orçamento, referências (fotos ajudam!)
+3. Proposta de design com arte digital enviada em até 3 dias úteis
+4. Aprovação do cliente (inclui até 2 revisões sem custo adicional)
+5. Produção: 15 a 30 dias úteis dependendo da complexidade
+6. Controle de qualidade + fotos do produto finalizado enviadas para aprovação
+7. Entrega com embalagem premium Sollaris
+
+**INVESTIMENTO**
+- Gravação em modelo existente: + R$ 80 a R$ 150
+- Personalização simples (pedra diferente, ajuste de modelo): R$ 1.200 – R$ 2.000
+- Design intermediário (modelo adaptado com pedra especial): R$ 2.000 – R$ 4.500
+- Design exclusivo do zero: a partir de R$ 3.500
+
+**GARANTIAS**
+- 1 ano de garantia contra defeito de fabricação
+- Polimento e revisão gratuitos em 6 meses
+- Laudo de autenticidade das pedras incluído
+
+**IMPORTANTE**
+- Joias personalizadas não são elegíveis para devolução (apenas reparo em caso de defeito)
+- Sinal de 50% confirmado o design; restante na retirada ou envio
+- Cliente acompanha o processo com fotos da produção`,
+  },
+  {
+    title: "Políticas de Troca, Devolução e Garantia",
+    category: "politicas",
+    content: `**Políticas Sollaris — Troca, Devolução e Garantia**
+
+**DEVOLUÇÃO**
+- Prazo: 7 dias corridos após o recebimento
+- Condição: produto sem uso, na embalagem original, com nota fiscal
+- Como solicitar: WhatsApp ou e-mail com fotos do produto
+- Processo: equipe avalia em até 24h → autoriza devolução → cliente envia → reembolso em 5 dias úteis
+- Reembolso: via Pix ou estorno no cartão (conforme forma de pagamento original)
+
+**TROCA**
+- Mesmo prazo de 7 dias e condições
+- Troca por outro modelo: diferença de valor cobrada ou devolvida conforme o caso
+- Troca de tamanho de anel/aliança: gratuita na primeira vez, dentro de 30 dias da compra
+
+**GARANTIA DE QUALIDADE — 12 MESES**
+Cobre:
+✓ Defeito de solda ou acabamento
+✓ Queda de pedra por falha de cravação (não por impacto)
+✓ Deformação por defeito de fabricação
+
+NÃO cobre:
+✗ Arranhados por uso normal
+✗ Oxidação por mau uso ou armazenamento inadequado
+✗ Quebra ou amassado por impacto
+✗ Perda de pedras por impacto ou descuido
+
+Dentro da garantia: reparo sem custo ou substituição da peça
+Fora da garantia: orçamento de reparo enviado em até 48h
+
+**AJUSTE DE TAMANHO**
+- Anéis: R$ 0 a R$ 80 dependendo do modelo e quantidade de pontos de ajuste
+- Alianças: gratuito na primeira vez; subsequentes mediante orçamento
+- Prazo: 3-5 dias úteis
+- Nem todos os modelos permitem ajuste — verificamos caso a caso
+
+**JOIAS PERSONALIZADAS**
+- Não são elegíveis para devolução
+- Defeito de fabricação coberto pela garantia de 1 ano
+
+**CONTATO**
+- WhatsApp: seg a sáb, 9h-18h
+- E-mail: contato@sollaris.com.br`,
+  },
+  {
+    title: "Perguntas Frequentes — FAQ Completo",
     category: "faq",
-    content: `**Perguntas Frequentes — Sollaris Joias**\n\n**Vocês fazem joias personalizadas?**\nSim! Trabalhamos com pedidos personalizados. Agende uma consultoria para discutir o projeto.\n\n**Qual o prazo de entrega?**\nPeças em estoque: 1-3 dias úteis. Joias personalizadas: 15-30 dias úteis dependendo da complexidade.\n\n**Aceitam devolução?**\nSim, em até 7 dias após o recebimento, mediante produto sem uso e na embalagem original.\n\n**As joias são hipoalergênicas?**\nNossas joias em ouro 18k e prata 925 são indicadas para pele sensível. Temos também opções em titânio.\n\n**Fazem ajuste de tamanho?**\nSim, realizamos ajustes. O prazo é de 3-5 dias úteis.`,
+    content: `**Perguntas Frequentes — Sollaris Joias**
+
+**PRODUTOS**
+
+Vocês fazem joias personalizadas?
+Sim! Trabalhamos com projetos do zero ou adaptações de modelos existentes. O processo começa com consultoria gratuita. Prazo: 15-30 dias úteis.
+
+O ouro é garantido?
+Todas as peças em ouro têm 18 quilates (750/1000), com carimbo de garantia. Fornecemos certificado mediante solicitação.
+
+As joias são hipoalergênicas?
+Ouro 18k e prata 925 são seguros para pele sensível. Para casos extremos de alergia metálica, consulte nossa equipe sobre opções em titânio.
+
+Vocês trabalham com diamantes?
+Trabalhamos com zircônia de alta qualidade (equivalente visual ao diamante) e pedras semipreciosas naturais. Para projetos com diamantes certificados, consulte nosso ateliê.
+
+**PEDIDOS & ENTREGA**
+
+Qual o prazo de entrega?
+- Peças em estoque: 1-3 dias úteis
+- Gravação personalizada: +2 dias úteis
+- Joias sob medida: 15-30 dias úteis
+
+Entregam para todo o Brasil?
+Sim, via Correios (PAC e SEDEX) e transportadoras parceiras. Frete calculado no checkout ou via atendimento.
+
+Como rastrear meu pedido?
+Você receberá o código de rastreio por WhatsApp assim que o pedido for despachado.
+
+**MEDIDAS & AJUSTES**
+
+Como descobrir meu número de anel?
+Enrole um papel fino confortavelmente no dedo, marque onde se fecha, meça o comprimento em mm e divida por 3,14. Compare com nossa tabela de numeração.
+
+Posso presentear sem saber o tamanho?
+Sim! Recomendamos consultoria prévia. Caso não seja possível, realizamos ajuste gratuito na primeira vez dentro de 30 dias.
+
+**PAGAMENTO**
+
+Quais formas de pagamento aceitam?
+- Cartão de crédito (parcelamento disponível — juros a partir de 3x conforme operadora)
+- Débito
+- Pix (à vista — consulte condições especiais)
+- Transferência bancária
+
+**OUTROS**
+
+Fazem embalagem para presente?
+Sim, todas as peças saem em embalagem premium Sollaris sem custo adicional. Cartão com mensagem personalizada disponível.
+
+Fazem conserto de joias de outras marcas?
+Avaliamos caso a caso. Envie fotos pelo WhatsApp para orçamento.
+
+Têm programa de fidelidade?
+Sim! Clientes Sollaris acumulam benefícios: manutenção gratuita, acesso a lançamentos exclusivos e desconto por indicação. Consulte nossa equipe.`,
   },
   {
     title: "📊 Sheets — Fórmulas Essenciais",
