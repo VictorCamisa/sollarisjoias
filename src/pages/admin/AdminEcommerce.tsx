@@ -11,8 +11,9 @@ import {
   Globe, Star, Package, ImageIcon, Search, AlertTriangle,
   CheckCircle2, ExternalLink, Wand2, Loader2, RefreshCw,
   LayoutGrid, Eye, TrendingUp, ShoppingCart, FolderOpen,
-  ArrowUpRight, Sparkles, Image, ShieldCheck,
+  ArrowUpRight, Sparkles, Image, ShieldCheck, Activity,
 } from "lucide-react";
+import LiveSiteDashboard from "@/components/admin/ecommerce/LiveSiteDashboard";
 
 /* ─── helpers ─── */
 const fmt = (v: number) =>
@@ -50,7 +51,7 @@ function StatCard({ label, value, icon: Icon, color, to, detail }: any) {
 /* ════════════════════════════════════════════════════════ */
 const AdminEcommerce = () => {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("painel");
+  const [activeTab, setActiveTab] = useState("painel-site");
   const [aiLoading, setAiLoading] = useState<Record<string, boolean>>({});
   const [seoSearch, setSeoSearch] = useState("");
   const [photoSearch, setPhotoSearch] = useState("");
@@ -199,8 +200,16 @@ const AdminEcommerce = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-secondary/30 h-9">
+          <TabsTrigger value="painel-site" className="text-xs gap-1.5 h-8">
+            <Activity className="h-3 w-3" />
+            Painel Site
+            <span className="relative flex h-1.5 w-1.5 ml-0.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
+          </TabsTrigger>
           <TabsTrigger value="painel" className="text-xs gap-1.5 h-8">
-            <LayoutGrid className="h-3 w-3" />Painel
+            <LayoutGrid className="h-3 w-3" />Catálogo
           </TabsTrigger>
           <TabsTrigger value="vitrine" className="text-xs gap-1.5 h-8">
             <Star className="h-3 w-3" />Vitrine
@@ -220,6 +229,11 @@ const AdminEcommerce = () => {
             )}
           </TabsTrigger>
         </TabsList>
+
+        {/* ════ PAINEL SITE (LIVE) ════ */}
+        <TabsContent value="painel-site" className="mt-4">
+          <LiveSiteDashboard />
+        </TabsContent>
 
         {/* ════ PAINEL ════ */}
         <TabsContent value="painel" className="mt-4 space-y-4">
