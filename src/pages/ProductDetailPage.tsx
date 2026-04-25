@@ -101,13 +101,32 @@ const ImageGallery = ({
 }) => {
   const [current, setCurrent] = useState(0);
   const [zooming, setZooming] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
-  const prev = () => setCurrent((c) => (c === 0 ? images.length - 1 : c - 1));
-  const next = () => setCurrent((c) => (c === images.length - 1 ? 0 : c + 1));
+  const prev = useCallback(
+    () => setCurrent((c) => (c === 0 ? images.length - 1 : c - 1)),
+    [images.length]
+  );
+  const next = useCallback(
+    () => setCurrent((c) => (c === images.length - 1 ? 0 : c + 1)),
+    [images.length]
+  );
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 50) {
+      dx > 0 ? prev() : next();
+    }
+    touchStartX.current = null;
+  };
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[3/4] rounded-2xl bg-secondary flex items-center justify-center">
+      <div className="aspect-[4/5] md:aspect-[3/4] rounded-2xl bg-secondary flex items-center justify-center">
         <span className="font-serif text-6xl text-muted-foreground/10">S</span>
       </div>
     );
@@ -115,10 +134,13 @@ const ImageGallery = ({
 
   return (
     <>
-      <div className="space-y-3">
-        {/* Main image */}
-        <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-secondary group cursor-zoom-in"
+      <div className="space-y-2.5 md:space-y-3">
+        {/* Main image — 4:5 mobile (mais compacto), 3:4 desktop */}
+        <div
+          className="relative aspect-[4/5] md:aspect-[3/4] rounded-2xl overflow-hidden bg-secondary group cursor-zoom-in select-none"
           onClick={() => setZooming(true)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           <AnimatePresence mode="wait">
             <motion.img
@@ -130,43 +152,61 @@ const ImageGallery = ({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="w-full h-full object-cover"
+              draggable={false}
             />
           </AnimatePresence>
 
           {/* Zoom hint */}
-          <div className="absolute top-4 right-4 bg-background/60 backdrop-blur-md rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <ZoomIn className="h-4 w-4 text-foreground" strokeWidth={1.5} />
+          <div className="absolute top-3 right-3 bg-background/60 backdrop-blur-md rounded-full p-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+            <ZoomIn className="h-3.5 w-3.5 text-foreground" strokeWidth={1.5} />
           </div>
 
-          {/* Nav arrows */}
+          {/* Nav arrows — desktop only */}
           {images.length > 1 && (
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); prev(); }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/60 backdrop-blur-md rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background/80"
+                className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 bg-background/60 backdrop-blur-md rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background/80 items-center justify-center"
+                aria-label="Imagem anterior"
               >
                 <ChevronLeft className="h-4 w-4 text-foreground" strokeWidth={1.5} />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); next(); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/60 backdrop-blur-md rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background/80"
+                className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 bg-background/60 backdrop-blur-md rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background/80 items-center justify-center"
+                aria-label="Próxima imagem"
               >
                 <ChevronRight className="h-4 w-4 text-foreground" strokeWidth={1.5} />
               </button>
             </>
           )}
 
-          {/* Image counter */}
+          {/* Image counter / dots — mobile dots, desktop counter */}
           {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 backdrop-blur-md rounded-full px-3 py-1.5 font-sans text-[10px] tracking-[0.1em] text-foreground/80">
-              {current + 1} / {images.length}
-            </div>
+            <>
+              <div className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 backdrop-blur-md rounded-full px-3 py-1.5 font-sans text-[10px] tracking-[0.1em] text-foreground/80">
+                {current + 1} / {images.length}
+              </div>
+              <div className="md:hidden absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={(e) => { e.stopPropagation(); setCurrent(i); }}
+                    className={cn(
+                      "h-1 rounded-full transition-all duration-300",
+                      i === current ? "w-6 bg-accent" : "w-1 bg-foreground/40"
+                    )}
+                    aria-label={`Imagem ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
 
-        {/* Thumbnails */}
+        {/* Thumbnails — desktop only */}
         {images.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="hidden md:flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {images.map((img, i) => (
               <button
                 key={i}
