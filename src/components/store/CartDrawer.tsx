@@ -177,6 +177,22 @@ const CartDrawer = () => {
           </motion.div>
         </>
       )}
+      <NativeCheckoutDialog
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        items={items.map((i) => ({
+          id: i.id,
+          title: i.name,
+          quantity: i.quantity,
+          unit_price: i.price,
+          picture_url: i.image,
+        }))}
+        amount={totalPrice}
+        onSuccess={() => {
+          clearCart();
+          setIsOpen(false);
+        }}
+      />
     </AnimatePresence>
   );
 };
