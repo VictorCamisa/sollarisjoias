@@ -258,11 +258,11 @@ const AutomacoesCampanhas = () => {
                   {/* Metrics */}
                   <div className="hidden md:flex items-center gap-4 flex-shrink-0">
                     <div className="text-center">
-                      <div className="text-[13px] font-semibold">{campaign.sent_count || 0}</div>
+                      <div className="text-[13px] font-semibold text-foreground">{campaign.sent_count || 0}</div>
                       <div className="text-[10px] text-muted-foreground">Enviados</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-[13px] font-semibold">{campaign.replied_count || 0}</div>
+                      <div className="text-[13px] font-semibold text-foreground">{campaign.replied_count || 0}</div>
                       <div className="text-[10px] text-muted-foreground">Respostas</div>
                     </div>
                     <div className="text-center">
