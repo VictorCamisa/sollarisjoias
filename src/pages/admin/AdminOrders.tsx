@@ -148,7 +148,7 @@ const AdminOrders = () => {
                   onClick={() => setSelectedOrder(order)}
                 >
                   <div className="min-w-0">
-                    <p className="text-[13px] font-medium truncate">{order.customer_name}</p>
+                    <p className="text-[13px] font-medium truncate text-foreground">{order.customer_name}</p>
                     <p className="text-[10px] text-muted-foreground">{order.customer_phone}</p>
                   </div>
                   <div className="hidden md:flex justify-center">
