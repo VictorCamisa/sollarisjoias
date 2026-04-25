@@ -311,20 +311,20 @@ const NativeCheckoutDialog = ({
   return createPortal(
     <AnimatePresence>
       {open && (
-        <>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={phase === "form" || phase === "rejected" ? onClose : undefined}
-            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md"
+            className="absolute inset-0 bg-background/80 backdrop-blur-md"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-1.5rem)] max-w-md max-h-[90vh] bg-card border border-border rounded-2xl flex flex-col overflow-hidden shadow-2xl"
+            className="relative w-full max-w-md max-h-[90vh] bg-card border border-border rounded-2xl flex flex-col overflow-hidden shadow-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
