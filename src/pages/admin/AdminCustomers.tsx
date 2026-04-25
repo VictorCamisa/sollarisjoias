@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 interface Profile {
   id: string; full_name: string | null; phone: string | null;
   address: string | null; notes: string | null; created_at: string; updated_at: string;
+  cpf?: string | null; birthday?: string | null; email?: string | null;
 }
 interface Order {
   id: string; total: number; status: string; items: any; created_at: string;
@@ -51,6 +52,9 @@ const AdminCustomers = () => {
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editAddress, setEditAddress] = useState("");
+  const [editCpf, setEditCpf] = useState("");
+  const [editBirthday, setEditBirthday] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const qc = useQueryClient();
 
@@ -183,12 +187,23 @@ const AdminCustomers = () => {
     setEditPhone(c.phone || "");
     setEditAddress(c.address || "");
     setEditNotes(c.notes || "");
+    setEditCpf(c.cpf || "");
+    setEditBirthday(c.birthday || "");
+    setEditEmail(c.email || "");
   };
 
   const updateProfile = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("profiles")
-        .update({ full_name: editName, phone: editPhone, address: editAddress, notes: editNotes })
+        .update({
+          full_name: editName,
+          phone: editPhone,
+          address: editAddress,
+          notes: editNotes,
+          cpf: editCpf || null,
+          birthday: editBirthday || null,
+          email: editEmail || null,
+        })
         .eq("id", selectedId!);
       if (error) throw error;
     },
@@ -299,7 +314,7 @@ const AdminCustomers = () => {
 
           {/* Tab: Info */}
           <TabsContent value="info" className="mt-4">
-            <div className="admin-card p-5 space-y-4 max-w-lg">
+            <div className="admin-card p-5 space-y-4 max-w-2xl">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</label>
@@ -309,6 +324,20 @@ const AdminCustomers = () => {
                   <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</label>
                   <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="admin-input" />
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">CPF</label>
+                  <Input value={editCpf} onChange={(e) => setEditCpf(e.target.value)} placeholder="000.000.000-00" maxLength={14} className="admin-input" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Aniversário</label>
+                  <Input type="date" value={editBirthday} onChange={(e) => setEditBirthday(e.target.value)} className="admin-input" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">E-mail</label>
+                <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="cliente@email.com" className="admin-input" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Endereço</label>

@@ -909,11 +909,14 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          birthday: string | null
           cargo: string | null
+          cpf: string | null
           created_at: string
           credit_blocked: boolean | null
           credit_limit: number | null
           credit_score: number | null
+          email: string | null
           full_name: string | null
           id: string
           notes: string | null
@@ -922,11 +925,14 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          birthday?: string | null
           cargo?: string | null
+          cpf?: string | null
           created_at?: string
           credit_blocked?: boolean | null
           credit_limit?: number | null
           credit_score?: number | null
+          email?: string | null
           full_name?: string | null
           id: string
           notes?: string | null
@@ -935,11 +941,14 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          birthday?: string | null
           cargo?: string | null
+          cpf?: string | null
           created_at?: string
           credit_blocked?: boolean | null
           credit_limit?: number | null
           credit_score?: number | null
+          email?: string | null
           full_name?: string | null
           id?: string
           notes?: string | null
@@ -1504,6 +1513,17 @@ export type Database = {
     }
     Functions: {
       cleanup_inactive_sessions: { Args: never; Returns: undefined }
+      get_or_create_customer_full: {
+        Args: {
+          _address?: string
+          _birthday?: string
+          _cpf?: string
+          _email?: string
+          _name: string
+          _phone?: string
+        }
+        Returns: string
+      }
       get_or_create_customer_profile: {
         Args: { _name: string; _phone: string }
         Returns: string
