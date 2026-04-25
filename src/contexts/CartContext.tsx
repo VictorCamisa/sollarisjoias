@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { syncCart, trackEvent } from "@/lib/analytics";
 
 interface CartItem {
   id: string;
@@ -31,6 +32,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     localStorage.setItem("sollaris-cart", JSON.stringify(items));
+    // Sincroniza estado do carrinho com analytics (debounced)
+    const t = setTimeout(() => {
+      syncCart(items).catch(() => {});
+    }, 500);
+    return () => clearTimeout(t);
   }, [items]);
 
   const addItem = (item: Omit<CartItem, "quantity">) => {
@@ -42,16 +48,33 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return [...prev, { ...item, quantity: 1 }];
     });
     setIsOpen(true);
+    trackEvent("add_to_cart", {
+      productId: item.id,
+      productName: item.name,
+      metadata: { price: item.price },
+    }).catch(() => {});
   };
 
-  const removeItem = (id: string) => setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = (id: string) => {
+    const removed = items.find((i) => i.id === id);
+    setItems((prev) => prev.filter((i) => i.id !== id));
+    if (removed) {
+      trackEvent("remove_from_cart", {
+        productId: removed.id,
+        productName: removed.name,
+      }).catch(() => {});
+    }
+  };
 
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) return removeItem(id);
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity } : i)));
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    trackEvent("clear_cart").catch(() => {});
+  };
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
