@@ -84,7 +84,7 @@ export const OrderStatsCards = ({ stats }: { stats: OrderStats }) => {
               <card.icon className="h-3.5 w-3.5" />
             </div>
           </div>
-          <span className="text-[22px] font-bold tabular-nums leading-none">
+          <span className="text-[22px] font-bold tabular-nums leading-none text-foreground">
             {card.value}
           </span>
           <span className="text-[10px] text-muted-foreground leading-none">{card.sub}</span>

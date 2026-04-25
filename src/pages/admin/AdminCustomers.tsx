@@ -361,7 +361,7 @@ const AdminCustomers = () => {
                       <div className="hidden md:flex justify-center">
                         <Badge variant="outline" className="text-[10px] capitalize">{o.status}</Badge>
                       </div>
-                      <span className="hidden md:block text-[13px] font-semibold text-right tabular-nums">{fmtBRL(Number(o.total))}</span>
+                      <span className="hidden md:block text-[13px] font-semibold text-right tabular-nums text-foreground">{fmtBRL(Number(o.total))}</span>
                       <div className="hidden md:flex justify-center">
                         <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
@@ -414,7 +414,7 @@ const AdminCustomers = () => {
                             <Clock className="h-3.5 w-3.5 text-amber-400" />
                           )}
                           <div>
-                            <p className={`text-[13px] font-medium ${d.status === "paid" ? "line-through text-muted-foreground" : ""}`}>{d.description}</p>
+                            <p className={`text-[13px] font-medium ${d.status === "paid" ? "line-through text-muted-foreground" : "text-foreground"}`}>{d.description}</p>
                             <p className="text-[10px] text-muted-foreground">
                               Venc: {d.due_date ? fmtDate(d.due_date + "T12:00:00") : "—"}
                               {d.installments > 1 && ` · Parcela ${d.installment_number}/${d.installments}`}
@@ -422,7 +422,7 @@ const AdminCustomers = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[13px] font-semibold tabular-nums">{fmtBRL(Number(d.amount))}</span>
+                          <span className="text-[13px] font-semibold tabular-nums text-foreground">{fmtBRL(Number(d.amount))}</span>
                           <Badge className={`text-[9px] border ${
                             d.status === "paid" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                             d.status === "overdue" ? "bg-red-500/10 text-red-400 border-red-500/20" :

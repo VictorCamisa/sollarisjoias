@@ -296,7 +296,7 @@ const AutomacoesAgendamentos = () => {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[13px] font-semibold">{a.client_name}</span>
+                        <span className="text-[13px] font-semibold text-foreground">{a.client_name}</span>
                         <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${TYPE_CONFIG[a.type]?.color}`}>{TYPE_CONFIG[a.type]?.label}</Badge>
                       </div>
                       <p className="text-[11px] text-muted-foreground truncate">{a.title}</p>

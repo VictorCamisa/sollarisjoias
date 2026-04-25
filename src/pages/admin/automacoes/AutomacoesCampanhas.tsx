@@ -248,7 +248,7 @@ const AutomacoesCampanhas = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[13px] font-semibold truncate">{campaign.name}</span>
+                      <span className="text-[13px] font-semibold truncate text-foreground">{campaign.name}</span>
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 flex items-center gap-0.5 ${cfg.color}`}>
                         <CfgIcon className="h-2.5 w-2.5" /> {cfg.label}
                       </Badge>
@@ -258,11 +258,11 @@ const AutomacoesCampanhas = () => {
                   {/* Metrics */}
                   <div className="hidden md:flex items-center gap-4 flex-shrink-0">
                     <div className="text-center">
-                      <div className="text-[13px] font-semibold">{campaign.sent_count || 0}</div>
+                      <div className="text-[13px] font-semibold text-foreground">{campaign.sent_count || 0}</div>
                       <div className="text-[10px] text-muted-foreground">Enviados</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-[13px] font-semibold">{campaign.replied_count || 0}</div>
+                      <div className="text-[13px] font-semibold text-foreground">{campaign.replied_count || 0}</div>
                       <div className="text-[10px] text-muted-foreground">Respostas</div>
                     </div>
                     <div className="text-center">
