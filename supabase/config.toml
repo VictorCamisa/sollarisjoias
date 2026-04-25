@@ -2,3 +2,9 @@ project_id = "qgpsfcrmubqhpjnpdiha"
 
 [functions.google-oauth-callback]
 verify_jwt = false
+
+[functions.mercadopago-pix-create]
+verify_jwt = false
+
+[functions.mercadopago-webhook]
+verify_jwt = false
