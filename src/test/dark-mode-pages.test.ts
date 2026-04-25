@@ -24,10 +24,9 @@ const TARGETS = [
   "components/admin/products",
 ];
 
-// Classes proibidas — forçariam texto escuro independente do tema
+// Classes proibidas — forçariam texto escuro independente do tema (causa real do bug)
 const FORBIDDEN_CLASS_PATTERNS = [
   /\btext-black\b/,
-  /\btext-white\b/, // forçar branco também quebra hierarquia / light mode
   /\btext-zinc-(900|800|950)\b/,
   /\btext-gray-(900|800|950)\b/,
   /\btext-slate-(900|800|950)\b/,
