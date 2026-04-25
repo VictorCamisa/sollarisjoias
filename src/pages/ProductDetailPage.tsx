@@ -556,25 +556,60 @@ const ProductDetailPage = () => {
             </h1>
 
             {/* Price block */}
-            <div className="mb-6">
-              <div className="flex items-baseline gap-3 mb-1.5">
-                <span className="font-serif text-2xl md:text-3xl text-accent">
+            <div className="mb-5">
+              <div className="flex items-baseline flex-wrap gap-3 mb-2">
+                <span className="font-serif text-3xl md:text-4xl text-foreground tabular-nums">
                   {fmt(product.price)}
                 </span>
                 {hasDiscount && (
                   <>
-                    <span className="font-sans text-sm text-muted-foreground line-through">
+                    <span className="font-sans text-sm text-muted-foreground line-through tabular-nums">
                       {fmt(product.original_price!)}
                     </span>
-                    <span className="font-sans text-[10px] tracking-[0.1em] uppercase bg-accent/15 text-accent px-2.5 py-1 rounded-full">
-                      -{discountPercent}%
+                    <span className="font-sans text-[10px] tracking-[0.12em] uppercase bg-accent/15 text-accent px-2.5 py-1 rounded-full">
+                      Economize {fmt(product.original_price! - product.price)}
                     </span>
                   </>
                 )}
               </div>
-              <p className="font-sans text-xs text-muted-foreground">
-                ou <span className="text-accent">{fmt(pixPrice)}</span> no PIX
-              </p>
+              <div className="space-y-1">
+                <p className="font-sans text-[13px] text-foreground tabular-nums">
+                  ou <span className="text-accent font-medium">{fmt(pixPrice)}</span>{" "}
+                  <span className="text-muted-foreground">à vista no Pix</span>
+                </p>
+                <p className="font-sans text-[12px] text-muted-foreground tabular-nums">
+                  em até <span className="text-foreground">4× {fmt(product.price / 4)}</span> sem juros no cartão
+                </p>
+              </div>
+            </div>
+
+            {/* Sales triggers — moderate */}
+            <div className="flex flex-wrap items-center gap-2 mb-5">
+              {product.stock_quantity != null && product.stock_quantity > 0 && product.stock_quantity <= 3 && (
+                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400" />
+                  </span>
+                  {product.stock_quantity === 1 ? "Última peça" : `Restam ${product.stock_quantity}`}
+                </span>
+              )}
+              {product.is_featured && (
+                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-accent/10 text-accent border border-accent/20">
+                  <Sparkles className="h-2.5 w-2.5" strokeWidth={2} />
+                  Mais procurado
+                </span>
+              )}
+              {product.price >= 500 ? (
+                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <Truck className="h-2.5 w-2.5" strokeWidth={2} />
+                  Frete grátis
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-secondary/60 text-muted-foreground border border-border/40">
+                  Frete grátis acima de R$ 500
+                </span>
+              )}
             </div>
 
             {/* Gold divider */}

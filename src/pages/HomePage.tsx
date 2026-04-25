@@ -401,6 +401,8 @@ const HomePage = () => {
                     originalPrice={product.original_price}
                     image={product.foto_frontal || product.images?.[0] || null}
                     category={(product.categories as any)?.name}
+                    stockQuantity={(product as any).stock_quantity}
+                    createdAt={(product as any).created_at}
                   />
                 </motion.div>
               ))}
@@ -645,6 +647,8 @@ const HomePage = () => {
                     originalPrice={product.original_price}
                     image={product.foto_frontal || product.images?.[0] || null}
                     category={(product.categories as any)?.name}
+                    stockQuantity={(product as any).stock_quantity}
+                    createdAt={(product as any).created_at}
                   />
                 </motion.div>
               ))}
