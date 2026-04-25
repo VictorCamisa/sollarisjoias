@@ -1,9 +1,11 @@
 import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   LayoutDashboard, Package, FolderOpen, Settings, LogOut, ShoppingCart,
   Mail, Menu, X, Users, DollarSign, ListTodo, StickyNote, Truck, Ticket,
   ChevronLeft, Store, Megaphone, Zap, Briefcase, Boxes, Wallet, CreditCard,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -13,8 +15,8 @@ import { BrainFAB } from "@/components/admin/BrainFAB";
 import { ThemeToggle } from "@/components/admin/ThemeToggle";
 import { pageEnter, pageTransition } from "@/lib/motion";
 
-/* ─── 3 hubs of the admin ─── */
-type Hub = "comercial" | "operacao" | "financas";
+/* ─── 4 hubs of the admin ─── */
+type Hub = "comercial" | "operacao" | "financas" | "ecommerce";
 
 const hubs: {
   key: Hub;
@@ -60,6 +62,15 @@ const hubs: {
       { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
     ],
   },
+  {
+    key: "ecommerce",
+    label: "Ecommerce",
+    icon: Globe,
+    colorVar: "var(--hub-ecommerce)",
+    items: [
+      { to: "/admin/ecommerce", icon: Store, label: "Painel do Site" },
+    ],
+  },
 ];
 
 const topItems = [
@@ -75,6 +86,7 @@ const allItems = [
 
 const AdminLayout = () => {
   const { isAdmin, loading, signOut, user } = useAuth();
+  const { theme } = useTheme();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -156,7 +168,7 @@ const AdminLayout = () => {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="h-screen flex bg-background overflow-hidden">
+      <div className={`${theme} h-screen flex bg-background overflow-hidden`}>
 
         {/* ══════════ Desktop Sidebar ══════════ */}
         <motion.aside
