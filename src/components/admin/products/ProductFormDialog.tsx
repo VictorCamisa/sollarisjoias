@@ -212,7 +212,12 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
           style,
         },
       });
-      if (error || data?.error) throw new Error(error?.message || data?.error);
+      if (error || data?.error) {
+        const status = error && "context" in error ? (error.context as Response | undefined)?.status : undefined;
+        if (status === 402) throw new Error("Créditos de IA insuficientes. Adicione saldo em Settings > Cloud & AI balance.");
+        if (status === 429) throw new Error("Limite de IA atingido. Aguarde alguns segundos e tente novamente.");
+        throw new Error(data?.error || error?.message || "Erro ao tratar foto com IA");
+      }
       setForm({ ...form, [slot]: data.image_url });
       toast.success("Foto tratada com IA!");
     } catch (e: any) {
