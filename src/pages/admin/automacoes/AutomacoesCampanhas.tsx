@@ -248,7 +248,7 @@ const AutomacoesCampanhas = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[13px] font-semibold truncate">{campaign.name}</span>
+                      <span className="text-[13px] font-semibold truncate text-foreground">{campaign.name}</span>
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 flex items-center gap-0.5 ${cfg.color}`}>
                         <CfgIcon className="h-2.5 w-2.5" /> {cfg.label}
                       </Badge>
