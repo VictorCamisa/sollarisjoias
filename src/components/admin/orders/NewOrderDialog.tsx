@@ -209,20 +209,23 @@ export const NewOrderDialog = ({
       queryClient.invalidateQueries({ queryKey: ["admin-all-orders"] });
       toast.success(channel === "presencial" ? "✅ Venda presencial registrada!" : "✅ Venda online criada!");
 
-      // Se pagamento Pix, abre QR Code do Mercado Pago
-      if (customer.payment_method === "pix") {
-        setPixContext({
+      // Se pagamento Pix ou Cartão (online), abre Checkout Pro do MP em nova aba
+      if (channel === "online" && (customer.payment_method === "pix" || customer.payment_method === "credito")) {
+        startCheckout({
+          items: cart.map((i) => ({
+            id: i.id,
+            title: i.name,
+            quantity: i.quantity,
+            unit_price: i.price,
+            picture_url: i.image,
+          })),
+          customerName: customer.name,
+          customerPhone: customer.phone,
+          customerEmail: customer.email,
           orderId: order?.id,
-          amount: total,
-          name: customer.name,
-          phone: customer.phone,
-          email: customer.email,
         });
-        setPixOpen(true);
-        // Não fecha o dialog ainda — fechará quando o pix dialog fechar
-      } else {
-        resetAndClose();
       }
+      resetAndClose();
     },
     onError: (e: any) => toast.error("Erro ao registrar venda: " + (e?.message || "")),
   });
