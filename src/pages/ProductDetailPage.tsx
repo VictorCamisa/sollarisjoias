@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useProduct, useSettings, useFeaturedProducts } from "@/hooks/useStore";
 import { useCart } from "@/contexts/CartContext";
-import { ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, ZoomIn, Share2, Check, Heart, ShoppingBag, Minus, Plus } from "lucide-react";
+import { ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, ZoomIn, Share2, Check, Heart, ShoppingBag, Minus, Plus, ShieldCheck, Truck, Gem, Sparkles, RotateCcw, Award, Lock } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
