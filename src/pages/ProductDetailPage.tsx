@@ -244,6 +244,18 @@ const ProductDetailPage = () => {
 
   const phone = settings?.whatsapp_number || "";
 
+  // Track view_product
+  useEffect(() => {
+    if (product?.id) {
+      trackEvent("view_product", {
+        productId: product.id,
+        productName: (product as any).name,
+        metadata: { price: (product as any).price },
+      }).catch(() => {});
+    }
+  }, [product?.id]);
+
+
   // Related products (same category, excluding current)
   const relatedProducts = featuredProducts
     ?.filter((p: any) => p.id !== id && p.categories?.slug === (product as any)?.categories?.slug)
