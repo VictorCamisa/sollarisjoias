@@ -225,7 +225,7 @@
 
   /* ── Cards ── */
   .admin-card {
-    @apply bg-card border border-border rounded-lg transition-all duration-200;
+    @apply bg-card text-card-foreground border border-border rounded-lg transition-all duration-200;
     box-shadow: var(--shadow-notion-sm);
   }
   .admin-card-interactive {
@@ -237,7 +237,7 @@
     transform: translateY(-1px);
   }
   .admin-card-elevated {
-    @apply bg-card border border-border rounded-md;
+    @apply bg-card text-card-foreground border border-border rounded-md;
     box-shadow: var(--shadow-notion-md);
   }
 
