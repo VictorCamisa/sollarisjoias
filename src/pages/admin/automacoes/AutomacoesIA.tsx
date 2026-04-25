@@ -327,38 +327,9 @@ const AutomacoesIA = () => {
         reply = `Entendi! Para te ajudar da melhor forma: você está procurando uma joia para uso próprio ou para presentear alguém especial? Com essa informação já consigo te indicar as peças certas da nossa coleção 💎`;
       }
 
-      // Flush remaining
-      if (textBuffer.trim()) {
-        for (let raw of textBuffer.split("\n")) {
-          if (!raw) continue;
-          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
-          if (raw.startsWith(":") || raw.trim() === "") continue;
-          if (!raw.startsWith("data: ")) continue;
-          const jsonStr = raw.slice(6).trim();
-          if (jsonStr === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantSoFar += content;
-              const currentText = assistantSoFar;
-              setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last?.role === "assistant") {
-                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: currentText } : m);
-                }
-                return [...prev, { role: "assistant", content: currentText }];
-              });
-            }
-          } catch { /* ignore */ }
-        }
-      }
-    } catch (err) {
-      console.error("AI chat error:", err);
-      toast.error("Erro ao conectar com a IA");
-    } finally {
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
       setIsTyping(false);
-    }
+    }, 600);
   };
 
   useEffect(() => {
