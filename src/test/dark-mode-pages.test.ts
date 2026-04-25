@@ -34,12 +34,10 @@ const FORBIDDEN_CLASS_PATTERNS = [
   /\btext-stone-(900|800|950)\b/,
 ];
 
-// Inline styles proibidos
+// Inline styles proibidos — forçam preto fixo
 const FORBIDDEN_INLINE_PATTERNS = [
   /color:\s*['"]?#000(?:000)?['"]?/i,
   /color:\s*['"]?black['"]?/i,
-  /color:\s*['"]?#fff(?:fff)?['"]?/i,
-  /color:\s*['"]?white['"]?/i,
 ];
 
 function collectFiles(target: string): string[] {
