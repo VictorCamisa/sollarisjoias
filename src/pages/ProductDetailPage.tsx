@@ -515,6 +515,31 @@ const ProductDetailPage = () => {
               )}
             </div>
 
+            {/* ─── Trust badges / Curadoria ─── */}
+            <div className="grid grid-cols-2 gap-2 mb-6">
+              {[
+                { icon: Award, label: "Curadoria SOLLARIS", desc: "Peça selecionada com intenção" },
+                { icon: ShieldCheck, label: "Garantia 6 meses", desc: "Banho e estrutura" },
+                { icon: Truck, label: "Frete grátis", desc: "Acima de R$ 500" },
+                { icon: Lock, label: "Pagamento seguro", desc: "PIX, cartão até 12×" },
+              ].map(({ icon: Icon, label, desc }) => (
+                <div
+                  key={label}
+                  className="flex items-start gap-2.5 p-3 rounded-xl border border-border/40 bg-secondary/20"
+                >
+                  <Icon className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                  <div className="min-w-0">
+                    <p className="font-sans text-[10px] tracking-[0.1em] uppercase text-foreground leading-tight">
+                      {label}
+                    </p>
+                    <p className="font-sans text-[10px] text-muted-foreground leading-tight mt-0.5">
+                      {desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* Share + SKU */}
             <div className="flex items-center justify-between pt-4 border-t border-border/30">
               <button
@@ -532,6 +557,11 @@ const ProductDetailPage = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* ─── Structured info tabs ─── */}
+        <Reveal>
+          <ProductInfoTabs product={product} />
+        </Reveal>
       </div>
 
       {/* ─── Related Products ─── */}
