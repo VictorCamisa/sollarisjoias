@@ -562,6 +562,27 @@ const ProductDetailPage = () => {
           </div>
         </section>
       )}
+
+      {/* ─── Sticky CTA mobile ─── */}
+      {product.stock_status && (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex items-center gap-3 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.3)]">
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-muted-foreground">
+              {product.name}
+            </p>
+            <p className="font-serif text-base text-accent tabular-nums leading-tight">
+              {fmt(product.price)}
+            </p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="h-12 px-5 bg-accent text-accent-foreground font-sans text-[10px] tracking-[0.2em] uppercase rounded-full flex items-center gap-2 active:scale-95 transition-transform whitespace-nowrap"
+          >
+            {addedToCart ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
+            {addedToCart ? "Adicionado" : "Sacola"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
