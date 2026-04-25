@@ -20,6 +20,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import PixCheckoutDialog from "@/components/checkout/PixCheckoutDialog";
 
 interface CartItem {
   id: string;
@@ -77,6 +78,8 @@ export const NewOrderDialog = ({
   });
   const searchRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
+  const [pixOpen, setPixOpen] = useState(false);
+  const [pixContext, setPixContext] = useState<{ orderId?: string; amount: number; name: string; phone: string; email?: string } | null>(null);
 
   const { data: userProfile } = useQuery({
     queryKey: ["my-profile", user?.id],
@@ -185,7 +188,7 @@ export const NewOrderDialog = ({
         product_id: i.id, name: i.name, price: i.price, quantity: i.quantity,
       }));
       const isCredit = customer.payment_method === "crediario";
-      const { error } = await supabase.from("orders").insert({
+      const { data: order, error } = await supabase.from("orders").insert({
         customer_name: customer.name,
         customer_phone: customer.phone,
         customer_email: customer.email || null,
@@ -198,14 +201,29 @@ export const NewOrderDialog = ({
         sold_by: user?.id || null,
         sold_by_name: sellerName,
         sold_at: new Date().toISOString(),
-      } as any);
+      } as any).select().single();
       if (error) throw error;
+      return order;
     },
-    onSuccess: () => {
+    onSuccess: (order: any) => {
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       queryClient.invalidateQueries({ queryKey: ["admin-all-orders"] });
       toast.success(channel === "presencial" ? "✅ Venda presencial registrada!" : "✅ Venda online criada!");
-      resetAndClose();
+
+      // Se pagamento Pix, abre QR Code do Mercado Pago
+      if (customer.payment_method === "pix") {
+        setPixContext({
+          orderId: order?.id,
+          amount: total,
+          name: customer.name,
+          phone: customer.phone,
+          email: customer.email,
+        });
+        setPixOpen(true);
+        // Não fecha o dialog ainda — fechará quando o pix dialog fechar
+      } else {
+        resetAndClose();
+      }
     },
     onError: (e: any) => toast.error("Erro ao registrar venda: " + (e?.message || "")),
   });
@@ -641,6 +659,24 @@ export const NewOrderDialog = ({
           )}
         </div>
       </DialogContent>
+      {pixContext && (
+        <PixCheckoutDialog
+          open={pixOpen}
+          onOpenChange={(v) => {
+            setPixOpen(v);
+            if (!v) {
+              setPixContext(null);
+              resetAndClose();
+            }
+          }}
+          amount={pixContext.amount}
+          description={`Venda #${pixContext.orderId?.slice(0, 8) || ""} - ${pixContext.name}`}
+          customerName={pixContext.name}
+          customerPhone={pixContext.phone}
+          customerEmail={pixContext.email}
+          orderId={pixContext.orderId}
+        />
+      )}
     </Dialog>
   );
 };
