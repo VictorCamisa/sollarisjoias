@@ -313,13 +313,13 @@ const CollectionPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* ─── Hero header ─── */}
-      <section className="pt-24 pb-12 md:pt-32 md:pb-16">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 text-center">
+      <section className="pt-10 pb-6 sm:pt-16 sm:pb-10 md:pt-24 md:pb-14">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-12 text-center">
           <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="font-sans text-[10px] tracking-[0.4em] uppercase text-accent mb-3"
+            className="font-sans text-[9px] sm:text-[10px] tracking-[0.4em] uppercase text-accent mb-2.5 sm:mb-3"
           >
             Curadoria Sollaris
           </motion.p>
@@ -327,7 +327,7 @@ const CollectionPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-4"
+            className="font-serif text-[2rem] sm:text-4xl md:text-5xl lg:text-6xl text-foreground mb-3 sm:mb-4 leading-tight"
           >
             Coleção
           </motion.h1>
@@ -335,7 +335,7 @@ const CollectionPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="font-sans text-sm text-muted-foreground max-w-md mx-auto"
+            className="font-sans text-[12px] sm:text-sm text-muted-foreground max-w-md mx-auto"
           >
             Explore todas as peças da nossa curadoria. Cada joia conta uma história.
           </motion.p>
@@ -343,7 +343,7 @@ const CollectionPage = () => {
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="gold-line max-w-[160px] mx-auto mt-6"
+            className="gold-line max-w-[120px] sm:max-w-[160px] mx-auto mt-5 sm:mt-6"
           />
         </div>
       </section>
