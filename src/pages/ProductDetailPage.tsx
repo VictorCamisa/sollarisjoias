@@ -576,217 +576,173 @@ const ProductDetailPage = () => {
             <ImageGallery images={images} productName={product.name} />
           </motion.div>
 
-          {/* Right: Product info */}
+          {/* Right: Product info — sticky on desktop */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col py-2 md:py-8 md:sticky md:top-20 md:self-start"
+            className="flex flex-col py-2 md:py-6 md:sticky md:top-20 md:self-start"
           >
             {/* Category */}
             {(product.categories as any)?.name && (
-              <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-accent mb-3">
+              <p className="font-sans text-[10px] tracking-[0.32em] uppercase text-accent mb-2.5">
                 {(product.categories as any).name}
               </p>
             )}
 
             {/* Name */}
-            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.05] mb-6">
+            <h1 className="font-serif text-[26px] sm:text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.05] mb-4 md:mb-5">
               {product.name}
             </h1>
 
-            {/* Price block */}
-            <div className="mb-5">
-              <div className="flex items-baseline flex-wrap gap-3 mb-2">
-                <span className="font-serif text-3xl md:text-4xl text-foreground tabular-nums">
-                  {fmt(product.price)}
-                </span>
-                {hasDiscount && (
-                  <>
-                    <span className="font-sans text-sm text-muted-foreground line-through tabular-nums">
-                      {fmt(product.original_price!)}
-                    </span>
-                    <span className="font-sans text-[10px] tracking-[0.12em] uppercase bg-accent/15 text-accent px-2.5 py-1 rounded-full">
-                      Economize {fmt(product.original_price! - product.price)}
-                    </span>
-                  </>
-                )}
-              </div>
-              <div className="space-y-1">
-                <p className="font-sans text-[13px] text-foreground tabular-nums">
-                  ou <span className="text-accent font-medium">{fmt(pixPrice)}</span>{" "}
-                  <span className="text-muted-foreground">à vista no Pix</span>
-                </p>
-                <p className="font-sans text-[12px] text-muted-foreground tabular-nums">
-                  em até <span className="text-foreground">4× {fmt(product.price / 4)}</span> sem juros no cartão
-                </p>
-              </div>
-            </div>
-
-            {/* Sales triggers — moderate */}
-            <div className="flex flex-wrap items-center gap-2 mb-5">
+            {/* Sales triggers — compact horizontal row */}
+            <div className="flex flex-wrap items-center gap-1.5 mb-4">
               {product.stock_quantity != null && product.stock_quantity > 0 && product.stock_quantity <= 3 && (
-                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                <span className="inline-flex items-center gap-1.5 font-sans text-[9.5px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-warning/15 text-warning border border-warning/30">
                   <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning opacity-60" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-warning" />
                   </span>
                   {product.stock_quantity === 1 ? "Última peça" : `Restam ${product.stock_quantity}`}
                 </span>
               )}
               {product.is_featured && (
-                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-accent/10 text-accent border border-accent/20">
+                <span className="inline-flex items-center gap-1.5 font-sans text-[9.5px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-accent/10 text-accent border border-accent/20">
                   <Sparkles className="h-2.5 w-2.5" strokeWidth={2} />
                   Mais procurado
                 </span>
               )}
-              {product.price >= 500 ? (
-                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              {product.price >= 500 && (
+                <span className="inline-flex items-center gap-1.5 font-sans text-[9.5px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-success/10 text-success border border-success/20">
                   <Truck className="h-2.5 w-2.5" strokeWidth={2} />
                   Frete grátis
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 font-sans text-[10px] tracking-[0.1em] uppercase px-2.5 py-1 rounded-full bg-secondary/60 text-muted-foreground border border-border/40">
-                  Frete grátis acima de R$ 500
                 </span>
               )}
             </div>
 
-            {/* Gold divider */}
-            <div className="gold-line w-full mb-6" />
-
-            {/* Description */}
-            {product.description && (
-              <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-8 max-w-lg">
-                {product.description}
-              </p>
-            )}
-
-            {/* Specs */}
-            {details.length > 0 && (
-              <div className="space-y-0 mb-8 rounded-xl border border-border/50 overflow-hidden">
-                {details.map((d, i) => (
-                  <div
-                    key={d.label}
-                    className={cn(
-                      "flex justify-between items-center px-5 py-3.5",
-                      i < details.length - 1 && "border-b border-border/30"
-                    )}
-                  >
-                    <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground">
-                      {d.label}
+            {/* Price block — main commercial focus */}
+            <div className="mb-5 md:mb-6">
+              <div className="flex items-baseline flex-wrap gap-2.5 mb-2">
+                <span className="font-serif text-[28px] sm:text-3xl md:text-4xl text-foreground tabular-nums leading-none">
+                  {fmt(product.price)}
+                </span>
+                {hasDiscount && (
+                  <>
+                    <span className="font-sans text-xs sm:text-sm text-muted-foreground line-through tabular-nums">
+                      {fmt(product.original_price!)}
                     </span>
-                    <span className="font-sans text-sm text-foreground">{d.value}</span>
-                  </div>
-                ))}
+                    <span className="font-sans text-[9.5px] tracking-[0.12em] uppercase bg-accent/15 text-accent px-2 py-0.5 rounded-full">
+                      −{discountPercent}%
+                    </span>
+                  </>
+                )}
               </div>
-            )}
+              <div className="space-y-0.5">
+                <p className="font-sans text-[13px] text-foreground tabular-nums">
+                  ou <span className="text-accent font-medium">{fmt(pixPrice)}</span>{" "}
+                  <span className="text-muted-foreground">à vista no Pix</span>
+                </p>
+                <p className="font-sans text-[12px] text-muted-foreground tabular-nums">
+                  até <span className="text-foreground">4× {fmt(product.price / 4)}</span> sem juros
+                </p>
+              </div>
+            </div>
 
-            {/* Quantity + Cart */}
-            <div className="space-y-3 mb-6">
+            {/* Quantity + CTAs */}
+            <div className="space-y-2.5 mb-5">
               {/* Quantity selector */}
-              <div className="flex items-center gap-4">
-                <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground">
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-muted-foreground">
                   Quantidade
                 </span>
                 <div className="flex items-center border border-border rounded-full">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="px-3 py-2 text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+                    aria-label="Diminuir"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
-                  <span className="font-sans text-sm text-foreground w-8 text-center">{quantity}</span>
+                  <span className="font-sans text-sm text-foreground w-8 text-center tabular-nums">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="px-3 py-2 text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+                    aria-label="Aumentar"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
 
-              {/* Add to cart */}
+              {/* Add to cart — primary */}
               <motion.button
                 onClick={handleAddToCart}
                 disabled={!product.stock_status}
-                whileHover={{ scale: product.stock_status ? 1.01 : 1 }}
                 whileTap={{ scale: product.stock_status ? 0.98 : 1 }}
                 className={cn(
-                  "w-full h-14 rounded-full font-sans text-[11px] tracking-[0.2em] uppercase flex items-center justify-center gap-3 transition-all duration-300",
+                  "w-full h-13 sm:h-14 rounded-full font-sans text-[11px] tracking-[0.2em] uppercase flex items-center justify-center gap-3 transition-all duration-300 py-4",
                   product.stock_status
-                    ? "bg-accent text-accent-foreground hover:shadow-[0_0_40px_hsl(var(--accent)/0.2)]"
+                    ? "bg-accent text-accent-foreground hover:shadow-[0_0_40px_hsl(var(--accent)/0.25)]"
                     : "bg-muted text-muted-foreground cursor-not-allowed"
                 )}
               >
                 {addedToCart ? (
                   <>
                     <Check className="h-4 w-4" />
-                    Adicionado!
+                    Adicionado
                   </>
                 ) : product.stock_status ? (
                   <>
                     <ShoppingBag className="h-4 w-4" />
-                    Adicionar à Sacola
+                    Adicionar à sacola
                   </>
                 ) : (
                   "Esgotado"
                 )}
               </motion.button>
 
-              {/* WhatsApp CTA */}
+              {/* WhatsApp CTA — secondary */}
               {phone && (
-                <motion.a
+                <a
                   href={whatsappLink(phone, product)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full h-12 rounded-full border border-accent/30 font-sans text-[11px] tracking-[0.15em] uppercase text-accent flex items-center justify-center gap-3 hover:bg-accent/5 transition-colors"
+                  className="w-full h-12 rounded-full border border-border font-sans text-[11px] tracking-[0.15em] uppercase text-muted-foreground hover:text-accent hover:border-accent/40 active:scale-[0.98] flex items-center justify-center gap-2.5 transition-all"
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  Perguntar no WhatsApp
-                </motion.a>
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Falar no WhatsApp
+                </a>
               )}
             </div>
 
-            {/* ─── Trust badges / Curadoria ─── */}
-            <div className="grid grid-cols-2 gap-2 mb-6">
+            {/* ─── Trust strip — compact horizontal ─── */}
+            <div className="grid grid-cols-3 gap-2 py-3 border-y border-border/40">
               {[
-                { icon: Award, label: "Curadoria SOLLARIS", desc: "Peça selecionada com intenção" },
-                { icon: ShieldCheck, label: "Garantia 6 meses", desc: "Banho e estrutura" },
-                { icon: Truck, label: "Frete grátis", desc: "Acima de R$ 500" },
-                { icon: Lock, label: "Pagamento seguro", desc: "PIX, cartão até 12×" },
-              ].map(({ icon: Icon, label, desc }) => (
-                <div
-                  key={label}
-                  className="flex items-start gap-2.5 p-3 rounded-xl border border-border/40 bg-secondary/20"
-                >
-                  <Icon className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                  <div className="min-w-0">
-                    <p className="font-sans text-[10px] tracking-[0.1em] uppercase text-foreground leading-tight">
-                      {label}
-                    </p>
-                    <p className="font-sans text-[10px] text-muted-foreground leading-tight mt-0.5">
-                      {desc}
-                    </p>
-                  </div>
+                { icon: ShieldCheck, label: "Garantia 6m" },
+                { icon: Truck, label: "Envio rápido" },
+                { icon: RotateCcw, label: "Troca 7 dias" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex flex-col items-center text-center gap-1">
+                  <Icon className="h-3.5 w-3.5 text-accent" strokeWidth={1.5} />
+                  <span className="font-sans text-[9.5px] tracking-[0.08em] uppercase text-muted-foreground">
+                    {label}
+                  </span>
                 </div>
               ))}
             </div>
 
             {/* Share + SKU */}
-            <div className="flex items-center justify-between pt-4 border-t border-border/30">
+            <div className="flex items-center justify-between mt-4">
               <button
                 onClick={handleShare}
-                className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground hover:text-accent transition-colors"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
-                {copied ? "Link copiado!" : "Compartilhar"}
+                {copied ? "Copiado" : "Compartilhar"}
               </button>
               {product.sku && (
-                <span className="font-sans text-[10px] text-muted-foreground/50">
-                  REF: {product.sku}
+                <span className="font-sans text-[10px] text-muted-foreground/50 tabular-nums">
+                  REF {product.sku}
                 </span>
               )}
             </div>
@@ -801,7 +757,7 @@ const ProductDetailPage = () => {
 
       {/* ─── Related Products ─── */}
       {relatedProducts.length > 0 && (
-        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-24">
+        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 pb-24 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] md:pb-24">
           <Reveal>
             <div className="gold-line w-full mb-12" />
           </Reveal>
@@ -830,21 +786,21 @@ const ProductDetailPage = () => {
 
       {/* ─── Sticky CTA mobile ─── */}
       {product.stock_status && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex items-center gap-3 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.3)]">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom,0px))] flex items-center gap-3 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.5)]">
           <div className="flex-1 min-w-0">
-            <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-muted-foreground">
-              {product.name}
+            <p className="font-sans text-[9px] tracking-[0.18em] uppercase text-muted-foreground leading-tight">
+              Total
             </p>
-            <p className="font-serif text-base text-accent tabular-nums leading-tight">
-              {fmt(product.price)}
+            <p className="font-serif text-[17px] text-foreground tabular-nums leading-tight">
+              {fmt(product.price * quantity)}
             </p>
           </div>
           <button
             onClick={handleAddToCart}
-            className="h-12 px-5 bg-accent text-accent-foreground font-sans text-[10px] tracking-[0.2em] uppercase rounded-full flex items-center gap-2 active:scale-95 transition-transform whitespace-nowrap"
+            className="h-12 px-6 bg-accent text-accent-foreground font-sans text-[10px] tracking-[0.18em] uppercase rounded-full flex items-center gap-2 active:scale-95 transition-transform whitespace-nowrap shadow-lg"
           >
             {addedToCart ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
-            {addedToCart ? "Adicionado" : "Sacola"}
+            {addedToCart ? "Adicionado" : "Adicionar"}
           </button>
         </div>
       )}
