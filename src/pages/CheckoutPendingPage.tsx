@@ -9,8 +9,8 @@ const CheckoutPendingPage = () => {
     <div className="min-h-[80dvh] flex items-center justify-center px-6">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="flex justify-center">
-          <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center">
-            <Clock className="h-12 w-12 text-yellow-500" strokeWidth={1.5} />
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+            <Clock className="h-12 w-12 text-muted-foreground" strokeWidth={1.5} />
           </div>
         </div>
         <div className="space-y-2">
