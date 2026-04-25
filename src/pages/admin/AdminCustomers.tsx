@@ -422,7 +422,7 @@ const AdminCustomers = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[13px] font-semibold tabular-nums">{fmtBRL(Number(d.amount))}</span>
+                          <span className="text-[13px] font-semibold tabular-nums text-foreground">{fmtBRL(Number(d.amount))}</span>
                           <Badge className={`text-[9px] border ${
                             d.status === "paid" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                             d.status === "overdue" ? "bg-red-500/10 text-red-400 border-red-500/20" :
