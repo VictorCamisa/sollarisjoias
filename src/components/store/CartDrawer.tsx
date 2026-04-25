@@ -3,6 +3,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NativeCheckoutDialog from "@/components/checkout/NativeCheckoutDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
   const { data: settings } = useSettings();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleMpCheckout = () => {
     if (items.length === 0) return;
@@ -191,7 +193,9 @@ const CartDrawer = () => {
         }))}
         amount={totalPrice}
         onSuccess={async (paymentId, customer) => {
-          // Cria o pedido no sistema após pagamento aprovado/iniciado
+          let createdOrderId: string | undefined;
+          const orderTotal = totalPrice;
+          const itemsSnapshot = [...items];
           try {
             const { data: order, error } = await supabase
               .from("orders")
@@ -199,14 +203,14 @@ const CartDrawer = () => {
                 customer_name: customer?.name || "Cliente Loja",
                 customer_phone: customer?.phone || "",
                 customer_email: customer?.email || null,
-                items: items.map((i) => ({
+                items: itemsSnapshot.map((i) => ({
                   product_id: i.id,
                   name: i.name,
                   quantity: i.quantity,
                   price: i.price,
                   image: i.image,
                 })),
-                total: totalPrice,
+                total: orderTotal,
                 payment_method: customer?.paymentMethod || "pix",
                 sale_channel: "online",
                 status: customer?.paymentStatus === "paid" ? "paid" : "pending",
@@ -217,20 +221,37 @@ const CartDrawer = () => {
               .single();
 
             if (error) throw error;
+            createdOrderId = order?.id;
 
-            // Vincula a transação Pix/cartão ao pedido criado
-            if (order?.id && paymentId) {
+            if (createdOrderId && paymentId) {
               await supabase
                 .from("pix_transactions")
-                .update({ order_id: order.id })
+                .update({ order_id: createdOrderId })
                 .eq("mp_payment_id", paymentId);
             }
           } catch (err) {
             console.error("Erro ao criar pedido:", err);
             toast.error("Pagamento ok, mas houve erro ao registrar o pedido. Entre em contato.");
           }
-          clearCart();
+
+          // Fecha modal e drawer; navega pra tela de sucesso editorial
+          setCheckoutOpen(false);
           setIsOpen(false);
+
+          // Pequeno delay pra animação do modal sair antes de navegar
+          setTimeout(() => {
+            navigate("/checkout/sucesso", {
+              state: {
+                orderId: createdOrderId,
+                paymentId,
+                customerName: customer?.name,
+                customerPhone: customer?.phone,
+                customerEmail: customer?.email,
+                total: orderTotal,
+                paymentMethod: customer?.paymentMethod,
+              },
+            });
+          }, 300);
         }}
       />
     </AnimatePresence>

@@ -337,6 +337,50 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_extra_info: {
+        Row: {
+          birthday: string | null
+          cpf: string | null
+          created_at: string
+          customer_email: string | null
+          customer_phone: string | null
+          full_address: string | null
+          id: string
+          order_id: string | null
+          wants_vip: boolean
+        }
+        Insert: {
+          birthday?: string | null
+          cpf?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_phone?: string | null
+          full_address?: string | null
+          id?: string
+          order_id?: string | null
+          wants_vip?: boolean
+        }
+        Update: {
+          birthday?: string | null
+          cpf?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_phone?: string | null
+          full_address?: string | null
+          id?: string
+          order_id?: string | null
+          wants_vip?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_extra_info_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_categories: {
         Row: {
           color: string | null
