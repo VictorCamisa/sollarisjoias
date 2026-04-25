@@ -349,16 +349,16 @@ const CollectionPage = () => {
       </section>
 
       {/* ─── Mobile filter bar ─── */}
-      <div className="md:hidden max-w-[1400px] mx-auto px-6 mb-6">
-        <div className="flex items-center justify-between">
+      <div className="md:hidden max-w-[1400px] mx-auto px-5 mb-5">
+        <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => setShowMobileFilters(true)}
-            className="flex items-center gap-2 font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground"
+            className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.12em] uppercase text-foreground bg-secondary/60 px-3.5 py-2 rounded-full border border-border/60 active:scale-95 transition-transform"
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
             Filtros
             {activeFiltersCount > 0 && (
-              <span className="bg-accent text-accent-foreground text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="bg-accent text-accent-foreground text-[9px] w-4 h-4 rounded-full flex items-center justify-center tabular-nums">
                 {activeFiltersCount}
               </span>
             )}
@@ -372,7 +372,7 @@ const CollectionPage = () => {
         </div>
 
         {/* Mobile category pills */}
-        <div className="flex gap-2 overflow-x-auto mt-4 pb-2 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto mt-3.5 pb-1 scrollbar-hide -mx-5 px-5">
           <FilterPill active={!activeCategory} onClick={() => handleCategoryChange("")}>
             Todas
           </FilterPill>
