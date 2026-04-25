@@ -661,24 +661,6 @@ export const NewOrderDialog = ({
           )}
         </div>
       </DialogContent>
-      {pixContext && (
-        <PixCheckoutDialog
-          open={pixOpen}
-          onOpenChange={(v) => {
-            setPixOpen(v);
-            if (!v) {
-              setPixContext(null);
-              resetAndClose();
-            }
-          }}
-          amount={pixContext.amount}
-          description={`Venda #${pixContext.orderId?.slice(0, 8) || ""} - ${pixContext.name}`}
-          customerName={pixContext.name}
-          customerPhone={pixContext.phone}
-          customerEmail={pixContext.email}
-          orderId={pixContext.orderId}
-        />
-      )}
     </Dialog>
   );
 };
