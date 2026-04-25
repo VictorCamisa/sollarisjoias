@@ -422,7 +422,7 @@ const NativeCheckoutDialog = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             onClick={phase === "form" || phase === "rejected" ? onClose : undefined}
-            className="absolute inset-0 bg-sollaris-obsidiana/85 backdrop-blur-xl"
+            className="absolute inset-0 bg-background/85 backdrop-blur-xl"
           />
 
           <motion.div
