@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 interface Profile {
   id: string; full_name: string | null; phone: string | null;
   address: string | null; notes: string | null; created_at: string; updated_at: string;
+  cpf?: string | null; birthday?: string | null; email?: string | null;
 }
 interface Order {
   id: string; total: number; status: string; items: any; created_at: string;
@@ -51,6 +52,9 @@ const AdminCustomers = () => {
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editAddress, setEditAddress] = useState("");
+  const [editCpf, setEditCpf] = useState("");
+  const [editBirthday, setEditBirthday] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const qc = useQueryClient();
 
@@ -183,12 +187,23 @@ const AdminCustomers = () => {
     setEditPhone(c.phone || "");
     setEditAddress(c.address || "");
     setEditNotes(c.notes || "");
+    setEditCpf(c.cpf || "");
+    setEditBirthday(c.birthday || "");
+    setEditEmail(c.email || "");
   };
 
   const updateProfile = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("profiles")
-        .update({ full_name: editName, phone: editPhone, address: editAddress, notes: editNotes })
+        .update({
+          full_name: editName,
+          phone: editPhone,
+          address: editAddress,
+          notes: editNotes,
+          cpf: editCpf || null,
+          birthday: editBirthday || null,
+          email: editEmail || null,
+        })
         .eq("id", selectedId!);
       if (error) throw error;
     },
