@@ -72,11 +72,14 @@ describe("dark mode · render smoke (Produtos)", () => {
       <ProductStatsCards
         stats={{
           total: 50,
-          inStock: 40,
-          outOfStock: 10,
+          outOfStock: 2,
+          lowStock: 3,
           featured: 8,
-          missingPhotos: 2,
           totalValue: 9876.54,
+          withPhotos: 45,
+          withoutSeo: 5,
+          avgPrice: 199.9,
+          withDiscount: 4,
         }}
       />,
     );
