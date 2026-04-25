@@ -194,15 +194,16 @@ const CartDrawer = () => {
         amount={totalPrice}
         onSuccess={async (paymentId, customer) => {
           let createdOrderId: string | undefined;
-          const orderTotal = totalPrice;
+          const orderTotal = totalPrice + (customer.shipping?.cost || 0);
           const itemsSnapshot = [...items];
           try {
             const { data: order, error } = await supabase
               .from("orders")
               .insert({
-                customer_name: customer?.name || "Cliente Loja",
-                customer_phone: customer?.phone || "",
-                customer_email: customer?.email || null,
+                customer_name: customer.name,
+                customer_phone: customer.phone,
+                customer_email: customer.email,
+                customer_cpf: customer.cpf,
                 items: itemsSnapshot.map((i) => ({
                   product_id: i.id,
                   name: i.name,
@@ -211,10 +212,20 @@ const CartDrawer = () => {
                   image: i.image,
                 })),
                 total: orderTotal,
-                payment_method: customer?.paymentMethod || "pix",
+                payment_method: customer.paymentMethod,
                 sale_channel: "online",
-                status: customer?.paymentStatus === "paid" ? "paid" : "pending",
-                installments: customer?.installments || 1,
+                status: customer.paymentStatus === "paid" ? "paid" : "pending",
+                installments: customer.installments || 1,
+                shipping_zip: customer.shipping.zip,
+                shipping_street: customer.shipping.street,
+                shipping_number: customer.shipping.number,
+                shipping_complement: customer.shipping.complement || null,
+                shipping_neighborhood: customer.shipping.neighborhood,
+                shipping_city: customer.shipping.city,
+                shipping_state: customer.shipping.state,
+                shipping_cost: customer.shipping.cost,
+                shipping_carrier: customer.shipping.carrier,
+                shipping_eta_days: customer.shipping.etaDays,
                 notes: `Mercado Pago • Payment ID: ${paymentId}`,
               })
               .select()
@@ -230,17 +241,28 @@ const CartDrawer = () => {
                 .eq("mp_payment_id", paymentId);
             }
 
-            // 🚀 Pós-venda automática: cria/enriquece profile + WhatsApp de agradecimento
+            // 🚀 Pós-venda: cria/enriquece profile + WhatsApp de agradecimento
             if (createdOrderId) {
+              const fullAddress = [
+                customer.shipping.street,
+                customer.shipping.number,
+                customer.shipping.complement,
+                customer.shipping.neighborhood,
+                `${customer.shipping.city}/${customer.shipping.state}`,
+                `CEP ${customer.shipping.zip}`,
+              ].filter(Boolean).join(", ");
+
               supabase.functions.invoke("post-sale-automation", {
                 body: {
                   orderId: createdOrderId,
                   paymentId,
-                  name: customer?.name || "Cliente Loja",
-                  phone: customer?.phone || "",
-                  email: customer?.email || null,
+                  name: customer.name,
+                  phone: customer.phone,
+                  email: customer.email,
+                  cpf: customer.cpf,
+                  address: fullAddress,
                   total: orderTotal,
-                  paymentMethod: customer?.paymentMethod || "pix",
+                  paymentMethod: customer.paymentMethod,
                 },
               }).catch((e) => console.warn("post-sale-automation:", e));
             }
@@ -249,21 +271,19 @@ const CartDrawer = () => {
             toast.error("Pagamento ok, mas houve erro ao registrar o pedido. Entre em contato.");
           }
 
-          // Fecha modal e drawer; navega pra tela de sucesso editorial
           setCheckoutOpen(false);
           setIsOpen(false);
 
-          // Pequeno delay pra animação do modal sair antes de navegar
           setTimeout(() => {
             navigate("/checkout/sucesso", {
               state: {
                 orderId: createdOrderId,
                 paymentId,
-                customerName: customer?.name,
-                customerPhone: customer?.phone,
-                customerEmail: customer?.email,
+                customerName: customer.name,
+                customerPhone: customer.phone,
+                customerEmail: customer.email,
                 total: orderTotal,
-                paymentMethod: customer?.paymentMethod,
+                paymentMethod: customer.paymentMethod,
               },
             });
           }, 300);
