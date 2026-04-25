@@ -148,9 +148,9 @@ const AdminCupons = () => {
                 <motion.div key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
                   className={`grid grid-cols-[1fr_auto] md:grid-cols-[1fr_100px_100px_80px_100px_80px] gap-2 md:gap-3 items-center px-4 py-3 hover:bg-secondary/30 transition-colors ${inactive ? "opacity-50" : ""}`}>
                   <div>
-                    <p className="text-[13px] font-mono font-semibold">{c.code}</p>
+                    <p className="text-[13px] font-mono font-semibold text-foreground">{c.code}</p>
                   </div>
-                  <span className="hidden md:block text-xs">
+                  <span className="hidden md:block text-xs text-foreground">
                     {c.discount_type === "percentage" ? `${c.discount_value}%` : `R$ ${Number(c.discount_value).toFixed(2).replace(".", ",")}`}
                   </span>
                   <span className="hidden md:block text-[11px] text-muted-foreground">
