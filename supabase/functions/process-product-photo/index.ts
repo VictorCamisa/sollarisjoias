@@ -202,6 +202,7 @@ serve(async (req) => {
       pedra = "",
       material = "",
       style = "catalog",
+      customInstruction = "",
     } = await req.json();
 
     if (!imageUrl) return jsonError(400, "imageUrl é obrigatório");
@@ -226,7 +227,7 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    const prompt = buildPrompt(style, productDetails);
+    const prompt = buildPrompt(style, productDetails, customInstruction);
 
     const imageData = await fetchImageBytes(imageUrl);
     if (!imageData) return jsonError(400, "Não foi possível carregar a imagem original.");
