@@ -198,7 +198,13 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
   };
 
   // AI: process a photo through the marketing AI (catalog/mockup/lifestyle)
-  const handleAiPhoto = async (slot: string, imageUrl: string, style: "catalog" | "mockup" | "lifestyle") => {
+  // Quando customInstruction é passado, faz edição PONTUAL preservando a imagem.
+  const handleAiPhoto = async (
+    slot: string,
+    imageUrl: string,
+    style: "catalog" | "mockup" | "lifestyle",
+    customInstruction?: string,
+  ) => {
     setAiPhotoLoading((prev) => ({ ...prev, [slot]: true }));
     try {
       const normalizedImageUrl = await normalizeImageForAi(imageUrl);
@@ -210,6 +216,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
           pedra: form.pedra,
           material: form.material,
           style,
+          customInstruction: customInstruction || "",
         },
       });
       if (error || data?.error) {
@@ -219,7 +226,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
         throw new Error(data?.error || error?.message || "Erro ao tratar foto com IA");
       }
       setForm({ ...form, [slot]: data.image_url });
-      toast.success("Foto tratada com IA!");
+      toast.success(customInstruction ? "Ajuste aplicado!" : "Foto tratada com IA!");
     } catch (e: any) {
       toast.error(e.message || "Erro ao tratar foto com IA");
     } finally {
