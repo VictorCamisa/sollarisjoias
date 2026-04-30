@@ -295,6 +295,16 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     const imgUrl = form[field] as string;
     const isLoading = aiPhotoLoading[field as string];
     const aiStyle = slotStyleMap[field as string] || "catalog";
+    const [adjustOpen, setAdjustOpen] = useState(false);
+    const [adjustText, setAdjustText] = useState("");
+
+    const submitAdjust = async () => {
+      const txt = adjustText.trim();
+      if (!txt) { toast.error("Descreva o ajuste"); return; }
+      setAdjustOpen(false);
+      setAdjustText("");
+      await handleAiPhoto(field as string, imgUrl, aiStyle, txt);
+    };
 
     return (
       <div className="space-y-1">
@@ -314,11 +324,59 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
                   type="button"
                   onClick={() => handleAiPhoto(field as string, imgUrl, aiStyle)}
                   className="flex items-center gap-1 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-1 rounded-md"
-                  title="Tratar com IA"
+                  title="Recriar com IA"
                 >
                   <Wand2 className="h-2.5 w-2.5" />
                   IA
                 </button>
+                <Popover open={adjustOpen} onOpenChange={setAdjustOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 bg-accent text-accent-foreground text-[9px] font-medium px-2 py-1 rounded-md"
+                      title="Ajustar detalhe específico"
+                    >
+                      <Sparkles className="h-2.5 w-2.5" />
+                      Ajustar
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-3 space-y-2" align="center" side="top">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium">Ajuste pontual</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">
+                        Descreva o que mudar. O resto da foto permanece igual.
+                      </p>
+                    </div>
+                    <Textarea
+                      value={adjustText}
+                      onChange={(e) => setAdjustText(e.target.value)}
+                      placeholder="Ex: clareie o fundo, remova o reflexo na pedra, deixe o dourado mais quente..."
+                      className="text-[11px] min-h-[70px] resize-none"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitAdjust();
+                      }}
+                    />
+                    <div className="flex flex-wrap gap-1">
+                      {["Clareie o fundo", "Mais brilho na peça", "Remova reflexos", "Foco mais nítido"].map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setAdjustText(s)}
+                          className="text-[9px] px-2 py-0.5 rounded-full border border-border hover:bg-secondary"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex justify-end gap-1 pt-1">
+                      <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => setAdjustOpen(false)}>Cancelar</Button>
+                      <Button size="sm" className="h-7 text-[10px]" onClick={submitAdjust} disabled={!adjustText.trim()}>
+                        Aplicar
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 <button
                   type="button"
                   onClick={() => set(field, "")}
