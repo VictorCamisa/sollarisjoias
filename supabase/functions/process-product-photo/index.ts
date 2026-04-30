@@ -55,7 +55,7 @@ async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; conten
   }
 }
 
-function buildPrompt(style: string, productDetails: string): string {
+function buildPrompt(style: string, productDetails: string, customInstruction?: string): string {
   const PRESERVE =
     "CRITICAL RULE — THIS IS PHOTO RETOUCHING, NOT IMAGE GENERATION. " +
     "You MUST preserve the exact jewelry piece from the reference photo with absolute fidelity: " +
@@ -67,6 +67,24 @@ function buildPrompt(style: string, productDetails: string): string {
 
   const DARK =
     "Background: deep obsidian black (#090909–#0D0D0F). This is the permanent Sollaris luxury ecommerce standard — non-negotiable.";
+
+  // 🔧 EDIÇÃO PONTUAL — quando o usuário pede um ajuste específico,
+  // alteramos APENAS o que foi pedido e mantemos todo o resto idêntico.
+  if (customInstruction && customInstruction.trim().length > 0) {
+    const SURGICAL =
+      "SURGICAL EDIT MODE — Apply ONLY the specific change requested below. " +
+      "Keep EVERYTHING ELSE in the image absolutely identical: composition, framing, lighting direction, " +
+      "background, colors, shadows, reflections, and every pixel that is not part of the requested change. " +
+      "Do NOT regenerate the scene from scratch. Do NOT redesign the product. Do NOT change the camera angle. " +
+      "This is a targeted retouch, like a Photoshop adjustment layer applied to the original photo.";
+
+    const base =
+      `${SURGICAL} ${PRESERVE} ` +
+      `\n\nUSER REQUESTED CHANGE (apply ONLY this, nothing else): "${customInstruction.trim()}"` +
+      `\n\nRemember: NO text, NO logo, NO watermark. Photorealistic output matching the original style.`;
+
+    return productDetails ? `${base}\n\nProduct reference: ${productDetails}.` : base;
+  }
 
   const prompts: Record<string, string> = {
     catalog:
@@ -184,6 +202,7 @@ serve(async (req) => {
       pedra = "",
       material = "",
       style = "catalog",
+      customInstruction = "",
     } = await req.json();
 
     if (!imageUrl) return jsonError(400, "imageUrl é obrigatório");
@@ -208,7 +227,7 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    const prompt = buildPrompt(style, productDetails);
+    const prompt = buildPrompt(style, productDetails, customInstruction);
 
     const imageData = await fetchImageBytes(imageUrl);
     if (!imageData) return jsonError(400, "Não foi possível carregar a imagem original.");
