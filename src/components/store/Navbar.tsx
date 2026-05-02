@@ -8,7 +8,21 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SollarisSeal from "./SollarisSeal";
 
+const NOTICES = [
+  "Frete grátis acima de R$ 499",
+  "Até 12× sem juros",
+  "Garantia vitalícia Sollaris",
+  "Embalagem assinada · pronta pra presentear",
+];
+
 const navLinks = [
+  { to: "/colecao", label: "Coleção" },
+  { to: "/colecao?cat=aneis", label: "Anéis" },
+  { to: "/colecao?cat=colares", label: "Colares" },
+  { to: "/colecao?cat=brincos", label: "Brincos" },
+  { to: "/colecao?cat=pulseiras", label: "Pulseiras" },
+  { to: "/sobre", label: "A Sollaris" },
+];
   { to: "/colecao", label: "Coleção" },
   { to: "/colecao?cat=aneis", label: "Anéis" },
   { to: "/colecao?cat=colares", label: "Colares" },
