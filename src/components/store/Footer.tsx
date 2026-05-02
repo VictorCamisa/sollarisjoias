@@ -23,7 +23,7 @@ const Footer = () => {
         <div className="maison-hairline-gold mb-16 sm:mb-20 opacity-40" />
 
         {/* Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 sm:gap-10 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 sm:gap-10 mb-16 min-w-0">
           {/* Maison */}
           <div>
             <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-maison-gold mb-5">
@@ -129,9 +129,9 @@ const Footer = () => {
                   Seg–Sex · 11h às 19h<br />com hora marcada
                 </span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2.5 min-w-0">
                 <Mail className="h-3.5 w-3.5 text-maison-gold flex-shrink-0 mt-1" strokeWidth={1.5} />
-                <a href="mailto:concierge@sollaris.com" className="font-display text-[14px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                <a href="mailto:concierge@sollaris.com" className="font-display text-[14px] text-maison-creme/90 hover:text-maison-gold transition-colors break-all min-w-0">
                   concierge@sollaris.com
                 </a>
               </li>

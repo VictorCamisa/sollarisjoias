@@ -34,7 +34,7 @@ const AccountLayout = () => {
           <p className="font-sans text-foreground/65 mt-2 text-sm">{user?.email}</p>
         </div>
 
-        <div className="grid md:grid-cols-[220px_1fr] gap-10 sm:gap-14">
+        <div className="grid md:grid-cols-[220px_minmax(0,1fr)] gap-10 sm:gap-14 min-w-0">
           {/* Sidebar */}
           <aside>
             <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
@@ -70,7 +70,7 @@ const AccountLayout = () => {
           </aside>
 
           {/* Content */}
-          <div>
+          <div className="min-w-0">
             <Outlet />
           </div>
         </div>
