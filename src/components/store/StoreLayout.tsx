@@ -22,9 +22,9 @@ const StoreLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="dark min-h-screen min-h-[100dvh] flex flex-col bg-background overflow-x-hidden">
+    <div className="storefront min-h-screen min-h-[100dvh] flex flex-col bg-background overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 pt-14 sm:pt-16">
+      <main className="flex-1 pt-[88px] sm:pt-[108px]">
         <Outlet />
       </main>
       <Footer />
