@@ -75,7 +75,7 @@ const AuthPage = () => {
           <p className="font-sans text-foreground/65 text-sm">
             {mode === "signin"
               ? "Acesse sua conta para acompanhar pedidos e endereços salvos."
-              : "Cadastre-se para uma experiência personalizada na Maison."}
+              : "Cadastre-se para uma experiência personalizada na Sollaris."}
           </p>
         </div>
 

@@ -13,7 +13,7 @@ const navLinks = [
   { to: "/colecao?cat=colares", label: "Colares" },
   { to: "/colecao?cat=brincos", label: "Brincos" },
   { to: "/colecao?cat=pulseiras", label: "Pulseiras" },
-  { to: "/sobre", label: "A Maison" },
+  { to: "/sobre", label: "A Sollaris" },
 ];
 
 const Navbar = () => {

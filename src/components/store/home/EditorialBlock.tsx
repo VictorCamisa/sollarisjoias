@@ -29,7 +29,7 @@ const EditorialBlock = () => {
             transition={{ duration: 0.7, delay: 0.1 }}
           >
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-bordeaux mb-4">
-              A Maison
+              A Sollaris
             </p>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-[1.05] mb-6 text-foreground">
               Curadoria com<br />
@@ -45,7 +45,7 @@ const EditorialBlock = () => {
               to="/sobre"
               className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-bordeaux border-b border-bordeaux/40 pb-1 hover:border-bordeaux transition-colors"
             >
-              Conhecer a Maison →
+              Conhecer a Sollaris →
             </Link>
           </motion.div>
         </div>

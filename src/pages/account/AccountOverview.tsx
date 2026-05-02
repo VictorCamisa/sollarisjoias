@@ -36,7 +36,7 @@ const AccountOverview = () => {
   return (
     <div className="space-y-8">
       <div className="bg-card border border-border p-6 sm:p-8">
-        <h2 className="font-display text-2xl text-foreground mb-2">Bem-vinda à Maison.</h2>
+        <h2 className="font-display text-2xl text-foreground mb-2">Bem-vinda à Sollaris.</h2>
         <p className="font-sans text-foreground/65 text-sm leading-relaxed">
           Aqui você acompanha seus pedidos, gerencia endereços salvos e recebe ofertas exclusivas
           da curadoria Sollaris.
