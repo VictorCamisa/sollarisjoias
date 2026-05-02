@@ -49,19 +49,19 @@ const ProductCard = ({
 
   const badgeLabel = {
     "mais-desejado": "Mais Desejado",
-    "edicao-limitada": "Última Peça",
+    "edicao-limitada": "Edição Limitada",
     "novidade": "Novidade",
   };
 
   return (
     <Link to={`/produto/${id}`} className="group block">
-      {/* Image container — squarish & editorial */}
-      <div className="aspect-[4/5] bg-maison-creme-warm overflow-hidden mb-4 relative border border-maison-bordeaux/8 group-hover:border-maison-bordeaux/30 transition-all duration-700">
+      {/* Image container — editorial 4:5, hover sutil */}
+      <div className="aspect-[4/5] bg-maison-creme-warm overflow-hidden mb-5 relative">
         {image ? (
           <img
             src={image}
             alt={name}
-            className="w-full h-full object-cover transition-all duration-[1100ms] ease-out group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.035]"
             loading="lazy"
           />
         ) : (
@@ -69,6 +69,9 @@ const ProductCard = ({
             <SollarisSeal size={56} tone="outline" />
           </div>
         )}
+
+        {/* Hairline border que aparece no hover */}
+        <div className="absolute inset-0 border border-transparent group-hover:border-maison-bordeaux/20 transition-colors duration-700 pointer-events-none" />
 
         {/* Editorial badge top-left */}
         {finalBadge && (
