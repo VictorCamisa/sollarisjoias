@@ -601,7 +601,7 @@ const AdminCustomers = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.012 }}
                   className="grid grid-cols-[44px_minmax(0,1fr)_auto] md:grid-cols-[44px_minmax(0,1.5fr)_80px_100px_100px_80px_80px_60px] gap-3 items-center px-4 py-3 hover:bg-secondary/20 transition-colors cursor-pointer group"
-                  onClick={() => selectCustomer(c)}
+                  onClick={() => navigate(`/admin/clientes/${c.id}`)}
                 >
                   <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center text-xs font-bold text-accent flex-shrink-0">
                     {(c.full_name || "?")[0]?.toUpperCase()}
