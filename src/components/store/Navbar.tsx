@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { ShoppingBag, Menu, X, User, Search } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,13 +9,16 @@ import SollarisSeal from "./SollarisSeal";
 
 const navLinks = [
   { to: "/colecao", label: "Coleção" },
-  { to: "/atelier", label: "Atelier" },
-  { to: "/journal", label: "Journal" },
-  { to: "/concierge", label: "Concierge" },
+  { to: "/colecao?cat=aneis", label: "Anéis" },
+  { to: "/colecao?cat=colares", label: "Colares" },
+  { to: "/colecao?cat=brincos", label: "Brincos" },
+  { to: "/colecao?cat=pulseiras", label: "Pulseiras" },
+  { to: "/sobre", label: "A Maison" },
 ];
 
 const Navbar = () => {
   const { totalItems, setIsOpen } = useCart();
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -36,27 +40,29 @@ const Navbar = () => {
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
+  const accountHref = user ? "/conta" : "/auth";
+
   return (
     <>
-      {/* Top notice bar — Maison style */}
+      {/* Top notice bar */}
       <div className="fixed top-0 left-0 right-0 z-[51] bg-maison-bordeaux text-maison-creme">
         <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-2 text-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em]">
-            Concierge privado · Entrega em 24h em capital · Embalagem Maison cortesia
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em]">
+            Frete grátis acima de R$ 499 · 12× sem juros · Garantia vitalícia
           </p>
         </div>
       </div>
 
       <header
         className={cn(
-          "fixed top-[28px] left-0 right-0 z-50 transition-all duration-700",
+          "fixed top-[28px] left-0 right-0 z-50 transition-all duration-500",
           scrolled || menuOpen
-            ? "bg-maison-creme/95 backdrop-blur-xl border-b border-maison-bordeaux/10"
-            : "bg-maison-creme/80 backdrop-blur-md border-b border-transparent"
+            ? "bg-card/95 backdrop-blur-xl border-b border-border shadow-sm"
+            : "bg-card/85 backdrop-blur-md border-b border-transparent"
         )}
       >
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-6">
-          {/* Mobile menu toggle */}
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 h-16 sm:h-[68px] flex items-center justify-between gap-4">
+          {/* Mobile menu */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden p-2 -ml-2 text-foreground active:scale-95 transition-transform"
@@ -65,62 +71,65 @@ const Navbar = () => {
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          {/* Nav links left (desktop) */}
-          <nav className="hidden md:flex items-center gap-10 flex-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={cn(
-                  "font-mono text-[10.5px] tracking-[0.28em] uppercase transition-colors duration-500 relative",
-                  location.pathname.startsWith(link.to)
-                    ? "text-bordeaux"
-                    : "text-foreground/60 hover:text-bordeaux"
-                )}
-              >
-                {link.label}
-                {location.pathname.startsWith(link.to) && (
-                  <motion.span
-                    layoutId="nav-underline"
-                    className="absolute -bottom-1.5 left-0 right-0 h-px bg-bordeaux"
-                  />
-                )}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Logo center — selo S + wordmark */}
-          <Link
-            to="/"
-            className="flex items-center gap-3 absolute left-1/2 -translate-x-1/2 group"
-          >
-            <SollarisSeal size={36} tone="bordeaux" />
-            <span className="hidden sm:block font-display text-[19px] tracking-[0.32em] text-bordeaux">
+          {/* Logo left on desktop */}
+          <Link to="/" className="hidden md:flex items-center gap-2.5 group">
+            <SollarisSeal size={32} tone="bordeaux" />
+            <span className="font-display text-[17px] tracking-[0.3em] text-bordeaux">
               SOLLARIS
             </span>
           </Link>
 
+          {/* Logo center on mobile */}
+          <Link to="/" className="md:hidden flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+            <SollarisSeal size={28} tone="bordeaux" />
+            <span className="font-display text-[14px] tracking-[0.28em] text-bordeaux">
+              SOLLARIS
+            </span>
+          </Link>
+
+          {/* Nav center (desktop) */}
+          <nav className="hidden md:flex items-center gap-7 mx-auto">
+            {navLinks.map((link) => {
+              const isActive = location.pathname + location.search === link.to ||
+                (link.to === "/colecao" && location.pathname === "/colecao" && !location.search);
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={cn(
+                    "font-mono text-[10.5px] tracking-[0.22em] uppercase transition-colors duration-300 relative py-1",
+                    isActive
+                      ? "text-bordeaux"
+                      : "text-foreground/65 hover:text-bordeaux"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
             <button
-              className="p-2 text-foreground/70 hover:text-bordeaux active:scale-95 transition-all hidden sm:block"
+              className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all hidden sm:block"
               aria-label="Buscar"
             >
-              <Search className="h-4 w-4" strokeWidth={1.4} />
+              <Search className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </button>
             <Link
-              to="/conta"
-              className="p-2 text-foreground/70 hover:text-bordeaux active:scale-95 transition-all hidden sm:block"
+              to={accountHref}
+              className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
               aria-label="Minha conta"
             >
-              <User className="h-4 w-4" strokeWidth={1.4} />
+              <User className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </Link>
             <button
               onClick={() => setIsOpen(true)}
-              className="relative p-2 text-foreground/70 hover:text-bordeaux active:scale-95 transition-all"
+              className="relative p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
               aria-label="Abrir sacola"
             >
-              <ShoppingBag className="h-4 w-4" strokeWidth={1.4} />
+              <ShoppingBag className="h-[17px] w-[17px]" strokeWidth={1.5} />
               {totalItems > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums">
                   {totalItems}
@@ -138,54 +147,43 @@ const Navbar = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-40 bg-creme flex flex-col items-center justify-center md:hidden"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-card flex flex-col items-center justify-center md:hidden pt-16"
           >
-            <SollarisSeal size={64} tone="bordeaux" className="mb-12" />
-            <nav className="flex flex-col items-center gap-7">
+            <SollarisSeal size={56} tone="bordeaux" className="mb-10" />
+            <nav className="flex flex-col items-center gap-6">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.to}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.4 }}
                 >
                   <Link
                     to={link.to}
                     onClick={() => setMenuOpen(false)}
-                    className={cn(
-                      "font-display text-3xl tracking-[0.06em] transition-colors duration-300",
-                      location.pathname.startsWith(link.to)
-                        ? "text-bordeaux"
-                        : "text-foreground active:text-bordeaux"
-                    )}
+                    className="font-display text-[26px] tracking-[0.04em] text-foreground active:text-bordeaux"
                   >
                     {link.label}
                   </Link>
                 </motion.div>
               ))}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: navLinks.length * 0.08, duration: 0.5 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: navLinks.length * 0.05 + 0.1 }}
                 className="pt-6"
               >
                 <Link
-                  to="/conta"
+                  to={accountHref}
                   onClick={() => setMenuOpen(false)}
-                  className="font-mono text-[11px] uppercase tracking-[0.28em] text-bordeaux border-b border-bordeaux/40 pb-1"
+                  className="font-mono text-[11px] uppercase tracking-[0.26em] text-bordeaux border-b border-bordeaux/40 pb-1"
                 >
-                  Minha Conta
+                  {user ? "Minha Conta" : "Entrar / Cadastrar"}
                 </Link>
               </motion.div>
             </nav>
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="maison-hairline-gold w-32 mt-12"
-            />
           </motion.div>
         )}
       </AnimatePresence>

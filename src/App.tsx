@@ -13,6 +13,12 @@ import CollectionPage from "@/pages/CollectionPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
 import AboutPage from "@/pages/AboutPage";
 import LookbookPage from "@/pages/LookbookPage";
+import AuthPage from "@/pages/AuthPage";
+import ClientProtectedRoute from "@/components/store/ClientProtectedRoute";
+import AccountLayout from "@/pages/account/AccountLayout";
+import AccountOverview from "@/pages/account/AccountOverview";
+import AccountOrders from "@/pages/account/AccountOrders";
+import AccountAddresses from "@/pages/account/AccountAddresses";
 import CheckoutSuccessPage from "@/pages/CheckoutSuccessPage";
 import CheckoutPendingPage from "@/pages/CheckoutPendingPage";
 import CheckoutFailurePage from "@/pages/CheckoutFailurePage";
@@ -64,6 +70,19 @@ const App = () => (
                 <Route path="/produto/:id" element={<ProductDetailPage />} />
                 <Route path="/sobre" element={<AboutPage />} />
                 <Route path="/vitrine" element={<LookbookPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route
+                  path="/conta"
+                  element={
+                    <ClientProtectedRoute>
+                      <AccountLayout />
+                    </ClientProtectedRoute>
+                  }
+                >
+                  <Route index element={<AccountOverview />} />
+                  <Route path="pedidos" element={<AccountOrders />} />
+                  <Route path="enderecos" element={<AccountAddresses />} />
+                </Route>
                 <Route path="/checkout/sucesso" element={<CheckoutSuccessPage />} />
                 <Route path="/checkout/pendente" element={<CheckoutPendingPage />} />
                 <Route path="/checkout/falha" element={<CheckoutFailurePage />} />

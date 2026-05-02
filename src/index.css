@@ -155,49 +155,48 @@
      Romantismo Clássico · "O luxo que sussurra"
   ═══════════════════════════════════════════════════════════════ */
   .storefront {
-    /* Surfaces — Marfim quente profundo, sem branco estourado */
-    --background: 32 22% 88%;            /* #E6DDCE — marfim quente, encorpado */
-    --foreground: 350 40% 10%;           /* tinta bordeaux profunda */
+    /* Surfaces — Off-white neutro premium (joia precisa respirar) */
+    --background: 36 30% 96%;            /* #F7F3EC — off-white quente, neutro */
+    --foreground: 30 18% 12%;            /* tinta marrom-escuro, não bordeaux */
 
-    --card: 32 26% 91%;                  /* card levemente mais claro */
-    --card-foreground: 350 40% 10%;
+    --card: 0 0% 100%;                   /* card branco puro pra produto brilhar */
+    --card-foreground: 30 18% 12%;
 
-    --popover: 32 26% 92%;
-    --popover-foreground: 350 40% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 18% 12%;
 
-    --secondary: 32 18% 84%;             /* hover/secção alternada */
-    --secondary-foreground: 350 40% 12%;
+    --secondary: 36 22% 92%;             /* hover/secção alternada bem suave */
+    --secondary-foreground: 30 18% 14%;
 
-    --muted: 32 16% 82%;                 /* inputs, badges */
-    --muted-foreground: 350 10% 32%;
+    --muted: 36 18% 90%;                 /* inputs, badges */
+    --muted-foreground: 30 10% 38%;
 
-    /* Bordeaux Profundo — cor institucional */
-    --primary: 350 58% 27%;              /* #6B1D2F brand book */
+    /* Bordeaux só de detalhe — não institucional dominante */
+    --primary: 350 58% 30%;              /* #6B1D2F */
     --primary-foreground: 36 40% 98%;
 
-    /* Accent = Bordeaux também (consistência) */
-    --accent: 350 58% 27%;
+    --accent: 350 58% 30%;
     --accent-foreground: 36 40% 98%;
 
     --destructive: 0 72% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders — hairline elegante */
-    --border: 36 18% 82%;
-    --input: 36 18% 84%;
-    --ring: 350 58% 27%;
+    /* Borders — hairline elegante quase invisível */
+    --border: 36 18% 86%;
+    --input: 36 18% 88%;
+    --ring: 350 58% 30%;
 
-    --radius: 0.25rem;                   /* maison é mais quadrado, menos friendly */
+    --radius: 0.125rem;                  /* quase quadrado — joalheria */
 
     /* Maison-specific tokens */
-    --maison-bordeaux: 350 58% 27%;      /* #6B1D2F oficial */
-    --maison-bordeaux-deep: 350 65% 18%; /* tons mais escuros */
-    --maison-bordeaux-soft: 350 35% 45%; /* tons mais claros */
-    --maison-creme: 32 22% 88%;          /* marfim base */
-    --maison-creme-warm: 32 26% 84%;     /* marfim mais escuro p/ alternância */
-    --maison-gold: 43 62% 53%;           /* #D4AF37 ouro clássico */
-    --maison-gold-soft: 43 45% 70%;
-    --maison-ink: 350 60% 12%;           /* texto principal */
+    --maison-bordeaux: 350 58% 30%;
+    --maison-bordeaux-deep: 350 65% 20%;
+    --maison-bordeaux-soft: 350 35% 50%;
+    --maison-creme: 36 30% 96%;          /* off-white principal */
+    --maison-creme-warm: 36 24% 92%;     /* alternância sutil */
+    --maison-gold: 38 48% 50%;           /* ouro mais sóbrio, menos berrante */
+    --maison-gold-soft: 38 38% 68%;
+    --maison-ink: 30 18% 12%;            /* texto principal escuro neutro */
 
     /* Status — ajustados pra creme */
     --success: 152 50% 30%;
