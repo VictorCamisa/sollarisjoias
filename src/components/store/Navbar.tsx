@@ -131,11 +131,24 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
             <button
+              onClick={() => setSearchOpen(true)}
               className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all hidden sm:block"
               aria-label="Buscar"
             >
               <Search className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </button>
+            <Link
+              to={user ? "/conta/favoritos" : "/auth"}
+              className="relative p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
+              aria-label="Favoritos"
+            >
+              <Heart className="h-[17px] w-[17px]" strokeWidth={1.5} />
+              {favCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums">
+                  {favCount}
+                </span>
+              )}
+            </Link>
             <Link
               to={accountHref}
               className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
