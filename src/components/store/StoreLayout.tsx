@@ -24,7 +24,7 @@ const StoreLayout = () => {
   return (
     <div className="storefront min-h-screen min-h-[100dvh] flex flex-col bg-background overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 pt-[88px] sm:pt-[108px]">
+      <main className="flex-1 pt-[84px] sm:pt-[92px]">
         <Outlet />
       </main>
       <Footer />

@@ -8,6 +8,13 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SollarisSeal from "./SollarisSeal";
 
+const NOTICES = [
+  "Frete grátis acima de R$ 499",
+  "Até 12× sem juros",
+  "Garantia vitalícia Sollaris",
+  "Embalagem assinada · pronta pra presentear",
+];
+
 const navLinks = [
   { to: "/colecao", label: "Coleção" },
   { to: "/colecao?cat=aneis", label: "Anéis" },
@@ -26,8 +33,14 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [noticeIdx, setNoticeIdx] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const id = setInterval(() => setNoticeIdx((i) => (i + 1) % NOTICES.length), 3800);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 32);
@@ -63,45 +76,59 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Top notice bar */}
-      <div className="fixed top-0 left-0 right-0 z-[51] bg-maison-bordeaux text-maison-creme">
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-2 text-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.24em]">
-            Frete grátis acima de R$ 499 · 12× sem juros · Garantia vitalícia
-          </p>
+      {/* Top notice bar — rotating, single line */}
+      <div className="fixed top-0 left-0 right-0 z-[51] bg-maison-bordeaux text-maison-creme h-7 flex items-center overflow-hidden">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 w-full text-center relative h-full">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={noticeIdx}
+              initial={{ y: 12, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -12, opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="font-mono text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] absolute inset-0 flex items-center justify-center px-4"
+            >
+              <span className="inline-block w-1 h-1 rounded-full bg-maison-gold mr-2.5 flex-shrink-0" />
+              <span className="truncate">{NOTICES[noticeIdx]}</span>
+            </motion.p>
+          </AnimatePresence>
         </div>
       </div>
 
       <header
         className={cn(
-          "fixed top-[28px] left-0 right-0 z-50 transition-all duration-500",
+          "fixed top-7 left-0 right-0 z-50 transition-all duration-500",
           scrolled || menuOpen
             ? "bg-card/95 backdrop-blur-xl border-b border-border shadow-sm"
-            : "bg-card/85 backdrop-blur-md border-b border-transparent"
+            : "bg-card/90 backdrop-blur-md border-b border-border/30"
         )}
       >
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 h-16 sm:h-[68px] flex items-center justify-between gap-4">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 h-14 sm:h-[64px] flex items-center justify-between gap-3">
           {/* Mobile menu */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 -ml-2 text-foreground active:scale-95 transition-transform"
+            className="md:hidden p-2 -ml-2 text-bordeaux active:scale-90 transition-transform"
             aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? <X className="h-[18px] w-[18px]" strokeWidth={1.6} /> : <Menu className="h-[18px] w-[18px]" strokeWidth={1.6} />}
           </button>
 
           {/* Logo left on desktop */}
           <Link to="/" className="hidden md:flex items-center gap-2.5 group">
-            <SollarisSeal size={32} tone="bordeaux" />
-            <span className="font-display text-[17px] tracking-[0.3em] text-bordeaux">
+            <SollarisSeal size={30} tone="bordeaux" />
+            <span className="font-display text-[16px] tracking-[0.32em] text-bordeaux">
               SOLLARIS
             </span>
           </Link>
 
-          {/* Logo center on mobile */}
-          <Link to="/" className="md:hidden flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-            <SollarisSeal size={28} tone="bordeaux" />
-            <span className="font-display text-[14px] tracking-[0.28em] text-bordeaux">
+          {/* Logo center on mobile — selo only, more refined */}
+          <Link
+            to="/"
+            className="md:hidden flex items-center gap-2 absolute left-1/2 -translate-x-1/2"
+            aria-label="Sollaris — início"
+          >
+            <SollarisSeal size={26} tone="bordeaux" />
+            <span className="font-display text-[15px] tracking-[0.34em] text-bordeaux leading-none">
               SOLLARIS
             </span>
           </Link>
@@ -128,42 +155,42 @@ const Navbar = () => {
             })}
           </nav>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
+          {/* Right actions — grouped, bordeaux tint */}
+          <div className="flex items-center ml-auto gap-0.5 sm:gap-1">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all hidden sm:block"
+              className="p-2 text-bordeaux/70 hover:text-bordeaux active:scale-90 transition-all"
               aria-label="Buscar"
             >
               <Search className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </button>
             <Link
               to={user ? "/conta/favoritos" : "/auth"}
-              className="relative p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
+              className="relative p-2 text-bordeaux/70 hover:text-bordeaux active:scale-90 transition-all"
               aria-label="Favoritos"
             >
               <Heart className="h-[17px] w-[17px]" strokeWidth={1.5} />
               {favCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums">
+                <span className="absolute top-0.5 right-0.5 min-w-[15px] h-[15px] px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums leading-none">
                   {favCount}
                 </span>
               )}
             </Link>
             <Link
               to={accountHref}
-              className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
+              className="hidden sm:inline-flex p-2 text-bordeaux/70 hover:text-bordeaux active:scale-90 transition-all"
               aria-label="Minha conta"
             >
               <User className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </Link>
             <button
               onClick={() => setIsOpen(true)}
-              className="relative p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
+              className="relative p-2 text-bordeaux/70 hover:text-bordeaux active:scale-90 transition-all"
               aria-label="Abrir sacola"
             >
               <ShoppingBag className="h-[17px] w-[17px]" strokeWidth={1.5} />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums">
+                <span className="absolute top-0.5 right-0.5 min-w-[15px] h-[15px] px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums leading-none">
                   {totalItems}
                 </span>
               )}
