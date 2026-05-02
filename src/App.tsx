@@ -64,6 +64,19 @@ const App = () => (
                 <Route path="/produto/:id" element={<ProductDetailPage />} />
                 <Route path="/sobre" element={<AboutPage />} />
                 <Route path="/vitrine" element={<LookbookPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route
+                  path="/conta"
+                  element={
+                    <ClientProtectedRoute>
+                      <AccountLayout />
+                    </ClientProtectedRoute>
+                  }
+                >
+                  <Route index element={<AccountOverview />} />
+                  <Route path="pedidos" element={<AccountOrders />} />
+                  <Route path="enderecos" element={<AccountAddresses />} />
+                </Route>
                 <Route path="/checkout/sucesso" element={<CheckoutSuccessPage />} />
                 <Route path="/checkout/pendente" element={<CheckoutPendingPage />} />
                 <Route path="/checkout/falha" element={<CheckoutFailurePage />} />
