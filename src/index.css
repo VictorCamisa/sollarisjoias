@@ -155,21 +155,21 @@
      Romantismo Clássico · "O luxo que sussurra"
   ═══════════════════════════════════════════════════════════════ */
   .storefront {
-    /* Surfaces — Creme perolado em 3 níveis */
-    --background: 36 35% 96%;            /* #FAF6EF — creme perolado base */
-    --foreground: 350 60% 12%;           /* near-bordeaux, quase preto romântico */
+    /* Surfaces — Marfim quente profundo, sem branco estourado */
+    --background: 32 22% 88%;            /* #E6DDCE — marfim quente, encorpado */
+    --foreground: 350 40% 10%;           /* tinta bordeaux profunda */
 
-    --card: 36 40% 98%;                  /* creme mais claro pra cards */
-    --card-foreground: 350 60% 12%;
+    --card: 32 26% 91%;                  /* card levemente mais claro */
+    --card-foreground: 350 40% 10%;
 
-    --popover: 36 40% 98%;
-    --popover-foreground: 350 60% 12%;
+    --popover: 32 26% 92%;
+    --popover-foreground: 350 40% 10%;
 
-    --secondary: 36 28% 92%;             /* zona secundária / hover sutil */
-    --secondary-foreground: 350 60% 14%;
+    --secondary: 32 18% 84%;             /* hover/secção alternada */
+    --secondary-foreground: 350 40% 12%;
 
-    --muted: 36 22% 90%;                 /* inputs, hovers, badges */
-    --muted-foreground: 350 12% 38%;
+    --muted: 32 16% 82%;                 /* inputs, badges */
+    --muted-foreground: 350 10% 32%;
 
     /* Bordeaux Profundo — cor institucional */
     --primary: 350 58% 27%;              /* #6B1D2F brand book */
@@ -193,8 +193,8 @@
     --maison-bordeaux: 350 58% 27%;      /* #6B1D2F oficial */
     --maison-bordeaux-deep: 350 65% 18%; /* tons mais escuros */
     --maison-bordeaux-soft: 350 35% 45%; /* tons mais claros */
-    --maison-creme: 36 35% 96%;          /* creme perolado base */
-    --maison-creme-warm: 36 40% 92%;     /* creme mais quente */
+    --maison-creme: 32 22% 88%;          /* marfim base */
+    --maison-creme-warm: 32 26% 84%;     /* marfim mais escuro p/ alternância */
     --maison-gold: 43 62% 53%;           /* #D4AF37 ouro clássico */
     --maison-gold-soft: 43 45% 70%;
     --maison-ink: 350 60% 12%;           /* texto principal */
