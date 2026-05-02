@@ -1,8 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Menu, X, User, Search } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ShoppingBag, Menu, X, User, Search, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SollarisSeal from "./SollarisSeal";
@@ -19,8 +20,13 @@ const navLinks = [
 const Navbar = () => {
   const { totalItems, setIsOpen } = useCart();
   const { user } = useAuth();
+  const { count: favCount } = useFavorites();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -41,6 +47,19 @@ const Navbar = () => {
   }, [menuOpen]);
 
   const accountHref = user ? "/conta" : "/auth";
+
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => searchInputRef.current?.focus(), 50);
+  }, [searchOpen]);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    setSearchOpen(false);
+    setSearchQuery("");
+    navigate(`/buscar?q=${encodeURIComponent(q)}`);
+  };
 
   return (
     <>
