@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gloock&family=Inter+Tight:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gloock&family=Inter+Tight:wght@400;500;600;700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,28 +7,26 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-       SOLLARIS Admin v5 — Boutique Light
+       SOLLARIS Admin v5 — Boutique Light (UNCHANGED — admin only)
        Off-white creme · Obsidiana · Champagne saturado
-       Ref: Notion luxo + Stripe Atlas
     ═══════════════════════════════════════════════════════════════ */
 
     /* Surfaces — 3 níveis de elevação */
-    --background: 36 24% 97%;          /* creme off-white (page) */
-    --foreground: 234 22% 9%;          /* obsidiana (text) */
+    --background: 36 24% 97%;
+    --foreground: 234 22% 9%;
 
-    --card: 0 0% 100%;                 /* branco puro (elevated) */
+    --card: 0 0% 100%;
     --card-foreground: 234 22% 9%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 234 22% 9%;
 
-    --secondary: 36 18% 93%;           /* zona secundária */
+    --secondary: 36 18% 93%;
     --secondary-foreground: 234 18% 14%;
 
-    --muted: 36 14% 90%;               /* zonas de input, hovers */
-    --muted-foreground: 234 8% 42%;    /* texto auxiliar legível */
+    --muted: 36 14% 90%;
+    --muted-foreground: 234 8% 42%;
 
-    /* Champagne saturado — funciona em fundo claro */
     --primary: 36 60% 46%;
     --primary-foreground: 0 0% 100%;
 
@@ -38,14 +36,13 @@
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders — sutis mas presentes */
     --border: 36 12% 86%;
     --input: 36 14% 88%;
     --ring: 36 60% 46%;
 
     --radius: 0.625rem;
 
-    /* Brand tokens — Sollaris (storefront usa estes diretos) */
+    /* Brand tokens — legados (admin) */
     --sollaris-obsidiana: 234 22% 7%;
     --sollaris-obsidiana-light: 234 16% 12%;
     --sollaris-champagne: 36 60% 46%;
@@ -54,7 +51,7 @@
     --sollaris-white: 0 0% 100%;
     --sollaris-midnight: 228 50% 15%;
 
-    /* Sidebar (admin) — levemente creme, delimita do conteúdo branco */
+    /* Sidebar (admin) */
     --sidebar-background: 36 22% 95%;
     --sidebar-foreground: 234 18% 14%;
     --sidebar-primary: 36 60% 46%;
@@ -64,7 +61,6 @@
     --sidebar-border: 36 12% 84%;
     --sidebar-ring: 36 60% 46%;
 
-    /* Status — saturados pra fundo claro */
     --success: 152 62% 38%;
     --success-foreground: 0 0% 100%;
     --warning: 32 92% 48%;
@@ -72,48 +68,41 @@
     --info: 217 85% 52%;
     --info-foreground: 0 0% 100%;
 
-    /* Hub colors — identidade por área */
-    --hub-comercial: 245 65% 55%;       /* indigo profundo */
-    --hub-operacao: 158 62% 38%;        /* emerald escuro */
-    --hub-financas: 32 88% 46%;         /* amber rico */
-    --hub-ecommerce: 270 60% 58%;       /* violeta ecommerce */
+    --hub-comercial: 245 65% 55%;
+    --hub-operacao: 158 62% 38%;
+    --hub-financas: 32 88% 46%;
+    --hub-ecommerce: 270 60% 58%;
 
-    /* Chart palette */
     --chart-gold: 36 60% 46%;
     --chart-emerald: 158 62% 42%;
     --chart-blue: 217 85% 52%;
     --chart-orange: 25 92% 50%;
     --chart-pink: 330 75% 54%;
 
-    /* Sombras Notion-style */
     --shadow-notion-sm: 0 1px 2px hsl(234 22% 9% / 0.04), 0 1px 1px hsl(234 22% 9% / 0.03);
     --shadow-notion-md: 0 2px 4px hsl(234 22% 9% / 0.04), 0 4px 12px hsl(234 22% 9% / 0.06);
     --shadow-notion-lg: 0 4px 8px hsl(234 22% 9% / 0.05), 0 12px 32px hsl(234 22% 9% / 0.10);
   }
 
   /* ═══════════════════════════════════════════════════════════════
-     DARK MODE — Obsidiana Deep + Champagne Luminoso (v2 alto contraste)
-     Hierarquia 4 camadas · Texto 3 níveis · Borders refinadas
-     Ref: Linear dark + Vercel admin
+     DARK MODE — Admin only
   ═══════════════════════════════════════════════════════════════ */
   .dark {
-    /* Surfaces — 4 camadas de elevação progressivas */
-    --background: 230 16% 5%;            /* L0: page (quase preto) */
-    --foreground: 36 25% 97%;            /* texto primário 97% */
+    --background: 230 16% 5%;
+    --foreground: 36 25% 97%;
 
-    --card: 230 14% 9%;                  /* L1: card padrão */
+    --card: 230 14% 9%;
     --card-foreground: 36 25% 97%;
 
-    --popover: 230 14% 11%;              /* L2: popover/dropdown */
+    --popover: 230 14% 11%;
     --popover-foreground: 36 25% 97%;
 
-    --secondary: 230 12% 12%;            /* L2: superfície secundária */
+    --secondary: 230 12% 12%;
     --secondary-foreground: 36 18% 92%;
 
-    --muted: 230 11% 15%;                /* L3: input, hover, badge */
-    --muted-foreground: 230 8% 68%;      /* texto auxiliar 68% (era 62%) */
+    --muted: 230 11% 15%;
+    --muted-foreground: 230 8% 68%;
 
-    /* Champagne luminoso — saturação +5 pra brilhar no preto */
     --primary: 36 78% 64%;
     --primary-foreground: 230 22% 6%;
 
@@ -123,12 +112,10 @@
     --destructive: 0 75% 62%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders — duas tonalidades (sutil para divisões, marcada para focus) */
-    --border: 230 10% 17%;               /* +2pt vs antes pra dar mais corpo */
+    --border: 230 10% 17%;
     --input: 230 11% 14%;
     --ring: 36 78% 64%;
 
-    /* Sidebar — mais escura que background pra criar profundidade */
     --sidebar-background: 230 18% 3%;
     --sidebar-foreground: 36 18% 88%;
     --sidebar-primary: 36 78% 64%;
@@ -138,7 +125,6 @@
     --sidebar-border: 230 10% 13%;
     --sidebar-ring: 36 78% 64%;
 
-    /* Status — vibrantes em fundo escuro */
     --success: 152 70% 55%;
     --success-foreground: 230 22% 6%;
     --warning: 38 96% 62%;
@@ -146,26 +132,82 @@
     --info: 217 92% 66%;
     --info-foreground: 230 22% 6%;
 
-    /* Hubs — saturados pra brilhar no dark */
     --hub-comercial: 245 85% 72%;
     --hub-operacao: 158 70% 55%;
     --hub-financas: 38 96% 62%;
     --hub-ecommerce: 270 80% 74%;
 
-    /* Sombras dark — pretas profundas com glow champagne sutil */
     --shadow-notion-sm: 0 1px 2px hsl(0 0% 0% / 0.45), 0 1px 1px hsl(0 0% 0% / 0.30);
     --shadow-notion-md: 0 2px 4px hsl(0 0% 0% / 0.45), 0 6px 16px hsl(0 0% 0% / 0.55);
     --shadow-notion-lg: 0 6px 12px hsl(0 0% 0% / 0.55), 0 20px 48px hsl(0 0% 0% / 0.70);
   }
 
-  /* Dark mode: scrollbar mais visível */
   .dark ::-webkit-scrollbar-thumb { background: hsl(230 10% 22%); }
   .dark ::-webkit-scrollbar-thumb:hover { background: hsl(36 78% 64% / 0.5); }
-
-  /* Dark mode: seleção de texto champagne */
   .dark ::selection {
     background: hsl(36 78% 64% / 0.35);
     color: hsl(36 25% 97%);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SOLLARIS MAISON — Storefront (Brand Book v2.0)
+     Creme Perolado · Bordeaux Profundo · Ouro Clássico
+     Romantismo Clássico · "O luxo que sussurra"
+  ═══════════════════════════════════════════════════════════════ */
+  .storefront {
+    /* Surfaces — Creme perolado em 3 níveis */
+    --background: 36 35% 96%;            /* #FAF6EF — creme perolado base */
+    --foreground: 350 60% 12%;           /* near-bordeaux, quase preto romântico */
+
+    --card: 36 40% 98%;                  /* creme mais claro pra cards */
+    --card-foreground: 350 60% 12%;
+
+    --popover: 36 40% 98%;
+    --popover-foreground: 350 60% 12%;
+
+    --secondary: 36 28% 92%;             /* zona secundária / hover sutil */
+    --secondary-foreground: 350 60% 14%;
+
+    --muted: 36 22% 90%;                 /* inputs, hovers, badges */
+    --muted-foreground: 350 12% 38%;
+
+    /* Bordeaux Profundo — cor institucional */
+    --primary: 350 58% 27%;              /* #6B1D2F brand book */
+    --primary-foreground: 36 40% 98%;
+
+    /* Accent = Bordeaux também (consistência) */
+    --accent: 350 58% 27%;
+    --accent-foreground: 36 40% 98%;
+
+    --destructive: 0 72% 42%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders — hairline elegante */
+    --border: 36 18% 82%;
+    --input: 36 18% 84%;
+    --ring: 350 58% 27%;
+
+    --radius: 0.25rem;                   /* maison é mais quadrado, menos friendly */
+
+    /* Maison-specific tokens */
+    --maison-bordeaux: 350 58% 27%;      /* #6B1D2F oficial */
+    --maison-bordeaux-deep: 350 65% 18%; /* tons mais escuros */
+    --maison-bordeaux-soft: 350 35% 45%; /* tons mais claros */
+    --maison-creme: 36 35% 96%;          /* creme perolado base */
+    --maison-creme-warm: 36 40% 92%;     /* creme mais quente */
+    --maison-gold: 43 62% 53%;           /* #D4AF37 ouro clássico */
+    --maison-gold-soft: 43 45% 70%;
+    --maison-ink: 350 60% 12%;           /* texto principal */
+
+    /* Status — ajustados pra creme */
+    --success: 152 50% 30%;
+    --success-foreground: 36 40% 98%;
+    --warning: 28 75% 42%;
+    --warning-foreground: 36 40% 98%;
+
+    --shadow-maison-sm: 0 1px 2px hsl(350 30% 18% / 0.04);
+    --shadow-maison-md: 0 4px 16px hsl(350 30% 18% / 0.06), 0 1px 3px hsl(350 30% 18% / 0.04);
+    --shadow-maison-lg: 0 24px 48px hsl(350 30% 18% / 0.08), 0 4px 12px hsl(350 30% 18% / 0.05);
   }
 }
 
@@ -190,15 +232,52 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Gloock ONLY for storefront / brand display headings */
-  .font-serif,
-  .font-display {
+  /* Storefront body styling */
+  .storefront {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  .storefront .font-serif,
+  .storefront .font-display {
+    font-family: 'Bodoni Moda', Didot, 'Times New Roman', serif;
+    font-weight: 400;
+    font-optical-sizing: auto;
+  }
+
+  .storefront h1,
+  .storefront h2,
+  .storefront h3,
+  .storefront h4,
+  .storefront h5,
+  .storefront h6 {
+    font-family: 'Bodoni Moda', Didot, serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+
+  .storefront .font-mono,
+  .storefront .font-caption {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .storefront ::selection {
+    background: hsl(var(--maison-bordeaux) / 0.20);
+    color: hsl(var(--maison-bordeaux-deep));
+  }
+
+  /* Admin keeps Gloock for storefront-shared display + Inter Tight for headings */
+  .font-serif:not(.storefront *),
+  .font-display:not(.storefront *) {
     font-family: 'Gloock', Georgia, serif;
     font-weight: 400;
   }
 
-  /* All headings: Inter Tight (admin) — unified type system */
-  h1, h2, h3, h4, h5, h6 {
+  h1:not(.storefront *), h2:not(.storefront *), h3:not(.storefront *),
+  h4:not(.storefront *), h5:not(.storefront *), h6:not(.storefront *) {
     font-family: 'Inter Tight', system-ui, sans-serif;
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -209,7 +288,6 @@
     color: hsl(var(--foreground));
   }
 
-  /* Tabular numbers everywhere by default for data legibility */
   .tabular-nums, [data-tabular] {
     font-variant-numeric: tabular-nums;
   }
@@ -217,13 +295,10 @@
 
 @layer components {
   /* ─── Admin Design System v5 — Boutique Light ─── */
-
-  /* ── Surface elevation ── */
   .surface-1 { @apply bg-secondary; }
   .surface-2 { @apply bg-card; }
   .surface-3 { background: hsl(var(--card)); box-shadow: var(--shadow-notion-md); }
 
-  /* ── Cards ── */
   .admin-card {
     @apply bg-card text-card-foreground border border-border rounded-lg transition-all duration-200;
     box-shadow: var(--shadow-notion-sm);
@@ -241,23 +316,12 @@
     box-shadow: var(--shadow-notion-md);
   }
 
-  .admin-card-header {
-    @apply flex items-start justify-between gap-3 mb-3;
-  }
-  .admin-card-title {
-    @apply text-[14px] font-semibold text-foreground leading-none tracking-tight;
-  }
-  .admin-card-subtitle {
-    @apply text-[11px] text-muted-foreground mt-1.5 leading-none;
-  }
+  .admin-card-header { @apply flex items-start justify-between gap-3 mb-3; }
+  .admin-card-title { @apply text-[14px] font-semibold text-foreground leading-none tracking-tight; }
+  .admin-card-subtitle { @apply text-[11px] text-muted-foreground mt-1.5 leading-none; }
 
-  /* ── Tables ── */
-  .admin-table {
-    @apply w-full text-sm;
-  }
-  .admin-table thead tr {
-    @apply bg-secondary/60 border-b border-border;
-  }
+  .admin-table { @apply w-full text-sm; }
+  .admin-table thead tr { @apply bg-secondary/60 border-b border-border; }
   .admin-table thead th {
     @apply text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
   }
@@ -265,77 +329,130 @@
     @apply border-b border-border/60 transition-colors duration-100;
     @apply hover:bg-secondary/50;
   }
-  .admin-table tbody td {
-    @apply px-3 py-2.5 text-foreground/90;
-  }
+  .admin-table tbody td { @apply px-3 py-2.5 text-foreground/90; }
 
-  .admin-section-label {
-    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
-  }
-  .admin-stat-pill {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border;
-  }
+  .admin-section-label { @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground; }
+  .admin-stat-pill { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border; }
 
-  /* ── Inputs ── */
   .admin-input {
     @apply h-9 text-[13px] bg-card border-input rounded-md;
     @apply focus:border-primary/50 focus:ring-2 focus:ring-primary/15;
     @apply placeholder:text-muted-foreground/50 transition-all duration-150;
   }
 
-  /* ── Navigation ── */
   .admin-nav-item {
     @apply flex items-center gap-2 rounded-md text-[13px] font-medium;
     @apply transition-all duration-150;
   }
 
-  /* ── Page Layout ── */
-  .admin-page-header {
-    @apply flex items-center justify-between gap-3;
-  }
-  .admin-page-title {
-    @apply text-[26px] font-semibold tracking-tight leading-tight text-foreground;
-  }
-  .admin-page-subtitle {
-    @apply text-[13px] text-muted-foreground mt-1;
-  }
-  .admin-toolbar {
-    @apply flex flex-wrap items-center gap-2;
-  }
+  .admin-page-header { @apply flex items-center justify-between gap-3; }
+  .admin-page-title { @apply text-[26px] font-semibold tracking-tight leading-tight text-foreground; }
+  .admin-page-subtitle { @apply text-[13px] text-muted-foreground mt-1; }
+  .admin-toolbar { @apply flex flex-wrap items-center gap-2; }
 
-  /* ── KPI Cards ── */
   .admin-kpi {
     @apply admin-card p-4 flex items-center gap-3;
     position: relative;
     overflow: hidden;
   }
-  .admin-kpi-icon {
-    @apply h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0;
+  .admin-kpi-icon { @apply h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0; }
+  .admin-kpi-value { @apply text-[26px] font-semibold tracking-tight leading-none text-foreground tabular-nums; }
+  .admin-kpi-label { @apply text-[11px] text-muted-foreground mt-1.5 leading-tight uppercase tracking-[0.08em]; }
+
+  .admin-empty { @apply flex flex-col items-center justify-center py-16 text-center; }
+  .admin-empty-icon { @apply h-10 w-10 mx-auto text-muted-foreground/30 mb-3; }
+  .admin-empty-title { @apply text-sm font-medium text-foreground/70; }
+  .admin-empty-desc { @apply text-xs text-muted-foreground mt-1 max-w-[240px] mx-auto leading-relaxed; }
+
+  .hub-dot { @apply h-1.5 w-1.5 rounded-full flex-shrink-0; }
+
+  /* ─── MAISON STOREFRONT COMPONENTS ─── */
+
+  /* Eyebrow / caption — mono uppercase super-spaced */
+  .maison-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    @apply text-[10px] uppercase tracking-[0.32em] text-foreground/60;
   }
-  .admin-kpi-value {
-    @apply text-[26px] font-semibold tracking-tight leading-none text-foreground tabular-nums;
-  }
-  .admin-kpi-label {
-    @apply text-[11px] text-muted-foreground mt-1.5 leading-tight uppercase tracking-[0.08em];
+  .maison-eyebrow-bordeaux {
+    font-family: 'JetBrains Mono', monospace;
+    @apply text-[10px] uppercase tracking-[0.32em];
+    color: hsl(var(--maison-bordeaux));
   }
 
-  /* ── Empty States ── */
-  .admin-empty {
-    @apply flex flex-col items-center justify-center py-16 text-center;
-  }
-  .admin-empty-icon {
-    @apply h-10 w-10 mx-auto text-muted-foreground/30 mb-3;
-  }
-  .admin-empty-title {
-    @apply text-sm font-medium text-foreground/70;
-  }
-  .admin-empty-desc {
-    @apply text-xs text-muted-foreground mt-1 max-w-[240px] mx-auto leading-relaxed;
+  /* Maison hairline gold */
+  .maison-hairline-gold {
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      hsl(var(--maison-gold) / 0.6) 30%,
+      hsl(var(--maison-gold) / 0.6) 70%,
+      transparent);
   }
 
-  /* ── Hub badges (sidebar) ── */
-  .hub-dot {
-    @apply h-1.5 w-1.5 rounded-full flex-shrink-0;
+  /* Maison button — flat bordeaux, no rounded */
+  .maison-btn-primary {
+    font-family: 'JetBrains Mono', monospace;
+    background: hsl(var(--maison-bordeaux));
+    color: hsl(var(--maison-creme));
+    @apply inline-flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.22em];
+    @apply px-9 py-4 transition-all duration-500;
+    border: 1px solid hsl(var(--maison-bordeaux));
+  }
+  .maison-btn-primary:hover {
+    background: hsl(var(--maison-bordeaux-deep));
+    box-shadow: 0 8px 28px hsl(var(--maison-bordeaux) / 0.18);
+  }
+
+  .maison-btn-ghost {
+    font-family: 'JetBrains Mono', monospace;
+    background: transparent;
+    color: hsl(var(--maison-bordeaux));
+    @apply inline-flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.22em];
+    @apply px-9 py-4 transition-all duration-500;
+    border: 1px solid hsl(var(--maison-bordeaux) / 0.4);
+  }
+  .maison-btn-ghost:hover {
+    background: hsl(var(--maison-bordeaux));
+    color: hsl(var(--maison-creme));
+    border-color: hsl(var(--maison-bordeaux));
+  }
+
+  /* Maison input — sem caixa, só linha-base */
+  .maison-input {
+    font-family: 'Inter', sans-serif;
+    @apply w-full bg-transparent border-0 border-b py-3 px-0 text-base text-foreground;
+    @apply placeholder:text-foreground/30 focus:outline-none focus:ring-0;
+    @apply transition-colors duration-300;
+    border-bottom-color: hsl(var(--maison-ink) / 0.18);
+  }
+  .maison-input:focus {
+    border-bottom-color: hsl(var(--maison-bordeaux));
+  }
+  .maison-input-label {
+    font-family: 'JetBrains Mono', monospace;
+    @apply text-[10px] uppercase tracking-[0.22em] text-foreground/55 mb-2 block;
+  }
+
+  /* Maison badge */
+  .maison-badge {
+    font-family: 'JetBrains Mono', monospace;
+    @apply inline-flex items-center text-[9.5px] uppercase tracking-[0.18em] px-2.5 py-1 border;
+    border-color: hsl(var(--maison-bordeaux) / 0.3);
+    color: hsl(var(--maison-bordeaux));
+    background: hsl(var(--maison-creme) / 0.6);
+  }
+  .maison-badge-gold {
+    font-family: 'JetBrains Mono', monospace;
+    @apply inline-flex items-center text-[9.5px] uppercase tracking-[0.18em] px-2.5 py-1 border;
+    border-color: hsl(var(--maison-gold) / 0.5);
+    color: hsl(var(--maison-gold));
+    background: transparent;
+  }
+  .maison-badge-dark {
+    font-family: 'JetBrains Mono', monospace;
+    @apply inline-flex items-center text-[9.5px] uppercase tracking-[0.18em] px-2.5 py-1;
+    background: hsl(var(--maison-bordeaux));
+    color: hsl(var(--maison-creme));
   }
 }
 
@@ -353,7 +470,13 @@
     letter-spacing: 0.15em;
   }
 
-  /* ── Motion utilities ── */
+  /* Bordeaux text helper */
+  .text-bordeaux { color: hsl(var(--maison-bordeaux)); }
+  .bg-bordeaux { background: hsl(var(--maison-bordeaux)); }
+  .border-bordeaux { border-color: hsl(var(--maison-bordeaux)); }
+  .text-gold { color: hsl(var(--maison-gold)); }
+  .bg-creme { background: hsl(var(--maison-creme)); }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -384,13 +507,16 @@
   .hover-lift { @apply transition-transform duration-200; }
   .hover-lift:hover { transform: translateY(-2px); }
 
-  /* Champagne accent line */
   .gold-line {
     height: 1px;
     background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.5), transparent);
   }
 
-  /* Brand marquee (storefront) */
+  /* On storefront, gold-line uses real gold */
+  .storefront .gold-line {
+    background: linear-gradient(90deg, transparent, hsl(var(--maison-gold) / 0.55), transparent);
+  }
+
   @keyframes sollaris-marquee {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }
@@ -401,7 +527,6 @@
   }
 }
 
-/* Custom scrollbar — discreet on light */
 @media (min-width: 768px) {
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }

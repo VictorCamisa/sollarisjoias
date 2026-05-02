@@ -20,8 +20,9 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter Tight", "system-ui", "sans-serif"],
-        display: ["Gloock", "Georgia", "serif"], // storefront only
-        serif: ["Gloock", "Georgia", "serif"],   // storefront only
+        display: ["Bodoni Moda", "Didot", "serif"], // Maison storefront
+        serif: ["Bodoni Moda", "Didot", "serif"],   // Maison storefront
+        mono: ["JetBrains Mono", "Courier New", "monospace"], // Maison captions
       },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "1.4" }],
@@ -86,6 +87,16 @@ export default {
           "champagne-pale": "hsl(var(--sollaris-champagne-pale))",
           white: "hsl(var(--sollaris-white))",
           midnight: "hsl(var(--sollaris-midnight))",
+        },
+        maison: {
+          bordeaux: "hsl(var(--maison-bordeaux))",
+          "bordeaux-deep": "hsl(var(--maison-bordeaux-deep))",
+          "bordeaux-soft": "hsl(var(--maison-bordeaux-soft))",
+          creme: "hsl(var(--maison-creme))",
+          "creme-warm": "hsl(var(--maison-creme-warm))",
+          gold: "hsl(var(--maison-gold))",
+          "gold-soft": "hsl(var(--maison-gold-soft))",
+          ink: "hsl(var(--maison-ink))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
