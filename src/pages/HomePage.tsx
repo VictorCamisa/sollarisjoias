@@ -4,11 +4,16 @@ import FeaturedGrid from "@/components/store/home/FeaturedGrid";
 import PillarsBar from "@/components/store/home/PillarsBar";
 import EditorialBlock from "@/components/store/home/EditorialBlock";
 import NewsletterBlock from "@/components/store/home/NewsletterBlock";
+import ConciergeCTA from "@/components/store/home/ConciergeCTA";
 
 const HomePage = () => {
+  const openConcierge = () =>
+    window.dispatchEvent(new CustomEvent("sollaris:open-concierge"));
+
   return (
     <>
       <HeroBanner />
+      <PillarsBar />
       <CategoryStrip />
       <FeaturedGrid
         eyebrow="Mais desejadas"
@@ -17,7 +22,7 @@ const HomePage = () => {
         featuredOnly
         limit={8}
       />
-      <PillarsBar />
+      <ConciergeCTA onOpenChat={openConcierge} />
       <EditorialBlock />
       <FeaturedGrid
         eyebrow="Acabou de chegar"
