@@ -4,7 +4,7 @@ import { Sparkles, X, Send, Mic, MicOff, Loader2, ShoppingBag, Trash2 } from "lu
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
 interface Product {
@@ -122,11 +122,7 @@ const BrainConcierge = () => {
       if (data.cart) setChatCart(data.cart);
       if (audio) playAudio(audio);
     } catch (e: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: e.message || "Não foi possível enviar.",
-      });
+      toast.error("Erro", { description: e.message || "Não foi possível enviar." });
     } finally {
       setLoading(false);
     }
@@ -157,13 +153,13 @@ const BrainConcierge = () => {
           if (json.text) await send(json.text, true);
         } catch {
           setLoading(false);
-          toast({ variant: "destructive", title: "Erro ao transcrever áudio" });
+          toast.error("Erro ao transcrever áudio");
         }
       };
       rec.start();
       setRecording(true);
     } catch {
-      toast({ variant: "destructive", title: "Permita o uso do microfone" });
+      toast.error("Permita o uso do microfone");
     }
   };
 
