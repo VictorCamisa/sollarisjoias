@@ -68,7 +68,7 @@ const CartDrawer = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-background/60 backdrop-blur-sm"
           />
 
           {/* Drawer — full width on mobile */}
@@ -77,7 +77,7 @@ const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full sm:max-w-md bg-card border-l border-border flex flex-col"
+            className="fixed right-0 top-0 bottom-0 z-[61] w-full sm:max-w-md bg-card border-l border-border flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-border flex-shrink-0">
