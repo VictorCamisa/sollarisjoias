@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Navbar from "@/components/store/Navbar";
 import Footer from "@/components/store/Footer";
 import CartDrawer from "@/components/store/CartDrawer";
+import BrainConcierge from "@/components/store/BrainConcierge";
 import { initSession, trackPageview, flushPageview } from "@/lib/analytics";
 
 const StoreLayout = () => {
@@ -29,6 +30,7 @@ const StoreLayout = () => {
       </main>
       <Footer />
       <CartDrawer />
+      <BrainConcierge />
     </div>
   );
 };

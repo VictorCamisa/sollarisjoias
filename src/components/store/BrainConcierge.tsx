@@ -52,6 +52,13 @@ const BrainConcierge = () => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  // Abertura via evento global (CTA na home, links etc.)
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("sollaris:open-concierge", handler);
+    return () => window.removeEventListener("sollaris:open-concierge", handler);
+  }, []);
+
   useEffect(() => {
     if (open && messages.length === 0) {
       setMessages([
