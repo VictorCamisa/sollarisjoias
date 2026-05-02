@@ -1615,6 +1615,63 @@ export type Database = {
         }
         Relationships: []
       }
+      welcome_quiz_responses: {
+        Row: {
+          budget_range: string | null
+          category_interest: string | null
+          coupon_code: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          occasion: string | null
+          session_id: string | null
+          source_url: string | null
+          style_preference: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          category_interest?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          occasion?: string | null
+          session_id?: string | null
+          source_url?: string | null
+          style_preference?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          category_interest?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          occasion?: string | null
+          session_id?: string | null
+          source_url?: string | null
+          style_preference?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       crediario_summary: {
