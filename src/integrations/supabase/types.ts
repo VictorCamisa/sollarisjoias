@@ -26,6 +26,7 @@ export type Database = {
           session_id: string
           total_value: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -38,6 +39,7 @@ export type Database = {
           session_id: string
           total_value?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -50,6 +52,7 @@ export type Database = {
           session_id?: string
           total_value?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -63,6 +66,7 @@ export type Database = {
           product_id: string | null
           product_name: string | null
           session_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -73,6 +77,7 @@ export type Database = {
           product_id?: string | null
           product_name?: string | null
           session_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -83,6 +88,7 @@ export type Database = {
           product_id?: string | null
           product_name?: string | null
           session_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -96,6 +102,7 @@ export type Database = {
           referrer: string | null
           session_id: string
           title: string | null
+          user_id: string | null
         }
         Insert: {
           duration_ms?: number | null
@@ -106,6 +113,7 @@ export type Database = {
           referrer?: string | null
           session_id: string
           title?: string | null
+          user_id?: string | null
         }
         Update: {
           duration_ms?: number | null
@@ -116,6 +124,7 @@ export type Database = {
           referrer?: string | null
           session_id?: string
           title?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -137,6 +146,7 @@ export type Database = {
           session_id: string
           started_at: string
           user_agent: string | null
+          user_id: string | null
           utm_campaign: string | null
           utm_medium: string | null
           utm_source: string | null
@@ -159,6 +169,7 @@ export type Database = {
           session_id: string
           started_at?: string
           user_agent?: string | null
+          user_id?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
@@ -181,6 +192,7 @@ export type Database = {
           session_id?: string
           started_at?: string
           user_agent?: string | null
+          user_id?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
@@ -431,6 +443,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      customer_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       financial_categories: {
         Row: {
@@ -781,6 +814,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "crediario_summary"
             referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customer_360"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "orders_customer_id_fkey"
@@ -1594,6 +1634,87 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_360: {
+        Row: {
+          addresses_count: number | null
+          birthday: string | null
+          cpf: string | null
+          credit_limit: number | null
+          credit_score: number | null
+          email: string | null
+          favorites_count: number | null
+          first_landing_page: string | null
+          first_referrer: string | null
+          first_utm_campaign: string | null
+          first_utm_medium: string | null
+          first_utm_source: string | null
+          full_name: string | null
+          last_city: string | null
+          last_device_type: string | null
+          last_region: string | null
+          last_seen_at: string | null
+          orders_count: number | null
+          pageviews_count: number | null
+          phone: string | null
+          sessions_count: number | null
+          signed_up_at: string | null
+          total_spent: number | null
+          user_id: string | null
+        }
+        Insert: {
+          addresses_count?: never
+          birthday?: string | null
+          cpf?: string | null
+          credit_limit?: number | null
+          credit_score?: number | null
+          email?: string | null
+          favorites_count?: never
+          first_landing_page?: never
+          first_referrer?: never
+          first_utm_campaign?: never
+          first_utm_medium?: never
+          first_utm_source?: never
+          full_name?: string | null
+          last_city?: never
+          last_device_type?: never
+          last_region?: never
+          last_seen_at?: never
+          orders_count?: never
+          pageviews_count?: never
+          phone?: string | null
+          sessions_count?: never
+          signed_up_at?: string | null
+          total_spent?: never
+          user_id?: string | null
+        }
+        Update: {
+          addresses_count?: never
+          birthday?: string | null
+          cpf?: string | null
+          credit_limit?: number | null
+          credit_score?: number | null
+          email?: string | null
+          favorites_count?: never
+          first_landing_page?: never
+          first_referrer?: never
+          first_utm_campaign?: never
+          first_utm_medium?: never
+          first_utm_source?: never
+          full_name?: string | null
+          last_city?: never
+          last_device_type?: never
+          last_region?: never
+          last_seen_at?: never
+          orders_count?: never
+          pageviews_count?: never
+          phone?: string | null
+          sessions_count?: never
+          signed_up_at?: string | null
+          total_spent?: never
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_inactive_sessions: { Args: never; Returns: undefined }
@@ -1618,6 +1739,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      link_session_to_user: {
+        Args: { _session_id: string }
+        Returns: undefined
       }
     }
     Enums: {
