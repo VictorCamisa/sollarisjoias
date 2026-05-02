@@ -86,12 +86,20 @@ const AccountAddresses = () => {
       if (form.is_default) {
         await supabase.from("customer_addresses").update({ is_default: false }).eq("user_id", user.id);
       }
-      const { error } = await supabase.from("customer_addresses").insert({
-        ...parsed.data,
+      const payload = {
+        label: parsed.data.label,
+        recipient_name: parsed.data.recipient_name,
+        zip: parsed.data.zip,
+        street: parsed.data.street,
+        number: parsed.data.number,
         complement: parsed.data.complement || null,
+        neighborhood: parsed.data.neighborhood,
+        city: parsed.data.city,
+        state: parsed.data.state,
         is_default: form.is_default,
         user_id: user.id,
-      });
+      };
+      const { error } = await supabase.from("customer_addresses").insert(payload);
       if (error) throw error;
       toast.success("Endereço salvo");
       setForm(emptyForm);
