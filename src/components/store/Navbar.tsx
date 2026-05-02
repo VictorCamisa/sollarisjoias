@@ -33,8 +33,14 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [noticeIdx, setNoticeIdx] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const id = setInterval(() => setNoticeIdx((i) => (i + 1) % NOTICES.length), 3800);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 32);
