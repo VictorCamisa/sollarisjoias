@@ -27,7 +27,7 @@ const Footer = () => {
           {/* Maison */}
           <div>
             <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-maison-gold mb-5">
-              A Maison
+              A Sollaris
             </p>
             <ul className="space-y-3.5">
               <li>
@@ -76,7 +76,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/colecao?colecao=essentials" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
-                  Maison Essentials
+                  Sollaris Essentials
                 </Link>
               </li>
             </ul>
@@ -105,7 +105,7 @@ const Footer = () => {
               </li>
               <li>
                 <span className="font-display text-[15px] text-maison-creme/90">
-                  Embalagem Maison
+                  Embalagem Sollaris
                 </span>
               </li>
             </ul>
@@ -144,7 +144,7 @@ const Footer = () => {
         {/* Bottom strip */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-maison-creme/55">
-            © {new Date().getFullYear()} Maison Sollaris · Todos os direitos reservados
+            © {new Date().getFullYear()} Sollaris · Todos os direitos reservados
           </p>
           <div className="flex items-center gap-5">
             <a
