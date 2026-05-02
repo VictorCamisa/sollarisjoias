@@ -36,7 +36,7 @@ const AccountLayout = () => {
 
         <div className="md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-14 min-w-0">
           {/* Sidebar */}
-          <aside className="min-w-0 mb-8 md:mb-0">
+          <aside className="min-w-0 mb-8 md:mb-0 overflow-hidden md:overflow-visible">
             <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
               {links.map((link) => {
                 const Icon = link.icon;
