@@ -22,7 +22,7 @@ const NewsletterBlock = () => {
         .from("newsletter_subscribers")
         .insert({ email: parsed.data });
       if (error && !error.message.includes("duplicate")) throw error;
-      toast.success("Bem-vinda à Maison Sollaris ✨");
+      toast.success("Bem-vinda à Sollaris ✨");
       setEmail("");
     } catch (err: any) {
       toast.error("Não foi possível inscrever. Tente novamente.");
