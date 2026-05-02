@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { motion } from "framer-motion";
 import SollarisSeal from "./SollarisSeal";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
@@ -30,6 +33,9 @@ const ProductCard = ({
   installments = 6,
   badge,
 }: ProductCardProps) => {
+  const { isFavorite, toggle } = useFavorites();
+  const fav = isFavorite(id);
+
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
@@ -99,14 +105,24 @@ const ProductCard = ({
           </div>
         )}
 
-        {/* Heart wishlist — bottom right, appears on hover */}
-        <button
-          onClick={(e) => { e.preventDefault(); }}
-          className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-maison-creme/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hover:bg-maison-bordeaux hover:text-maison-creme"
-          aria-label="Favoritar"
+        {/* Heart wishlist — bottom right, always visible if favorited */}
+        <motion.button
+          whileTap={{ scale: 0.8 }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void toggle(id, name);
+          }}
+          className={cn(
+            "absolute bottom-3 right-3 w-9 h-9 rounded-full backdrop-blur-sm flex items-center justify-center transition-all duration-300",
+            fav
+              ? "bg-bordeaux text-maison-creme opacity-100"
+              : "bg-maison-creme/90 text-foreground/70 opacity-0 group-hover:opacity-100 hover:bg-bordeaux hover:text-maison-creme"
+          )}
+          aria-label={fav ? "Remover dos favoritos" : "Favoritar"}
         >
-          <Heart className="h-3.5 w-3.5" strokeWidth={1.4} />
-        </button>
+          <Heart className="h-4 w-4" strokeWidth={1.6} fill={fav ? "currentColor" : "none"} />
+        </motion.button>
       </div>
 
       {/* Info */}
