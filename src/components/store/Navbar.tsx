@@ -1,8 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Menu, X, User, Search } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ShoppingBag, Menu, X, User, Search, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SollarisSeal from "./SollarisSeal";
@@ -19,8 +20,13 @@ const navLinks = [
 const Navbar = () => {
   const { totalItems, setIsOpen } = useCart();
   const { user } = useAuth();
+  const { count: favCount } = useFavorites();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -41,6 +47,19 @@ const Navbar = () => {
   }, [menuOpen]);
 
   const accountHref = user ? "/conta" : "/auth";
+
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => searchInputRef.current?.focus(), 50);
+  }, [searchOpen]);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    setSearchOpen(false);
+    setSearchQuery("");
+    navigate(`/buscar?q=${encodeURIComponent(q)}`);
+  };
 
   return (
     <>
@@ -112,11 +131,24 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
             <button
+              onClick={() => setSearchOpen(true)}
               className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all hidden sm:block"
               aria-label="Buscar"
             >
               <Search className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </button>
+            <Link
+              to={user ? "/conta/favoritos" : "/auth"}
+              className="relative p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
+              aria-label="Favoritos"
+            >
+              <Heart className="h-[17px] w-[17px]" strokeWidth={1.5} />
+              {favCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-bordeaux text-maison-creme text-[9px] flex items-center justify-center font-mono tabular-nums">
+                  {favCount}
+                </span>
+              )}
+            </Link>
             <Link
               to={accountHref}
               className="p-2 text-foreground/65 hover:text-bordeaux active:scale-95 transition-all"
@@ -184,6 +216,51 @@ const Navbar = () => {
                 </Link>
               </motion.div>
             </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Search overlay */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[60] bg-card/95 backdrop-blur-xl flex items-start justify-center pt-32 px-6"
+            onClick={() => setSearchOpen(false)}
+          >
+            <motion.form
+              onSubmit={submitSearch}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-2xl relative"
+            >
+              <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-5 text-bordeaux" strokeWidth={1.5} />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar peças, materiais, pedras…"
+                className="w-full bg-transparent border-b-2 border-bordeaux/30 focus:border-bordeaux pl-10 pr-12 py-4 text-xl font-display text-foreground placeholder:text-foreground/40 focus:outline-none transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-foreground/50 hover:text-bordeaux"
+                aria-label="Fechar busca"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/40 mt-3">
+                Pressione Enter para buscar
+              </p>
+            </motion.form>
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,12 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User, Package, MapPin } from "lucide-react";
+import { LogOut, User, Package, MapPin, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 const links = [
   { to: "/conta", label: "Visão Geral", icon: User, end: true },
   { to: "/conta/pedidos", label: "Pedidos", icon: Package, end: false },
+  { to: "/conta/favoritos", label: "Favoritos", icon: Heart, end: false },
   { to: "/conta/enderecos", label: "Endereços", icon: MapPin, end: false },
 ];
 

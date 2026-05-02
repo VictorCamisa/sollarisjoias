@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getSessionId } from "@/lib/analytics";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthContextType {
@@ -55,6 +56,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (session?.user) {
           void checkAdmin(session.user.id);
+          // Vincula sessão anônima atual ao usuário recém logado
+          try {
+            const sid = getSessionId();
+            if (sid) void (supabase.rpc as any)("link_session_to_user", { _session_id: sid });
+          } catch {}
         } else {
           setIsAdmin(false);
         }

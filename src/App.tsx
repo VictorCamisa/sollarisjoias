@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 
 // Store pages
 import StoreLayout from "@/components/store/StoreLayout";
@@ -19,6 +20,8 @@ import AccountLayout from "@/pages/account/AccountLayout";
 import AccountOverview from "@/pages/account/AccountOverview";
 import AccountOrders from "@/pages/account/AccountOrders";
 import AccountAddresses from "@/pages/account/AccountAddresses";
+import AccountFavorites from "@/pages/account/AccountFavorites";
+import SearchPage from "@/pages/SearchPage";
 import CheckoutSuccessPage from "@/pages/CheckoutSuccessPage";
 import CheckoutPendingPage from "@/pages/CheckoutPendingPage";
 import CheckoutFailurePage from "@/pages/CheckoutFailurePage";
@@ -33,6 +36,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminCustomerDetail from "./pages/admin/AdminCustomerDetail";
 import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
 import AdminTarefas from "./pages/admin/AdminTarefas";
 import AdminNotas from "./pages/admin/AdminNotas";
@@ -59,6 +63,7 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <CartProvider>
+          <FavoritesProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -71,6 +76,7 @@ const App = () => (
                 <Route path="/sobre" element={<AboutPage />} />
                 <Route path="/vitrine" element={<LookbookPage />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/buscar" element={<SearchPage />} />
                 <Route
                   path="/conta"
                   element={
@@ -82,6 +88,7 @@ const App = () => (
                   <Route index element={<AccountOverview />} />
                   <Route path="pedidos" element={<AccountOrders />} />
                   <Route path="enderecos" element={<AccountAddresses />} />
+                  <Route path="favoritos" element={<AccountFavorites />} />
                 </Route>
                 <Route path="/checkout/sucesso" element={<CheckoutSuccessPage />} />
                 <Route path="/checkout/pendente" element={<CheckoutPendingPage />} />
@@ -98,6 +105,7 @@ const App = () => (
                 <Route path="financeiro" element={<AdminFinanceiro />} />
                 <Route path="newsletter" element={<AdminNewsletter />} />
                 <Route path="clientes" element={<AdminCustomers />} />
+                <Route path="clientes/:id" element={<AdminCustomerDetail />} />
                 <Route path="fornecedores" element={<AdminFornecedores />} />
                 <Route path="cupons" element={<AdminCupons />} />
                 <Route path="crediario" element={<AdminCrediario />} />
@@ -121,6 +129,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          </FavoritesProvider>
         </CartProvider>
       </AuthProvider>
     </TooltipProvider>
