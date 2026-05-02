@@ -219,6 +219,51 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Search overlay */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[60] bg-card/95 backdrop-blur-xl flex items-start justify-center pt-32 px-6"
+            onClick={() => setSearchOpen(false)}
+          >
+            <motion.form
+              onSubmit={submitSearch}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-2xl relative"
+            >
+              <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-5 text-bordeaux" strokeWidth={1.5} />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar peças, materiais, pedras…"
+                className="w-full bg-transparent border-b-2 border-bordeaux/30 focus:border-bordeaux pl-10 pr-12 py-4 text-xl font-display text-foreground placeholder:text-foreground/40 focus:outline-none transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-foreground/50 hover:text-bordeaux"
+                aria-label="Fechar busca"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/40 mt-3">
+                Pressione Enter para buscar
+              </p>
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
