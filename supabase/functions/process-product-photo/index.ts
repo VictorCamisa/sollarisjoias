@@ -282,10 +282,11 @@ serve(async (req) => {
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!OPENAI_API_KEY && !GOOGLE_API_KEY) {
+    if (!LOVABLE_API_KEY && !OPENAI_API_KEY && !GOOGLE_API_KEY) {
       return jsonError(500,
-        "Nenhuma chave de IA configurada. Adicione OPENAI_API_KEY ou GOOGLE_API_KEY nas variáveis de ambiente do Supabase."
+        "Nenhuma IA configurada para tratar fotos."
       );
     }
 
@@ -308,8 +309,18 @@ serve(async (req) => {
     let imageBase64: string | null = null;
     let lastError: Error | null = null;
 
-    // 1. Try OpenAI (gpt-image-1) first — provedor primário
-    if (OPENAI_API_KEY) {
+    // 1. Try Lovable AI Gateway first — best fidelity for product retouching
+    if (LOVABLE_API_KEY) {
+      try {
+        imageBase64 = await processWithLovableGateway(imageData, prompt, LOVABLE_API_KEY, photoPreset);
+      } catch (e: any) {
+        console.error("Lovable AI Gateway failed:", e.message);
+        lastError = e;
+      }
+    }
+
+    // 2. Fallback to OpenAI (gpt-image-1)
+    if (!imageBase64 && OPENAI_API_KEY) {
       try {
         imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style, photoPreset);
       } catch (e: any) {
@@ -318,7 +329,7 @@ serve(async (req) => {
       }
     }
 
-    // 2. Fallback to Google Gemini direct API
+    // 3. Fallback to Google Gemini direct API
     if (!imageBase64 && GOOGLE_API_KEY) {
       try {
         imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
