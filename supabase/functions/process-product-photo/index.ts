@@ -224,6 +224,7 @@ serve(async (req) => {
       material = "",
       style = "catalog",
       customInstruction = "",
+      photoPreset = "standard",
     } = await req.json();
 
     if (!imageUrl) return jsonError(400, "imageUrl é obrigatório");
@@ -248,7 +249,7 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    const prompt = buildPrompt(style, productDetails, customInstruction);
+    const prompt = buildPrompt(style, productDetails, customInstruction, photoPreset);
 
     const imageData = await fetchImageBytes(imageUrl);
     if (!imageData) return jsonError(400, "Não foi possível carregar a imagem original.");
@@ -259,7 +260,7 @@ serve(async (req) => {
     // 1. Try OpenAI (gpt-image-1) first — provedor primário
     if (OPENAI_API_KEY) {
       try {
-        imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style);
+        imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style, photoPreset);
       } catch (e: any) {
         console.error("OpenAI failed:", e.message);
         lastError = e;
@@ -294,7 +295,7 @@ serve(async (req) => {
     }
 
     const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(fileName);
-    return jsonOk({ image_url: publicUrl.publicUrl, style });
+    return jsonOk({ image_url: publicUrl.publicUrl, style, photoPreset });
   } catch (e) {
     console.error("process-product-photo error:", e);
     return jsonError(500, e instanceof Error ? e.message : "Erro desconhecido");
