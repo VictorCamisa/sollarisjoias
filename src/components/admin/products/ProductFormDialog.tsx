@@ -414,7 +414,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 bg-card border-border">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-card border-border">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Package className="h-5 w-5 text-primary" />
@@ -573,50 +573,76 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
               </TabsContent>
 
               {/* TAB: Mídia */}
-              <TabsContent value="media" className="mt-0 space-y-4">
-                {/* AI Photo Info Banner */}
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/15">
-                  <Wand2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Após enviar uma foto, passe o mouse sobre ela e clique em <strong className="text-primary">IA</strong> para gerar automaticamente uma versão profissional com fundo limpo, iluminação e identidade visual da marca.
-                  </p>
+              <TabsContent value="media" className="mt-0 space-y-5">
+                <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Wand2 className="h-4 w-4 text-primary" />
+                        <p className="text-xs font-semibold text-foreground">Estúdio IA — padrão claro Sollaris</p>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed max-w-xl">
+                        Escolha o modo antes de gerar. Para brincos pequenos, trios e conjuntos, use o primeiro modo: ele trava a quantidade de peças e evita redesenho.
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-[9px] uppercase tracking-wider border-primary/25 text-primary shrink-0">fidelidade alta</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    {aiPresetOptions.map((option) => {
+                      const Icon = option.icon;
+                      const active = aiPhotoPreset === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setAiPhotoPreset(option.value)}
+                          className={`text-left rounded-lg border p-3 transition-colors ${active ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-secondary/40"}`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Icon className={`h-3.5 w-3.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                            <span className="text-[11px] font-semibold text-foreground">{option.label}</span>
+                          </div>
+                          <p className="text-[9px] leading-snug text-muted-foreground">{option.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div>
                   <Label className="text-xs font-medium text-muted-foreground mb-2 block">Fotos do Produto</Label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {FotoSlot({ label: "Frontal", field: "foto_frontal" })}
-                    {FotoSlot({ label: "Lateral", field: "foto_lateral" })}
-                    {FotoSlot({ label: "Lifestyle", field: "foto_lifestyle" })}
-                    {FotoSlot({ label: "Detalhe", field: "foto_detalhe" })}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <FotoSlot label="Frontal" field="foto_frontal" />
+                    <FotoSlot label="Lateral" field="foto_lateral" />
+                    <FotoSlot label="Lifestyle" field="foto_lifestyle" />
+                    <FotoSlot label="Detalhe" field="foto_detalhe" />
                   </div>
                 </div>
 
                 {/* Batch AI processing */}
                 {(form.foto_frontal || form.foto_lateral || form.foto_lifestyle || form.foto_detalhe) && (
                   <div className="flex gap-2 flex-wrap">
-                    {(["foto_frontal", "foto_lateral", "foto_detalhe"] as const).every((f) => form[f]) && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[10px] gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
-                        disabled={Object.values(aiPhotoLoading).some(Boolean)}
-                        onClick={async () => {
-                          const slots = [
-                            { key: "foto_frontal", style: "catalog" as const },
-                            { key: "foto_lateral", style: "catalog" as const },
-                            { key: "foto_detalhe", style: "catalog" as const },
-                          ].filter(({ key }) => !!(form as any)[key]);
-                          for (const { key, style } of slots) {
-                            await handleAiPhoto(key, (form as any)[key], style);
-                          }
-                        }}
-                      >
-                        <Wand2 className="h-2.5 w-2.5" />
-                        Tratar todas com IA
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-[10px] gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
+                      disabled={Object.values(aiPhotoLoading).some(Boolean)}
+                      onClick={async () => {
+                        const slots = [
+                          { key: "foto_frontal", style: "catalog" as const },
+                          { key: "foto_lateral", style: "catalog" as const },
+                          { key: "foto_lifestyle", style: "lifestyle" as const },
+                          { key: "foto_detalhe", style: "catalog" as const },
+                        ].filter(({ key }) => !!(form as any)[key]);
+                        for (const { key, style } of slots) {
+                          await handleAiPhoto(key, (form as any)[key], style);
+                        }
+                      }}
+                    >
+                      <Wand2 className="h-3 w-3" />
+                      Refinar fotos preenchidas
+                    </Button>
                   </div>
                 )}
 
