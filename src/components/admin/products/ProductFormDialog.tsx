@@ -314,85 +314,81 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     };
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
         {imgUrl ? (
-          <div className="relative group aspect-[3/4] rounded-lg overflow-hidden border border-border">
-            <img src={imgUrl} alt="" className="w-full h-full object-cover" />
-            {isLoading && (
-              <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1">
-                <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                <span className="text-[10px] text-white">Tratando...</span>
-              </div>
-            )}
-            {!isLoading && (
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end justify-center pb-2 gap-1 opacity-0 group-hover:opacity-100">
-                <button
-                  type="button"
-                  onClick={() => handleAiPhoto(field as string, imgUrl, aiStyle)}
-                  className="flex items-center gap-1 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-1 rounded-md"
-                  title="Recriar com IA"
-                >
-                  <Wand2 className="h-2.5 w-2.5" />
-                  IA
-                </button>
-                <Popover open={adjustOpen} onOpenChange={setAdjustOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 bg-accent text-accent-foreground text-[9px] font-medium px-2 py-1 rounded-md"
-                      title="Ajustar detalhe específico"
-                    >
-                      <Sparkles className="h-2.5 w-2.5" />
-                      Ajustar
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-3 space-y-2" align="center" side="top">
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-medium">Ajuste pontual</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">
-                        Descreva o que mudar. O resto da foto permanece igual.
-                      </p>
-                    </div>
-                    <Textarea
-                      value={adjustText}
-                      onChange={(e) => setAdjustText(e.target.value)}
-                      placeholder="Ex: clareie o fundo, remova o reflexo na pedra, deixe o dourado mais quente..."
-                      className="text-[11px] min-h-[70px] resize-none"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitAdjust();
-                      }}
-                    />
-                    <div className="flex flex-wrap gap-1">
-                      {["Clareie o fundo", "Mais brilho na peça", "Remova reflexos", "Foco mais nítido"].map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setAdjustText(s)}
-                          className="text-[9px] px-2 py-0.5 rounded-full border border-border hover:bg-secondary"
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex justify-end gap-1 pt-1">
-                      <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => setAdjustOpen(false)}>Cancelar</Button>
-                      <Button size="sm" className="h-7 text-[10px]" onClick={submitAdjust} disabled={!adjustText.trim()}>
-                        Aplicar
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+          <div className="space-y-2">
+            <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border bg-secondary/20">
+              <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+              {isLoading && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                  <span className="text-[10px] text-foreground font-medium">Preservando a peça...</span>
+                </div>
+              )}
+              {!isLoading && (
                 <button
                   type="button"
                   onClick={() => set(field, "")}
-                  className="bg-destructive text-destructive-foreground text-[9px] px-2 py-1 rounded-md"
+                  className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[11px] w-6 h-6 rounded-full shadow-sm"
+                  aria-label="Remover foto"
                 >
                   ×
                 </button>
-              </div>
-            )}
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleAiPhoto(field as string, imgUrl, aiStyle)}
+                disabled={isLoading}
+                className="h-8 text-[10px] gap-1 border-primary/25 text-primary hover:bg-primary/5"
+              >
+                <Wand2 className="h-3 w-3" />
+                Foto perfeita
+              </Button>
+              <Popover open={adjustOpen} onOpenChange={setAdjustOpen}>
+                <PopoverTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" disabled={isLoading} className="h-8 text-[10px] gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Ajuste fino
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-3 space-y-2" align="center" side="top">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium">Ajuste pontual sem redesenhar</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">
+                      Use para corrigir brilho, foco, sombra ou fundo. A quantidade e o desenho da peça ficam travados.
+                    </p>
+                  </div>
+                  <Textarea
+                    value={adjustText}
+                    onChange={(e) => setAdjustText(e.target.value)}
+                    placeholder="Ex: aumente nitidez das três peças, clareie o fundo, mantenha exatamente o trio..."
+                    className="text-[11px] min-h-[72px] resize-none"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitAdjust();
+                    }}
+                  />
+                  <div className="flex flex-wrap gap-1">
+                    {["Preserve exatamente o trio", "Mais nitidez nas pedras", "Fundo off-white limpo", "Sombra mais elegante"].map((s) => (
+                      <button key={s} type="button" onClick={() => setAdjustText(s)} className="text-[9px] px-2 py-0.5 rounded-full border border-border hover:bg-secondary">
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex justify-end gap-1 pt-1">
+                    <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => setAdjustOpen(false)}>Cancelar</Button>
+                    <Button size="sm" className="h-7 text-[10px]" onClick={submitAdjust} disabled={!adjustText.trim()}>
+                      Aplicar
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         ) : (
           <label className="flex flex-col items-center justify-center aspect-[3/4] rounded-lg border border-dashed border-border hover:border-primary/40 cursor-pointer transition-colors bg-secondary/20">
@@ -404,6 +400,13 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
       </div>
     );
   };
+
+  const aiPresetOptions: Array<{ value: AiPhotoPreset; label: string; description: string; icon: typeof Wand2 }> = [
+    { value: "small_set", label: "Trio / peça pequena", description: "Trava quantidade e separação das peças", icon: Gem },
+    { value: "exact", label: "Máxima fidelidade", description: "Mínima alteração no produto", icon: Camera },
+    { value: "macro", label: "Macro detalhe", description: "Mais nitidez em pedras e banho", icon: Sparkles },
+    { value: "standard", label: "Catálogo claro", description: "Fundo off-white padrão do site", icon: Wand2 },
+  ];
 
   const scoreColor = seoSuggestions
     ? seoSuggestions.qualityScore >= 70 ? "text-emerald-400" : seoSuggestions.qualityScore >= 40 ? "text-amber-400" : "text-red-400"
