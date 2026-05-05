@@ -209,6 +209,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     imageUrl: string,
     style: "catalog" | "mockup" | "lifestyle",
     customInstruction?: string,
+    preset: AiPhotoPreset = aiPhotoPreset,
   ) => {
     setAiPhotoLoading((prev) => ({ ...prev, [slot]: true }));
     try {
@@ -222,6 +223,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
           material: form.material,
           style,
           customInstruction: customInstruction || "",
+          photoPreset: preset,
         },
       });
       if (error || data?.error) {
@@ -231,7 +233,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
         throw new Error(data?.error || error?.message || "Erro ao tratar foto com IA");
       }
       setForm({ ...form, [slot]: data.image_url });
-      toast.success(customInstruction ? "Ajuste aplicado!" : "Foto tratada com IA!");
+      toast.success(customInstruction ? "Ajuste aplicado com fidelidade!" : "Foto refinada no padrão claro Sollaris!");
     } catch (e: any) {
       toast.error(e.message || "Erro ao tratar foto com IA");
     } finally {
