@@ -131,6 +131,7 @@ async function processWithOpenAI(
   prompt: string,
   apiKey: string,
   style: string,
+  photoPreset = "standard",
 ): Promise<string | null> {
   const ext = imageData.contentType.includes("png") ? "png"
     : imageData.contentType.includes("webp") ? "webp"
@@ -144,7 +145,7 @@ async function processWithOpenAI(
   formData.append("model", "gpt-image-1");
   formData.append("n", "1");
   formData.append("size", "1024x1024");
-  formData.append("quality", "high");
+  formData.append("quality", photoPreset === "small_set" || photoPreset === "macro" || photoPreset === "exact" ? "high" : "medium");
 
   const res = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
