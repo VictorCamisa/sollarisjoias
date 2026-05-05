@@ -629,14 +629,14 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
                       className="h-8 text-[10px] gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
                       disabled={Object.values(aiPhotoLoading).some(Boolean)}
                       onClick={async () => {
-                        const slots = [
+                        const slots: Array<{ key: keyof ProductForm; style: "catalog" | "lifestyle" }> = [
                           { key: "foto_frontal", style: "catalog" as const },
                           { key: "foto_lateral", style: "catalog" as const },
                           { key: "foto_lifestyle", style: "lifestyle" as const },
                           { key: "foto_detalhe", style: "catalog" as const },
-                        ].filter(({ key }) => !!(form as any)[key]);
+                        ].filter(({ key }) => Boolean(form[key]));
                         for (const { key, style } of slots) {
-                          await handleAiPhoto(key, (form as any)[key], style);
+                          await handleAiPhoto(key, form[key] as string, style);
                         }
                       }}
                     >
