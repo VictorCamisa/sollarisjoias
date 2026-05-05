@@ -17,7 +17,10 @@ import heic2any from "heic2any";
 import {
   Package, Image as ImageIcon, Tag, Settings2,
   Sparkles, Loader2, CheckCircle2, RefreshCw, Wand2, DollarSign, TrendingUp,
+  Camera, Gem,
 } from "lucide-react";
+
+type AiPhotoPreset = "standard" | "small_set" | "macro" | "exact";
 
 export interface ProductForm {
   name: string; sku: string; description: string; price: string; original_price: string;
@@ -75,6 +78,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
 
   // AI Photo state — per slot
   const [aiPhotoLoading, setAiPhotoLoading] = useState<Record<string, boolean>>({});
+  const [aiPhotoPreset, setAiPhotoPreset] = useState<AiPhotoPreset>("small_set");
 
   const saveMutation = useMutation({
     mutationFn: async () => {
