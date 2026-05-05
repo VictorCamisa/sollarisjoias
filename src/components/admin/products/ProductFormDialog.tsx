@@ -17,7 +17,10 @@ import heic2any from "heic2any";
 import {
   Package, Image as ImageIcon, Tag, Settings2,
   Sparkles, Loader2, CheckCircle2, RefreshCw, Wand2, DollarSign, TrendingUp,
+  Camera, Gem, type LucideIcon,
 } from "lucide-react";
+
+type AiPhotoPreset = "standard" | "small_set" | "macro" | "exact";
 
 export interface ProductForm {
   name: string; sku: string; description: string; price: string; original_price: string;
@@ -75,6 +78,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
 
   // AI Photo state — per slot
   const [aiPhotoLoading, setAiPhotoLoading] = useState<Record<string, boolean>>({});
+  const [aiPhotoPreset, setAiPhotoPreset] = useState<AiPhotoPreset>("small_set");
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -205,6 +209,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     imageUrl: string,
     style: "catalog" | "mockup" | "lifestyle",
     customInstruction?: string,
+    preset: AiPhotoPreset = aiPhotoPreset,
   ) => {
     setAiPhotoLoading((prev) => ({ ...prev, [slot]: true }));
     try {
@@ -218,6 +223,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
           material: form.material,
           style,
           customInstruction: customInstruction || "",
+          photoPreset: preset,
         },
       });
       if (error || data?.error) {
@@ -227,7 +233,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
         throw new Error(data?.error || error?.message || "Erro ao tratar foto com IA");
       }
       setForm({ ...form, [slot]: data.image_url });
-      toast.success(customInstruction ? "Ajuste aplicado!" : "Foto tratada com IA!");
+      toast.success(customInstruction ? "Ajuste aplicado com fidelidade!" : "Foto refinada no padrão claro Sollaris!");
     } catch (e: any) {
       toast.error(e.message || "Erro ao tratar foto com IA");
     } finally {
@@ -308,85 +314,81 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     };
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</Label>
         {imgUrl ? (
-          <div className="relative group aspect-[3/4] rounded-lg overflow-hidden border border-border">
-            <img src={imgUrl} alt="" className="w-full h-full object-cover" />
-            {isLoading && (
-              <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1">
-                <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                <span className="text-[10px] text-white">Tratando...</span>
-              </div>
-            )}
-            {!isLoading && (
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end justify-center pb-2 gap-1 opacity-0 group-hover:opacity-100">
-                <button
-                  type="button"
-                  onClick={() => handleAiPhoto(field as string, imgUrl, aiStyle)}
-                  className="flex items-center gap-1 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-1 rounded-md"
-                  title="Recriar com IA"
-                >
-                  <Wand2 className="h-2.5 w-2.5" />
-                  IA
-                </button>
-                <Popover open={adjustOpen} onOpenChange={setAdjustOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 bg-accent text-accent-foreground text-[9px] font-medium px-2 py-1 rounded-md"
-                      title="Ajustar detalhe específico"
-                    >
-                      <Sparkles className="h-2.5 w-2.5" />
-                      Ajustar
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-3 space-y-2" align="center" side="top">
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-medium">Ajuste pontual</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">
-                        Descreva o que mudar. O resto da foto permanece igual.
-                      </p>
-                    </div>
-                    <Textarea
-                      value={adjustText}
-                      onChange={(e) => setAdjustText(e.target.value)}
-                      placeholder="Ex: clareie o fundo, remova o reflexo na pedra, deixe o dourado mais quente..."
-                      className="text-[11px] min-h-[70px] resize-none"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitAdjust();
-                      }}
-                    />
-                    <div className="flex flex-wrap gap-1">
-                      {["Clareie o fundo", "Mais brilho na peça", "Remova reflexos", "Foco mais nítido"].map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setAdjustText(s)}
-                          className="text-[9px] px-2 py-0.5 rounded-full border border-border hover:bg-secondary"
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex justify-end gap-1 pt-1">
-                      <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => setAdjustOpen(false)}>Cancelar</Button>
-                      <Button size="sm" className="h-7 text-[10px]" onClick={submitAdjust} disabled={!adjustText.trim()}>
-                        Aplicar
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+          <div className="space-y-2">
+            <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border bg-secondary/20">
+              <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+              {isLoading && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                  <span className="text-[10px] text-foreground font-medium">Preservando a peça...</span>
+                </div>
+              )}
+              {!isLoading && (
                 <button
                   type="button"
                   onClick={() => set(field, "")}
-                  className="bg-destructive text-destructive-foreground text-[9px] px-2 py-1 rounded-md"
+                  className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[11px] w-6 h-6 rounded-full shadow-sm"
+                  aria-label="Remover foto"
                 >
                   ×
                 </button>
-              </div>
-            )}
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleAiPhoto(field as string, imgUrl, aiStyle)}
+                disabled={isLoading}
+                className="h-8 text-[10px] gap-1 border-primary/25 text-primary hover:bg-primary/5"
+              >
+                <Wand2 className="h-3 w-3" />
+                Foto perfeita
+              </Button>
+              <Popover open={adjustOpen} onOpenChange={setAdjustOpen}>
+                <PopoverTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" disabled={isLoading} className="h-8 text-[10px] gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Ajuste fino
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-3 space-y-2" align="center" side="top">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium">Ajuste pontual sem redesenhar</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">
+                      Use para corrigir brilho, foco, sombra ou fundo. A quantidade e o desenho da peça ficam travados.
+                    </p>
+                  </div>
+                  <Textarea
+                    value={adjustText}
+                    onChange={(e) => setAdjustText(e.target.value)}
+                    placeholder="Ex: aumente nitidez das três peças, clareie o fundo, mantenha exatamente o trio..."
+                    className="text-[11px] min-h-[72px] resize-none"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitAdjust();
+                    }}
+                  />
+                  <div className="flex flex-wrap gap-1">
+                    {["Preserve exatamente o trio", "Mais nitidez nas pedras", "Fundo off-white limpo", "Sombra mais elegante"].map((s) => (
+                      <button key={s} type="button" onClick={() => setAdjustText(s)} className="text-[9px] px-2 py-0.5 rounded-full border border-border hover:bg-secondary">
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex justify-end gap-1 pt-1">
+                    <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => setAdjustOpen(false)}>Cancelar</Button>
+                    <Button size="sm" className="h-7 text-[10px]" onClick={submitAdjust} disabled={!adjustText.trim()}>
+                      Aplicar
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         ) : (
           <label className="flex flex-col items-center justify-center aspect-[3/4] rounded-lg border border-dashed border-border hover:border-primary/40 cursor-pointer transition-colors bg-secondary/20">
@@ -399,13 +401,20 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     );
   };
 
+  const aiPresetOptions: Array<{ value: AiPhotoPreset; label: string; description: string; icon: LucideIcon }> = [
+    { value: "small_set", label: "Trio / peça pequena", description: "Trava quantidade e separação das peças", icon: Gem },
+    { value: "exact", label: "Máxima fidelidade", description: "Mínima alteração no produto", icon: Camera },
+    { value: "macro", label: "Macro detalhe", description: "Mais nitidez em pedras e banho", icon: Sparkles },
+    { value: "standard", label: "Catálogo claro", description: "Fundo off-white padrão do site", icon: Wand2 },
+  ];
+
   const scoreColor = seoSuggestions
     ? seoSuggestions.qualityScore >= 70 ? "text-emerald-400" : seoSuggestions.qualityScore >= 40 ? "text-amber-400" : "text-red-400"
     : "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 bg-card border-border">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-card border-border">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Package className="h-5 w-5 text-primary" />
@@ -564,50 +573,76 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
               </TabsContent>
 
               {/* TAB: Mídia */}
-              <TabsContent value="media" className="mt-0 space-y-4">
-                {/* AI Photo Info Banner */}
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/15">
-                  <Wand2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Após enviar uma foto, passe o mouse sobre ela e clique em <strong className="text-primary">IA</strong> para gerar automaticamente uma versão profissional com fundo limpo, iluminação e identidade visual da marca.
-                  </p>
+              <TabsContent value="media" className="mt-0 space-y-5">
+                <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Wand2 className="h-4 w-4 text-primary" />
+                        <p className="text-xs font-semibold text-foreground">Estúdio IA — padrão claro Sollaris</p>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed max-w-xl">
+                        Escolha o modo antes de gerar. Para brincos pequenos, trios e conjuntos, use o primeiro modo: ele trava a quantidade de peças e evita redesenho.
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-[9px] uppercase tracking-wider border-primary/25 text-primary shrink-0">fidelidade alta</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    {aiPresetOptions.map((option) => {
+                      const Icon = option.icon;
+                      const active = aiPhotoPreset === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setAiPhotoPreset(option.value)}
+                          className={`text-left rounded-lg border p-3 transition-colors ${active ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-secondary/40"}`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Icon className={`h-3.5 w-3.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                            <span className="text-[11px] font-semibold text-foreground">{option.label}</span>
+                          </div>
+                          <p className="text-[9px] leading-snug text-muted-foreground">{option.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div>
                   <Label className="text-xs font-medium text-muted-foreground mb-2 block">Fotos do Produto</Label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {FotoSlot({ label: "Frontal", field: "foto_frontal" })}
-                    {FotoSlot({ label: "Lateral", field: "foto_lateral" })}
-                    {FotoSlot({ label: "Lifestyle", field: "foto_lifestyle" })}
-                    {FotoSlot({ label: "Detalhe", field: "foto_detalhe" })}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <FotoSlot label="Frontal" field="foto_frontal" />
+                    <FotoSlot label="Lateral" field="foto_lateral" />
+                    <FotoSlot label="Lifestyle" field="foto_lifestyle" />
+                    <FotoSlot label="Detalhe" field="foto_detalhe" />
                   </div>
                 </div>
 
                 {/* Batch AI processing */}
                 {(form.foto_frontal || form.foto_lateral || form.foto_lifestyle || form.foto_detalhe) && (
                   <div className="flex gap-2 flex-wrap">
-                    {(["foto_frontal", "foto_lateral", "foto_detalhe"] as const).every((f) => form[f]) && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[10px] gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
-                        disabled={Object.values(aiPhotoLoading).some(Boolean)}
-                        onClick={async () => {
-                          const slots = [
-                            { key: "foto_frontal", style: "catalog" as const },
-                            { key: "foto_lateral", style: "catalog" as const },
-                            { key: "foto_detalhe", style: "catalog" as const },
-                          ].filter(({ key }) => !!(form as any)[key]);
-                          for (const { key, style } of slots) {
-                            await handleAiPhoto(key, (form as any)[key], style);
-                          }
-                        }}
-                      >
-                        <Wand2 className="h-2.5 w-2.5" />
-                        Tratar todas com IA
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-[10px] gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
+                      disabled={Object.values(aiPhotoLoading).some(Boolean)}
+                      onClick={async () => {
+                        const slots = [
+                          { key: "foto_frontal", style: "catalog" },
+                          { key: "foto_lateral", style: "catalog" },
+                          { key: "foto_lifestyle", style: "lifestyle" },
+                          { key: "foto_detalhe", style: "catalog" },
+                        ] as const;
+                        for (const { key, style } of slots.filter(({ key }) => Boolean(form[key]))) {
+                          await handleAiPhoto(key, form[key], style);
+                        }
+                      }}
+                    >
+                      <Wand2 className="h-3 w-3" />
+                      Refinar fotos preenchidas
+                    </Button>
                   </div>
                 )}
 

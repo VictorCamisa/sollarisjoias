@@ -55,18 +55,43 @@ async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; conten
   }
 }
 
-function buildPrompt(style: string, productDetails: string, customInstruction?: string): string {
+function extractImageBase64(imageUrl: string): string | null {
+  const match = imageUrl.match(/^data:image\/[a-zA-Z0-9.+-]+;base64,(.*)$/s);
+  return match?.[1] || null;
+}
+
+function buildPrompt(style: string, productDetails: string, customInstruction?: string, photoPreset = "standard"): string {
   const PRESERVE =
     "CRITICAL RULE — THIS IS PHOTO RETOUCHING, NOT IMAGE GENERATION. " +
     "You MUST preserve the exact jewelry piece from the reference photo with absolute fidelity: " +
     "identical silhouette, gemstone color and cut, chain/link pattern, metal finish (gold/silver/rose), " +
     "proportions and scale, orientation, prong count, engraving, and every visible detail. " +
+    "COUNT LOCK: preserve the exact number of visible pieces. If the reference shows a pair, output exactly two; " +
+    "if it shows a trio or set of three small earrings, output exactly three separate pieces, never one, two, four, duplicated, merged, or redesigned. " +
+    "Do not change the spacing relationship between pieces except to gently center the complete set. " +
     "DO NOT redesign, restyle, or change any element. DO NOT invent new features. " +
     "DO NOT add logos, brand marks, watermarks, text, typography, or any graphic overlay. " +
     "The image must be completely free of text and brand elements.";
 
-  const DARK =
-    "Background: deep obsidian black (#090909–#0D0D0F). This is the permanent Sollaris luxury ecommerce standard — non-negotiable.";
+  const CLEAR =
+    "Background: warm pearl/off-white (#F7F3EC to #FFFFFF), matching the new clear Sollaris storefront layout. " +
+    "Use a clean luxury ecommerce surface, soft champagne reflection, subtle contact shadow, high clarity, no black background, no colored props.";
+
+  const presetRules: Record<string, string> = {
+    standard:
+      "STANDARD PRODUCT MODE: keep the item centered, crisp, premium and truthful. Product should occupy about 72–82% of the canvas with elegant breathing room.",
+    small_set:
+      "SMALL SET / TRIO MODE: designed for tiny earrings, sets and multiple small pieces. Use macro product photography. " +
+      "Every individual earring or charm must remain visible, separated, sharp and true to the source. Preserve exactly the same count and arrangement. " +
+      "Do not simplify stones, close holes, thicken posts, fuse pieces, or turn a trio into a single object.",
+    macro:
+      "MACRO DETAIL MODE: preserve the original product while improving sharpness, metal highlights and stone definition. Do not crop away edges or change geometry.",
+    exact:
+      "MAXIMUM FIDELITY MODE: make the smallest possible edits. Prefer cleaning background, exposure, shadow and sharpness over changing product pixels. " +
+      "If unsure, leave the product exactly as in the reference photo.",
+  };
+
+  const selectedPreset = presetRules[photoPreset] || presetRules.standard;
 
   // 🔧 EDIÇÃO PONTUAL — quando o usuário pede um ajuste específico,
   // alteramos APENAS o que foi pedido e mantemos todo o resto idêntico.
@@ -79,25 +104,25 @@ function buildPrompt(style: string, productDetails: string, customInstruction?: 
       "This is a targeted retouch, like a Photoshop adjustment layer applied to the original photo.";
 
     const base =
-      `${SURGICAL} ${PRESERVE} ` +
+      `${SURGICAL} ${PRESERVE} ${selectedPreset} ` +
       `\n\nUSER REQUESTED CHANGE (apply ONLY this, nothing else): "${customInstruction.trim()}"` +
-      `\n\nRemember: NO text, NO logo, NO watermark. Photorealistic output matching the original style.`;
+      `\n\nRemember: clear pearl storefront background when background is touched; NO text, NO logo, NO watermark. Photorealistic output matching the original product.`;
 
     return productDetails ? `${base}\n\nProduct reference: ${productDetails}.` : base;
   }
 
   const prompts: Record<string, string> = {
     catalog:
-      `${PRESERVE} ${DARK} Replace ONLY the background with a perfectly seamless obsidian black backdrop. ` +
+      `${PRESERVE} ${CLEAR} ${selectedPreset} Replace ONLY the background and lighting environment; the jewelry itself is the source of truth. ` +
       `Apply luxury jewelry studio lighting: soft key light from slightly above-front, subtle champagne-gold rim highlights on metal edges, zero harsh shadows. ` +
-      `Center the jewelry. Photorealistic, ultra-sharp product photography. NO text, NO logo, NO watermark under any circumstances.`,
+      `Center the complete product/set. Photorealistic, ultra-sharp product photography. NO text, NO logo, NO watermark under any circumstances.`,
     mockup:
-      `${PRESERVE} ${DARK} Compose the exact same jewelry in a luxury editorial scene: obsidian black environment, ` +
-      `barely-visible dark reflective surface, dramatic warm champagne side lighting. ` +
+      `${PRESERVE} ${CLEAR} ${selectedPreset} Compose the exact same jewelry in a minimal luxury editorial scene: warm pearl surface, ` +
+      `soft champagne side lighting, refined shadow, no distracting props. ` +
       `Ultra-photorealistic premium fashion editorial. NO text, NO logo, NO watermark.`,
     lifestyle:
-      `${PRESERVE} ${DARK} Place the exact same jewelry in a dark editorial lifestyle scene: obsidian mood, ` +
-      `soft warm champagne highlights, premium fashion styling. The jewelry must be the visual hero, ` +
+      `${PRESERVE} ${CLEAR} ${selectedPreset} Place the exact same jewelry in a bright minimal editorial lifestyle scene: pearl-toned mood, ` +
+      `soft warm champagne highlights, premium styling. The jewelry must be the visual hero, ` +
       `visually identical to the input. Photorealistic. NO text, NO logo, NO watermark.`,
   };
 
@@ -106,11 +131,58 @@ function buildPrompt(style: string, productDetails: string, customInstruction?: 
 }
 
 /* ─── OpenAI gpt-image-1 ─── */
+async function processWithLovableGateway(
+  imageData: { bytes: Uint8Array; contentType: string },
+  prompt: string,
+  apiKey: string,
+  photoPreset = "standard",
+): Promise<string | null> {
+  const mimeType = imageData.contentType.split(";")[0] || "image/jpeg";
+  const base64Image = encodeBase64(imageData.bytes);
+  const model = ["small_set", "macro", "exact"].includes(photoPreset)
+    ? "google/gemini-3-pro-image-preview"
+    : "google/gemini-3.1-flash-image-preview";
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } },
+          ],
+        },
+      ],
+      modalities: ["image", "text"],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Lovable AI Gateway error:", res.status, errText);
+    if (res.status === 429) throw new Error("Limite de IA atingido. Tente novamente em alguns segundos.");
+    if (res.status === 402) throw new Error("Créditos de IA insuficientes.");
+    throw new Error(`Lovable AI retornou status ${res.status}.`);
+  }
+
+  const data = await res.json();
+  const generatedUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url as string | undefined;
+  return generatedUrl ? extractImageBase64(generatedUrl) : null;
+}
+
 async function processWithOpenAI(
   imageData: { bytes: Uint8Array; contentType: string },
   prompt: string,
   apiKey: string,
   style: string,
+  photoPreset = "standard",
 ): Promise<string | null> {
   const ext = imageData.contentType.includes("png") ? "png"
     : imageData.contentType.includes("webp") ? "webp"
@@ -124,7 +196,7 @@ async function processWithOpenAI(
   formData.append("model", "gpt-image-1");
   formData.append("n", "1");
   formData.append("size", "1024x1024");
-  formData.append("quality", "high");
+  formData.append("quality", photoPreset === "small_set" || photoPreset === "macro" || photoPreset === "exact" ? "high" : "medium");
 
   const res = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
@@ -203,16 +275,18 @@ serve(async (req) => {
       material = "",
       style = "catalog",
       customInstruction = "",
+      photoPreset = "standard",
     } = await req.json();
 
     if (!imageUrl) return jsonError(400, "imageUrl é obrigatório");
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!OPENAI_API_KEY && !GOOGLE_API_KEY) {
+    if (!LOVABLE_API_KEY && !OPENAI_API_KEY && !GOOGLE_API_KEY) {
       return jsonError(500,
-        "Nenhuma chave de IA configurada. Adicione OPENAI_API_KEY ou GOOGLE_API_KEY nas variáveis de ambiente do Supabase."
+        "Nenhuma IA configurada para tratar fotos."
       );
     }
 
@@ -227,7 +301,7 @@ serve(async (req) => {
       pedra ? `pedra ${pedra}` : null,
     ].filter(Boolean).join(", ");
 
-    const prompt = buildPrompt(style, productDetails, customInstruction);
+    const prompt = buildPrompt(style, productDetails, customInstruction, photoPreset);
 
     const imageData = await fetchImageBytes(imageUrl);
     if (!imageData) return jsonError(400, "Não foi possível carregar a imagem original.");
@@ -235,17 +309,27 @@ serve(async (req) => {
     let imageBase64: string | null = null;
     let lastError: Error | null = null;
 
-    // 1. Try OpenAI (gpt-image-1) first — provedor primário
-    if (OPENAI_API_KEY) {
+    // 1. Try Lovable AI Gateway first — best fidelity for product retouching
+    if (LOVABLE_API_KEY) {
       try {
-        imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style);
+        imageBase64 = await processWithLovableGateway(imageData, prompt, LOVABLE_API_KEY, photoPreset);
+      } catch (e: any) {
+        console.error("Lovable AI Gateway failed:", e.message);
+        lastError = e;
+      }
+    }
+
+    // 2. Fallback to OpenAI (gpt-image-1)
+    if (!imageBase64 && OPENAI_API_KEY) {
+      try {
+        imageBase64 = await processWithOpenAI(imageData, prompt, OPENAI_API_KEY, style, photoPreset);
       } catch (e: any) {
         console.error("OpenAI failed:", e.message);
         lastError = e;
       }
     }
 
-    // 2. Fallback to Google Gemini direct API
+    // 3. Fallback to Google Gemini direct API
     if (!imageBase64 && GOOGLE_API_KEY) {
       try {
         imageBase64 = await processWithGemini(imageData, prompt, GOOGLE_API_KEY);
@@ -273,7 +357,7 @@ serve(async (req) => {
     }
 
     const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(fileName);
-    return jsonOk({ image_url: publicUrl.publicUrl, style });
+    return jsonOk({ image_url: publicUrl.publicUrl, style, photoPreset });
   } catch (e) {
     console.error("process-product-photo error:", e);
     return jsonError(500, e instanceof Error ? e.message : "Erro desconhecido");
