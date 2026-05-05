@@ -17,7 +17,7 @@ import heic2any from "heic2any";
 import {
   Package, Image as ImageIcon, Tag, Settings2,
   Sparkles, Loader2, CheckCircle2, RefreshCw, Wand2, DollarSign, TrendingUp,
-  Camera, Gem,
+  Camera, Gem, type LucideIcon,
 } from "lucide-react";
 
 type AiPhotoPreset = "standard" | "small_set" | "macro" | "exact";
@@ -401,7 +401,7 @@ export const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId
     );
   };
 
-  const aiPresetOptions: Array<{ value: AiPhotoPreset; label: string; description: string; icon: typeof Wand2 }> = [
+  const aiPresetOptions: Array<{ value: AiPhotoPreset; label: string; description: string; icon: LucideIcon }> = [
     { value: "small_set", label: "Trio / peça pequena", description: "Trava quantidade e separação das peças", icon: Gem },
     { value: "exact", label: "Máxima fidelidade", description: "Mínima alteração no produto", icon: Camera },
     { value: "macro", label: "Macro detalhe", description: "Mais nitidez em pedras e banho", icon: Sparkles },
