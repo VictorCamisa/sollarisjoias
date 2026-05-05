@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2, Download, ImagePlus, Package, CheckCircle, Ban, Trash2, BookOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Megaphone, Mail, Instagram, MousePointerClick, BarChart3, TrendingUp, Search, Plus, Send, Eye, Users, ShoppingCart, ExternalLink, Pencil, Check, Clock, AlertTriangle, Globe, FileText, Hash, ArrowUpRight, Target, Zap, Calendar, MessageSquare, Sparkles, Copy, Image, Lightbulb, Loader2, Download, ImagePlus, Package, CheckCircle, Ban, Trash2, BookOpen, Heart, MessageCircle, CalendarPlus, Settings2, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -855,15 +856,19 @@ const BrandAssetsPanel = ({ onClose }: { onClose: () => void }) => {
 // ─── AI Post Creator Tab ───
 const CreatePostTab = () => {
   const [prompt, setPrompt] = useState("");
-  const platform = "Instagram";
-  const tone = "padrao";
-  const [postStyle, setPostStyle] = useState<"dark" | "light" | "auto">("auto");
-  const [postCount, setPostCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [showProductPicker, setShowProductPicker] = useState(false);
   const [showBrandAssets, setShowBrandAssets] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [savedPostId, setSavedPostId] = useState<string | null>(null);
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("18:00");
+  const [scheduling, setScheduling] = useState(false);
   const [generatedPost, setGeneratedPost] = useState<{
     caption: string;
     hashtags: string[];
@@ -877,7 +882,7 @@ const CreatePostTab = () => {
   const { data: savedPosts } = useQuery({
     queryKey: ["marketing-posts-history"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("marketing_posts").select("*").order("created_at", { ascending: false }).limit(10);
+      const { data, error } = await supabase.from("marketing_posts").select("*").order("created_at", { ascending: false }).limit(12);
       if (error) throw error;
       return data;
     },
@@ -902,39 +907,44 @@ const CreatePostTab = () => {
   });
 
   const selectedProduct = useMemo(() => products?.find(p => p.id === selectedProductId), [products, selectedProductId]);
+
   const activeBrandAssetsPayload = useMemo(
     () => (brandAssets || []).map(({ type, title, content, file_url }) => ({ type, title, content, file_url })),
     [brandAssets]
   );
+
   const logoAssets = useMemo(
-    () => activeBrandAssetsPayload.filter((asset) => asset.type === "logo" && asset.file_url),
+    () => activeBrandAssetsPayload.filter((a) => a.type === "logo" && a.file_url),
     [activeBrandAssetsPayload]
   );
+
   const referenceAssets = useMemo(
-    () => activeBrandAssetsPayload.filter((asset) => asset.type === "reference"),
+    () => activeBrandAssetsPayload.filter((a) => a.type === "reference"),
     [activeBrandAssetsPayload]
   );
+
   const brandContext = useMemo(
-    () => activeBrandAssetsPayload.map((asset) => {
-      const parts = [`[${asset.type.toUpperCase()}] ${asset.title}`];
-      if (asset.content) parts.push(asset.content);
-      if (asset.file_url) parts.push(`Arquivo visual: ${asset.file_url}`);
+    () => activeBrandAssetsPayload.map((a) => {
+      const parts = [`[${a.type.toUpperCase()}] ${a.title}`];
+      if (a.content) parts.push(a.content);
+      if (a.file_url) parts.push(`Arquivo visual: ${a.file_url}`);
       return parts.join(" — ");
     }).join("\n"),
     [activeBrandAssetsPayload]
   );
+
   const referencePatternContext = useMemo(
-    () => referenceAssets.map((asset, index) => {
-      const parts = [`Referência visual ${index + 1}: ${asset.title}`];
-      if (asset.content) parts.push(`Padrão desejado: ${asset.content}`);
-      if (asset.file_url) parts.push(`Arquivo da referência: ${asset.file_url}`);
+    () => referenceAssets.map((a, i) => {
+      const parts = [`Referência visual ${i + 1}: ${a.title}`];
+      if (a.content) parts.push(`Padrão desejado: ${a.content}`);
+      if (a.file_url) parts.push(`Arquivo da referência: ${a.file_url}`);
       return parts.join(" — ");
     }).join("\n"),
     [referenceAssets]
   );
+
   const selectedProductContext = useMemo(() => {
     if (!selectedProduct) return "";
-
     return [
       `Produto: ${selectedProduct.name}`,
       `Preço: ${fmtBRL(Number(selectedProduct.price || 0))}${selectedProduct.original_price ? ` (de ${fmtBRL(Number(selectedProduct.original_price))})` : ""}`,
@@ -943,70 +953,97 @@ const CreatePostTab = () => {
       selectedProduct.pedra ? `Pedra: ${selectedProduct.pedra}` : null,
     ].filter(Boolean).join("\n");
   }, [selectedProduct]);
-  const generationDirectives = useMemo(
-    () => ({
-      referencesAreStyleOnly: true,
-      requireSelectedProductFidelity: Boolean(selectedProduct),
-      requireOfficialLogoFidelity: logoAssets.length > 0,
-      adaptationTarget: "SOLLARIS",
-    }),
-    [selectedProduct, logoAssets.length]
-  );
+
+  const generationDirectives = useMemo(() => ({
+    referencesAreStyleOnly: true,
+    requireSelectedProductFidelity: Boolean(selectedProduct),
+    requireOfficialLogoFidelity: logoAssets.length > 0,
+    adaptationTarget: "SOLLARIS",
+  }), [selectedProduct, logoAssets.length]);
+
+  // Last 5 posts as context so AI maintains variety and consistency
+  const historyContext = useMemo(() => {
+    if (!savedPosts?.length) return "";
+    return savedPosts.slice(0, 5).map((p: any, i: number) =>
+      `Post ${i + 1} (${format(new Date(p.created_at), "dd/MM")}): tema "${p.prompt}" → legenda: "${p.caption?.slice(0, 80)}..."`
+    ).join("\n");
+  }, [savedPosts]);
+
+  // Auto-alternate dark/light based on last post
+  const nextStyle = useMemo(() => {
+    if (!savedPosts?.length) return "dark";
+    return (savedPosts[0] as any)?.style === "dark" ? "light" : "dark";
+  }, [savedPosts]);
+
+  const loadingSteps = [
+    { emoji: "🎨", label: "Analisando identidade da marca..." },
+    { emoji: "📊", label: "Estudando seus últimos posts..." },
+    { emoji: "✍️", label: "Criando a legenda perfeita..." },
+    { emoji: "🖼️", label: "Gerando imagem premium..." },
+  ];
+
+  const resetResult = () => {
+    setGeneratedPost(null);
+    setGeneratedImage(null);
+    setSavedPostId(null);
+    setIsScheduled(false);
+    setLoadingStep(0);
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return toast.error("Descreva o que deseja para o post");
     setLoading(true);
-    setGeneratedPost(null);
-    setGeneratedImage(null);
+    setLoadingStep(1);
+    resetResult();
 
     try {
-      // Generate text
+      // Step 1-2: generate caption
       const { data, error } = await supabase.functions.invoke("generate-post", {
         body: {
           prompt,
-          platform,
-          tone,
+          platform: "Instagram",
+          tone: "padrao",
           brandContext,
           brandAssets: activeBrandAssetsPayload,
           productContext: selectedProductContext,
           referenceContext: referencePatternContext,
           generationDirectives,
+          historyContext,
         },
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); return; }
 
+      setLoadingStep(2);
       const post = data.post;
       setGeneratedPost(post);
-      toast.success("Post gerado com a identidade SOLLARIS! ✨");
 
-      // Save to database immediately (without image yet)
-      const { data: savedPost, error: saveErr } = await supabase.from("marketing_posts").insert({
-        platform,
+      // Save to DB
+      const { data: saved, error: saveErr } = await supabase.from("marketing_posts").insert({
+        platform: "Instagram",
         prompt,
         caption: post.caption,
         hashtags: post.hashtags || [],
-        style: postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle,
+        style: nextStyle,
         product_id: (selectedProductId && selectedProductId !== "none") ? selectedProductId : null,
         platform_tips: post.platform_tips || null,
         visual_suggestion: post.visual_suggestion || null,
         best_time: post.best_time || null,
         status: "rascunho",
       } as any).select("id").single();
+      if (saveErr) console.error("Save error:", saveErr);
+      if (saved?.id) setSavedPostId(saved.id);
 
-      if (saveErr) console.error("Save post error:", saveErr);
-      const savedPostId = savedPost?.id;
-
-      // Generate image automatically
+      // Step 3-4: generate image
+      setLoadingStep(3);
+      setLoading(false);
       setImageLoading(true);
       try {
-        const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
           body: {
             prompt,
-            platform,
             productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined,
-            style: resolvedStyle,
+            style: nextStyle,
             brandContext,
             brandAssets: activeBrandAssetsPayload,
             referenceContext: referencePatternContext,
@@ -1017,26 +1054,25 @@ const CreatePostTab = () => {
         if (imgData?.error) { toast.error(imgData.error); return; }
         if (imgData?.image_url) {
           setGeneratedImage(imgData.image_url);
-          setPostCount(prev => prev + 1);
-          // Update saved post with image URL
-          if (savedPostId) {
-            await supabase.from("marketing_posts").update({ image_url: imgData.image_url } as any).eq("id", savedPostId);
+          if (saved?.id) {
+            await supabase.from("marketing_posts").update({ image_url: imgData.image_url } as any).eq("id", saved.id);
           }
           queryClient.invalidateQueries({ queryKey: ["marketing-posts-history"] });
           queryClient.invalidateQueries({ queryKey: ["marketing-posts-gallery"] });
-          toast.success("Imagem do post gerada! 🎨");
+          toast.success("Post criado com sucesso!");
         }
       } catch (imgE: any) {
-        console.error("Image gen error:", imgE);
-        toast.error("Texto gerado, mas houve um erro na imagem. Tente gerar novamente.");
+        console.error("Image error:", imgE);
+        toast.error("Legenda pronta! Erro na imagem — clique em Regenerar.");
       } finally {
         setImageLoading(false);
+        setLoadingStep(0);
       }
     } catch (err: any) {
       console.error(err);
       toast.error("Erro ao gerar post. Tente novamente.");
-    } finally {
       setLoading(false);
+      setLoadingStep(0);
     }
   };
 
@@ -1044,13 +1080,11 @@ const CreatePostTab = () => {
     if (!generatedPost) return;
     setImageLoading(true);
     try {
-      const resolvedStyle = postStyle === "auto" ? (postCount % 2 === 0 ? "dark" : "light") : postStyle;
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("generate-post-image", {
         body: {
           prompt,
-          platform,
           productId: (selectedProductId && selectedProductId !== "none") ? selectedProductId : undefined,
-          style: resolvedStyle,
+          style: nextStyle,
           brandContext,
           brandAssets: activeBrandAssetsPayload,
           referenceContext: referencePatternContext,
@@ -1058,265 +1092,314 @@ const CreatePostTab = () => {
         },
       });
       if (imgErr) throw imgErr;
-      if (imgData?.error) { toast.error(imgData.error); return; }
       if (imgData?.image_url) {
         setGeneratedImage(imgData.image_url);
-        toast.success("Nova imagem gerada! 🎨");
+        if (savedPostId) {
+          await supabase.from("marketing_posts").update({ image_url: imgData.image_url } as any).eq("id", savedPostId);
+        }
+        toast.success("Nova imagem gerada!");
       }
-    } catch (e: any) {
-      console.error(e);
-      toast.error("Erro ao regerar imagem.");
+    } catch {
+      toast.error("Erro ao regenerar imagem.");
     } finally {
       setImageLoading(false);
     }
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, label = "Copiado!") => {
     navigator.clipboard.writeText(text);
-    toast.success("Copiado para a área de transferência!");
+    toast.success(label);
   };
 
-  const copyFullPost = () => {
-    if (!generatedPost) return;
-    const full = `${generatedPost.caption}\n\n${generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")}`;
-    copyToClipboard(full);
-  };
-
-  const downloadImage = () => {
+  const downloadImage = async () => {
     if (!generatedImage) return;
-    const a = document.createElement("a");
-    a.href = generatedImage;
-    a.download = `sollaris-post-${platform.toLowerCase()}-${Date.now()}.png`;
-    a.target = "_blank";
-    a.click();
+    try {
+      const response = await fetch(generatedImage);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sollaris-instagram-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      const a = document.createElement("a");
+      a.href = generatedImage;
+      a.download = `sollaris-instagram-${Date.now()}.png`;
+      a.target = "_blank";
+      a.click();
+    }
   };
 
-  const platformEmoji: Record<string, string> = { Instagram: "📸", TikTok: "🎵", Facebook: "📘", WhatsApp: "💬", LinkedIn: "💼" };
+  const handleSchedule = async () => {
+    if (!scheduleDate || !scheduleTime || !savedPostId) return;
+    setScheduling(true);
+    try {
+      const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}:00`).toISOString();
+      const { error } = await supabase.from("marketing_posts").update({
+        scheduled_at: scheduledAt,
+        status: "agendado",
+      } as any).eq("id", savedPostId);
+      if (error) throw error;
+      setIsScheduled(true);
+      setScheduleOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["marketing-posts-history"] });
+      toast.success(`Post agendado para ${format(new Date(`${scheduleDate}T${scheduleTime}`), "dd/MM 'às' HH:mm")}!`);
+    } catch {
+      toast.error("Erro ao agendar post.");
+    } finally {
+      setScheduling(false);
+    }
+  };
+
+  const fullCaption = generatedPost
+    ? `${generatedPost.caption}\n\n${generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")}`
+    : "";
+
   const productThumb = (p: any) => p.foto_frontal || p.foto_lifestyle || (p.images && p.images[0]) || "";
+  const isGenerating = loading || imageLoading;
+  const todayStr = format(new Date(), "yyyy-MM-dd");
 
   return (
-    <div className="space-y-4">
-      {/* Input area */}
-      <Card className="border-accent/20">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-accent" />
-            Gerador de Posts com IA — Identidade SOLLARIS
-          </CardTitle>
-          <p className="text-xs text-muted-foreground">Descreva sua ideia, selecione um produto do estoque e a IA cria texto + imagem profissional</p>
-        </CardHeader>
-        <CardContent className="space-y-3">
+    <div className="space-y-5">
+      {/* ── Input card ── */}
+      <Card className="border-accent/20 overflow-hidden">
+        <div className="h-0.5 bg-gradient-to-r from-accent/0 via-accent to-accent/0" />
+        <CardContent className="pt-5 pb-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+              <Sparkles className="h-4 w-4 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Criar Post para Instagram</p>
+              <p className="text-[11px] text-muted-foreground">IA cria imagem + legenda usando toda a identidade SOLLARIS</p>
+            </div>
+          </div>
+
           <Textarea
-            placeholder="Ex: Post sobre o lançamento da nova coleção de anéis com pedra turmalina rosa, focando na exclusividade e no significado da pedra..."
+            placeholder="O que você quer postar hoje? Ex: lançamento do anel com turmalina rosa, dica de presente para o dia das mães, bastidores da curadoria..."
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             rows={3}
-            className="resize-none"
+            className="resize-none border-accent/20 focus-visible:ring-accent/40 placeholder:text-muted-foreground/50"
           />
-
-          {/* Product selector */}
-          <div className="space-y-2">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-              <Package className="h-3 w-3" /> Produto do estoque (opcional — a IA usa foto e preço reais)
-            </p>
-            <Select value={selectedProductId} onValueChange={setSelectedProductId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um produto do estoque..." />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                <SelectItem value="none">Sem produto específico</SelectItem>
-                {products?.map(p => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name} — {fmtBRL(p.price)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Product preview */}
-            {selectedProduct && (
-              <div className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/50 border border-accent/10">
-                {productThumb(selectedProduct) && (
-                  <img src={productThumb(selectedProduct)} alt={selectedProduct.name} className="h-14 w-14 rounded-lg object-cover border border-accent/20" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{selectedProduct.name}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-accent">{fmtBRL(selectedProduct.price)}</span>
-                    {selectedProduct.original_price && (
-                      <span className="text-[10px] text-muted-foreground line-through">{fmtBRL(selectedProduct.original_price)}</span>
-                    )}
-                  </div>
-                  <div className="flex gap-1 mt-0.5">
-                    {selectedProduct.banho && <Badge variant="secondary" className="text-[9px]">{selectedProduct.banho}</Badge>}
-                    {selectedProduct.pedra && <Badge variant="secondary" className="text-[9px]">{selectedProduct.pedra}</Badge>}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Select value={postStyle} onValueChange={(v: "dark" | "light" | "auto") => setPostStyle(v)}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="auto">🔄 Alternar Dark/Light</SelectItem>
-                <SelectItem value="dark">🌑 Obsidiana (escuro)</SelectItem>
-                <SelectItem value="light">🤍 Champagne (claro)</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleGenerate} disabled={loading || imageLoading} className="ml-auto">
-              {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Gerando...</> : <><Sparkles className="h-4 w-4 mr-1" />Gerar Post + Imagem</>}
-            </Button>
-          </div>
-
-          {/* Brand assets indicator + toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => setShowBrandAssets(!showBrandAssets)}>
-                <BookOpen className="h-3.5 w-3.5" />
-                Central de Marca
-                {(brandAssets?.length || 0) > 0 && (
-                  <Badge variant="secondary" className="text-[9px] ml-1">{brandAssets?.length} ativos</Badge>
-                )}
-              </Button>
-              {(brandAssets?.length || 0) > 0 && (
-                <span className="text-[10px] text-muted-foreground">✅ Logo oficial, regras da marca e referências viram direção criativa</span>
-              )}
-            </div>
-          </div>
-
-          {(selectedProduct || referenceAssets.length > 0 || logoAssets.length > 0) && (
-            <div className="rounded-lg border border-accent/15 bg-secondary/30 px-3 py-2 text-[10px] text-muted-foreground">
-              {selectedProduct ? "Produto selecionado será tratado como fonte real obrigatória." : "Selecione um produto para travar a peça real na arte."} {logoAssets.length > 0 ? "A logo ativa será usada como marca oficial, sem recriação." : "Adicione uma logo ativa para aplicação oficial."} {referenceAssets.length > 0 ? "As referências serão usadas só como padrão visual, adaptadas para SOLLARIS." : "Envie referências visuais para guiar composição, luz e enquadramento."}
-            </div>
-          )}
 
           {/* Quick ideas */}
           <div className="flex flex-wrap gap-1.5">
-            {[
-              "Lançamento de nova coleção",
-              "Dica de presente para namorada",
-              "Significado de uma pedra preciosa",
-              "Bastidores da curadoria",
-              "Depoimento de cliente",
-              "Peça mais vendida do mês",
-            ].map(idea => (
+            {["Lançamento de nova coleção", "Dica de presente especial", "Significado de uma pedra", "Bastidores da curadoria", "Peça mais vendida do mês", "Post inspiracional"].map(idea => (
               <button
                 key={idea}
                 onClick={() => setPrompt(idea)}
-                className="text-[10px] px-2.5 py-1 rounded-full bg-secondary hover:bg-secondary/70 text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[11px] px-2.5 py-1 rounded-full bg-secondary hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors border border-border/40"
               >
-                <Lightbulb className="h-2.5 w-2.5 inline mr-1" />{idea}
+                {idea}
               </button>
             ))}
           </div>
+
+          {/* Actions row */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn("text-xs gap-1.5 h-8", selectedProduct && "border-accent/40 text-accent bg-accent/5")}
+              onClick={() => setShowProductPicker(v => !v)}
+            >
+              <Package className="h-3.5 w-3.5" />
+              {selectedProduct ? selectedProduct.name.split(" ").slice(0, 3).join(" ") : "Produto"}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1.5 h-8"
+              onClick={() => setShowBrandAssets(v => !v)}
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              Marca
+              {(brandAssets?.length || 0) > 0 && (
+                <Badge variant="secondary" className="text-[9px] ml-0.5 h-4 px-1">{brandAssets?.length}</Badge>
+              )}
+            </Button>
+
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating || !prompt.trim()}
+              size="sm"
+              className="ml-auto h-8 gap-2 px-5 font-medium bg-accent hover:bg-accent/90 text-accent-foreground"
+            >
+              {isGenerating ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Criando...</> : <><Sparkles className="h-3.5 w-3.5" />Criar Post Perfeito</>}
+            </Button>
+          </div>
+
+          {/* Product picker */}
+          {showProductPicker && (
+            <div className="space-y-2 pt-1 border-t border-border/40">
+              <Select value={selectedProductId} onValueChange={v => { setSelectedProductId(v); if (v !== "none") setShowProductPicker(false); }}>
+                <SelectTrigger className="text-xs h-9">
+                  <SelectValue placeholder="Selecione um produto..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-[280px]">
+                  <SelectItem value="none">Sem produto específico</SelectItem>
+                  {products?.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name} — {fmtBRL(p.price)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedProduct && (
+                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/50 border border-accent/10">
+                  {productThumb(selectedProduct) && (
+                    <img src={productThumb(selectedProduct)} alt={selectedProduct.name} className="h-11 w-11 rounded-lg object-cover border border-accent/20 shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">{selectedProduct.name}</p>
+                    <span className="text-xs font-semibold text-accent">{fmtBRL(selectedProduct.price)}</span>
+                    <div className="flex gap-1 mt-0.5">
+                      {selectedProduct.banho && <Badge variant="secondary" className="text-[9px]">{selectedProduct.banho}</Badge>}
+                      {selectedProduct.pedra && <Badge variant="secondary" className="text-[9px]">{selectedProduct.pedra}</Badge>}
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => { setSelectedProductId(""); }}>Remover</Button>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Brand Assets Panel */}
       {showBrandAssets && <BrandAssetsPanel onClose={() => setShowBrandAssets(false)} />}
 
-      {/* Loading state */}
-      {(loading || imageLoading) && !generatedPost && (
-        <Card>
-          <CardContent className="p-8 flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-accent" />
-            <p className="text-sm text-muted-foreground">Criando post com a identidade SOLLARIS...</p>
-            <p className="text-[10px] text-muted-foreground">Tom de voz editorial • Filosofia de curadoria • Estética premium</p>
+      {/* ── Loading ── */}
+      {isGenerating && !generatedPost && (
+        <Card className="border-accent/20">
+          <CardContent className="py-10 flex flex-col items-center gap-6">
+            <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center">
+              <Loader2 className="h-7 w-7 animate-spin text-accent" />
+            </div>
+            <div className="space-y-2.5 w-full max-w-xs">
+              {loadingSteps.map((step, i) => (
+                <div key={i} className={cn("flex items-center gap-3 transition-all duration-300", loadingStep > i ? "opacity-100" : "opacity-25")}>
+                  <div className={cn(
+                    "h-6 w-6 rounded-full flex items-center justify-center text-xs shrink-0 transition-colors",
+                    loadingStep > i ? "bg-accent/20 text-accent" : "bg-secondary text-muted-foreground"
+                  )}>
+                    {loadingStep > i ? <Check className="h-3 w-3" /> : step.emoji}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{step.label}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Generated post */}
+      {/* ── Result ── */}
       {generatedPost && !loading && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-          {/* Image + Caption side by side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {/* Generated Image */}
-            <Card className="border-accent/30">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <ImagePlus className="h-4 w-4 text-accent" />
-                    Imagem do Post
-                  </CardTitle>
-                  <div className="flex gap-1.5">
-                    {generatedImage && (
-                      <Button size="sm" variant="outline" onClick={downloadImage}>
-                        <Download className="h-3 w-3 mr-1" />Baixar
-                      </Button>
-                    )}
-                    <Button size="sm" variant="outline" onClick={handleRegenerateImage} disabled={imageLoading}>
-                      {imageLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Sparkles className="h-3 w-3 mr-1" />Regerar</>}
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {imageLoading && !generatedImage ? (
-                  <div className="aspect-square rounded-lg bg-secondary/50 flex flex-col items-center justify-center gap-3">
-                    <Loader2 className="h-8 w-8 animate-spin text-accent" />
-                    <p className="text-xs text-muted-foreground">Gerando imagem com IA...</p>
-                    <p className="text-[10px] text-muted-foreground">Identidade SOLLARIS • Cores da marca • Foto do produto</p>
-                  </div>
-                ) : generatedImage ? (
-                  <div className="relative group">
-                    <img
-                      src={generatedImage}
-                      alt="Post gerado"
-                      className="w-full rounded-lg border border-accent/20"
-                    />
-                    {imageLoading && (
-                      <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+
+            {/* Left: Instagram phone preview */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-full max-w-[300px] mx-auto">
+                {/* Phone frame */}
+                <div className="bg-neutral-950 rounded-[2.2rem] p-[3px] shadow-2xl border border-neutral-800">
+                  <div className="rounded-[2rem] overflow-hidden bg-black">
+                    {/* IG top bar */}
+                    <div className="bg-black px-3 py-2 flex items-center gap-2.5 border-b border-white/5">
+                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
+                        <span className="text-[9px] font-black text-white">S</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-[11px] font-semibold leading-none">sollaris.joias</p>
+                        <p className="text-neutral-400 text-[9px] mt-0.5 leading-none">Patrocinado</p>
+                      </div>
+                      <span className="text-neutral-400 text-base font-bold tracking-widest">···</span>
+                    </div>
+
+                    {/* Image */}
+                    {imageLoading ? (
+                      <div className="w-full aspect-square bg-neutral-900 flex flex-col items-center justify-center gap-3">
+                        <Loader2 className="h-8 w-8 animate-spin text-accent/50" />
+                        <p className="text-neutral-500 text-xs">Gerando imagem...</p>
+                      </div>
+                    ) : generatedImage ? (
+                      <img src={generatedImage} alt="Post gerado" className="w-full aspect-square object-cover" />
+                    ) : (
+                      <div className="w-full aspect-square bg-neutral-900 flex items-center justify-center">
+                        <Image className="h-10 w-10 text-neutral-700" />
                       </div>
                     )}
+
+                    {/* IG bottom bar */}
+                    <div className="bg-black px-3 py-2.5">
+                      <div className="flex items-center gap-3.5 mb-2">
+                        <Heart className="h-5 w-5 text-white/70" />
+                        <MessageCircle className="h-5 w-5 text-white/70" />
+                        <Send className="h-[18px] w-[18px] text-white/70" />
+                      </div>
+                      <p className="text-white text-[11px] font-semibold">sollaris.joias</p>
+                      <p className="text-white/60 text-[10px] leading-relaxed line-clamp-2 mt-0.5">{generatedPost.caption.slice(0, 90)}{generatedPost.caption.length > 90 ? "…" : ""}</p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="aspect-square rounded-lg bg-secondary/50 flex flex-col items-center justify-center gap-2">
-                    <Image className="h-8 w-8 text-muted-foreground/40" />
-                    <p className="text-xs text-muted-foreground">Imagem não gerada</p>
-                    <Button size="sm" variant="outline" onClick={handleRegenerateImage}>
-                      <Sparkles className="h-3 w-3 mr-1" />Gerar Imagem
+                </div>
+              </div>
+
+              {/* Image actions */}
+              <div className="flex gap-2 w-full max-w-[300px]">
+                <Button
+                  className="flex-1 gap-2 font-medium"
+                  onClick={downloadImage}
+                  disabled={!generatedImage || imageLoading}
+                >
+                  <Download className="h-4 w-4" />
+                  Baixar Imagem
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleRegenerateImage}
+                  disabled={imageLoading}
+                  title="Regenerar imagem"
+                  className="shrink-0"
+                >
+                  {imageLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            {/* Right: Caption + actions */}
+            <div className="flex flex-col gap-3">
+              {/* Caption */}
+              <Card className="border-accent/20">
+                <CardContent className="p-4 space-y-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Legenda</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs gap-1.5 text-accent hover:text-accent hover:bg-accent/10"
+                      onClick={() => copyToClipboard(generatedPost.caption, "Legenda copiada!")}
+                    >
+                      <Copy className="h-3 w-3" />Copiar
                     </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">{generatedPost.caption}</p>
+                </CardContent>
+              </Card>
 
-            {/* Caption */}
-            <Card className="border-accent/30">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <span>{platformEmoji[platform]}</span>
-                    Post para {platform}
-                  </CardTitle>
-                  <Button size="sm" variant="outline" onClick={copyFullPost}>
-                    <Copy className="h-3 w-3 mr-1" />Copiar Tudo
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="relative">
-                  <div className="p-4 rounded-lg bg-secondary/50 whitespace-pre-wrap text-sm leading-relaxed max-h-[300px] overflow-y-auto">
-                    {generatedPost.caption}
+              {/* Hashtags */}
+              <Card className="border-accent/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Hashtags</p>
+                    <button
+                      onClick={() => copyToClipboard(generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "), "Hashtags copiadas!")}
+                      className="text-[11px] text-accent hover:underline"
+                    >
+                      Copiar todas
+                    </button>
                   </div>
-                  <button
-                    onClick={() => copyToClipboard(generatedPost.caption)}
-                    className="absolute top-2 right-2 p-1.5 rounded-md bg-background/80 hover:bg-background transition-colors"
-                    title="Copiar legenda"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </button>
-                </div>
-
-                {/* Hashtags */}
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Hashtags</p>
                   <div className="flex flex-wrap gap-1.5">
                     {generatedPost.hashtags.map((h, i) => (
                       <Badge
@@ -1325,78 +1408,118 @@ const CreatePostTab = () => {
                         className="text-[10px] cursor-pointer hover:bg-accent/20 transition-colors"
                         onClick={() => copyToClipboard(h.startsWith("#") ? h : `#${h}`)}
                       >
-                        <Hash className="h-2.5 w-2.5 mr-0.5" />
                         {h.replace(/^#/, "")}
                       </Badge>
                     ))}
                   </div>
-                  <button
-                    onClick={() => copyToClipboard(generatedPost.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "))}
-                    className="text-[10px] text-accent hover:underline mt-1.5"
-                  >
-                    Copiar todas as hashtags
-                  </button>
+                </CardContent>
+              </Card>
+
+              {/* Best time tip */}
+              {generatedPost.best_time && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-blue-400">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  {generatedPost.best_time}
                 </div>
-              </CardContent>
-            </Card>
+              )}
+
+              {/* Primary action buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 text-sm"
+                  onClick={() => copyToClipboard(fullCaption, "Post completo copiado!")}
+                >
+                  <Copy className="h-4 w-4" />
+                  Copiar Legenda + Hashtags
+                </Button>
+                <Button
+                  variant={isScheduled ? "secondary" : "default"}
+                  className={cn("gap-2 text-sm shrink-0", isScheduled && "text-emerald-400 border-emerald-500/30 bg-emerald-500/5")}
+                  onClick={() => !isScheduled && setScheduleOpen(true)}
+                  disabled={!savedPostId}
+                >
+                  {isScheduled ? <><CheckCircle className="h-4 w-4" />Agendado</> : <><CalendarPlus className="h-4 w-4" />Agendar</>}
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Tips grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Image className="h-4 w-4 text-accent" />
-                  <p className="text-xs font-semibold">Sugestão Visual</p>
-                </div>
-                <p className="text-xs text-muted-foreground">{generatedPost.visual_suggestion}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb className="h-4 w-4 text-amber-400" />
-                  <p className="text-xs font-semibold">Dicas da Plataforma</p>
-                </div>
-                <p className="text-xs text-muted-foreground">{generatedPost.platform_tips}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-blue-400" />
-                  <p className="text-xs font-semibold">Melhor Horário</p>
-                </div>
-                <p className="text-xs text-muted-foreground">{generatedPost.best_time}</p>
-              </CardContent>
-            </Card>
+          {/* New post button */}
+          <div className="flex justify-center pt-1">
+            <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1.5" onClick={resetResult}>
+              <Sparkles className="h-3 w-3" />
+              Criar Novo Post
+            </Button>
           </div>
         </motion.div>
       )}
 
-      {/* History */}
-      {(savedPosts?.length || 0) > 0 && (
+      {/* ── Schedule dialog ── */}
+      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <CalendarPlus className="h-4 w-4 text-accent" />
+              Agendar Post
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-1">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Data</label>
+              <Input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={todayStr} className="text-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Horário</label>
+              <Input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)} className="text-sm" />
+            </div>
+            {scheduleDate && scheduleTime && (
+              <div className="p-3 rounded-lg bg-accent/5 border border-accent/20 text-xs text-center text-accent font-medium">
+                Agendado para {format(new Date(`${scheduleDate}T${scheduleTime}`), "dd/MM/yyyy 'às' HH:mm")}
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setScheduleOpen(false)}>Cancelar</Button>
+            <Button size="sm" onClick={handleSchedule} disabled={scheduling || !scheduleDate || !scheduleTime}>
+              {scheduling ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <CalendarPlus className="h-3.5 w-3.5 mr-1" />}
+              Agendar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── History grid (shown only when no result visible) ── */}
+      {(savedPosts?.length || 0) > 0 && !generatedPost && !isGenerating && (
         <div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Histórico de Posts Gerados</h3>
-          <div className="space-y-2">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Posts Anteriores</h3>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
             {savedPosts?.map((h: any) => (
-              <Card key={h.id} className="hover:border-accent/20 transition-colors cursor-pointer" onClick={() => { if (h) { setGeneratedPost({ caption: h.caption, hashtags: h.hashtags || [], platform_tips: h.platform_tips || "", visual_suggestion: h.visual_suggestion || "", best_time: h.best_time || "" }); if (h.image_url) setGeneratedImage(h.image_url); } }}>
-                <CardContent className="p-3 flex items-center gap-3">
-                  {h.image_url ? (
-                    <img src={h.image_url} alt="" className="h-10 w-10 rounded-lg object-cover border border-accent/20" />
-                  ) : (
-                    <span className="text-lg">{platformEmoji[h.platform || "Instagram"]}</span>
+              <button
+                key={h.id}
+                className="group relative aspect-square rounded-xl overflow-hidden border border-border hover:border-accent/40 transition-all"
+                onClick={() => {
+                  setGeneratedPost({ caption: h.caption, hashtags: h.hashtags || [], platform_tips: h.platform_tips || "", visual_suggestion: h.visual_suggestion || "", best_time: h.best_time || "" });
+                  if (h.image_url) setGeneratedImage(h.image_url);
+                  setSavedPostId(h.id);
+                  setPrompt(h.prompt || "");
+                  setIsScheduled(h.status === "agendado");
+                }}
+              >
+                {h.image_url ? (
+                  <img src={h.image_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-secondary flex items-center justify-center">
+                    <Instagram className="h-5 w-5 text-muted-foreground/40" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                  <Eye className="h-4 w-4 text-white" />
+                  {h.status === "agendado" && (
+                    <Badge variant="secondary" className="text-[8px] bg-emerald-500/20 text-emerald-400 border-0">Agendado</Badge>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">{h.prompt}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{h.caption?.slice(0, 80)}...</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    <Badge variant="secondary" className="text-[10px]">{h.platform}</Badge>
-                    <span className="text-[9px] text-muted-foreground">{format(new Date(h.created_at), "dd/MM HH:mm")}</span>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </button>
             ))}
           </div>
         </div>
