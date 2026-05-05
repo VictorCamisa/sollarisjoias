@@ -55,18 +55,38 @@ async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; conten
   }
 }
 
-function buildPrompt(style: string, productDetails: string, customInstruction?: string): string {
+function buildPrompt(style: string, productDetails: string, customInstruction?: string, photoPreset = "standard"): string {
   const PRESERVE =
     "CRITICAL RULE — THIS IS PHOTO RETOUCHING, NOT IMAGE GENERATION. " +
     "You MUST preserve the exact jewelry piece from the reference photo with absolute fidelity: " +
     "identical silhouette, gemstone color and cut, chain/link pattern, metal finish (gold/silver/rose), " +
     "proportions and scale, orientation, prong count, engraving, and every visible detail. " +
+    "COUNT LOCK: preserve the exact number of visible pieces. If the reference shows a pair, output exactly two; " +
+    "if it shows a trio or set of three small earrings, output exactly three separate pieces, never one, two, four, duplicated, merged, or redesigned. " +
+    "Do not change the spacing relationship between pieces except to gently center the complete set. " +
     "DO NOT redesign, restyle, or change any element. DO NOT invent new features. " +
     "DO NOT add logos, brand marks, watermarks, text, typography, or any graphic overlay. " +
     "The image must be completely free of text and brand elements.";
 
-  const DARK =
-    "Background: deep obsidian black (#090909–#0D0D0F). This is the permanent Sollaris luxury ecommerce standard — non-negotiable.";
+  const CLEAR =
+    "Background: warm pearl/off-white (#F7F3EC to #FFFFFF), matching the new clear Sollaris storefront layout. " +
+    "Use a clean luxury ecommerce surface, soft champagne reflection, subtle contact shadow, high clarity, no black background, no colored props.";
+
+  const presetRules: Record<string, string> = {
+    standard:
+      "STANDARD PRODUCT MODE: keep the item centered, crisp, premium and truthful. Product should occupy about 72–82% of the canvas with elegant breathing room.",
+    small_set:
+      "SMALL SET / TRIO MODE: designed for tiny earrings, sets and multiple small pieces. Use macro product photography. " +
+      "Every individual earring or charm must remain visible, separated, sharp and true to the source. Preserve exactly the same count and arrangement. " +
+      "Do not simplify stones, close holes, thicken posts, fuse pieces, or turn a trio into a single object.",
+    macro:
+      "MACRO DETAIL MODE: preserve the original product while improving sharpness, metal highlights and stone definition. Do not crop away edges or change geometry.",
+    exact:
+      "MAXIMUM FIDELITY MODE: make the smallest possible edits. Prefer cleaning background, exposure, shadow and sharpness over changing product pixels. " +
+      "If unsure, leave the product exactly as in the reference photo.",
+  };
+
+  const selectedPreset = presetRules[photoPreset] || presetRules.standard;
 
   // 🔧 EDIÇÃO PONTUAL — quando o usuário pede um ajuste específico,
   // alteramos APENAS o que foi pedido e mantemos todo o resto idêntico.
@@ -79,25 +99,25 @@ function buildPrompt(style: string, productDetails: string, customInstruction?: 
       "This is a targeted retouch, like a Photoshop adjustment layer applied to the original photo.";
 
     const base =
-      `${SURGICAL} ${PRESERVE} ` +
+      `${SURGICAL} ${PRESERVE} ${selectedPreset} ` +
       `\n\nUSER REQUESTED CHANGE (apply ONLY this, nothing else): "${customInstruction.trim()}"` +
-      `\n\nRemember: NO text, NO logo, NO watermark. Photorealistic output matching the original style.`;
+      `\n\nRemember: clear pearl storefront background when background is touched; NO text, NO logo, NO watermark. Photorealistic output matching the original product.`;
 
     return productDetails ? `${base}\n\nProduct reference: ${productDetails}.` : base;
   }
 
   const prompts: Record<string, string> = {
     catalog:
-      `${PRESERVE} ${DARK} Replace ONLY the background with a perfectly seamless obsidian black backdrop. ` +
+      `${PRESERVE} ${CLEAR} ${selectedPreset} Replace ONLY the background and lighting environment; the jewelry itself is the source of truth. ` +
       `Apply luxury jewelry studio lighting: soft key light from slightly above-front, subtle champagne-gold rim highlights on metal edges, zero harsh shadows. ` +
-      `Center the jewelry. Photorealistic, ultra-sharp product photography. NO text, NO logo, NO watermark under any circumstances.`,
+      `Center the complete product/set. Photorealistic, ultra-sharp product photography. NO text, NO logo, NO watermark under any circumstances.`,
     mockup:
-      `${PRESERVE} ${DARK} Compose the exact same jewelry in a luxury editorial scene: obsidian black environment, ` +
-      `barely-visible dark reflective surface, dramatic warm champagne side lighting. ` +
+      `${PRESERVE} ${CLEAR} ${selectedPreset} Compose the exact same jewelry in a minimal luxury editorial scene: warm pearl surface, ` +
+      `soft champagne side lighting, refined shadow, no distracting props. ` +
       `Ultra-photorealistic premium fashion editorial. NO text, NO logo, NO watermark.`,
     lifestyle:
-      `${PRESERVE} ${DARK} Place the exact same jewelry in a dark editorial lifestyle scene: obsidian mood, ` +
-      `soft warm champagne highlights, premium fashion styling. The jewelry must be the visual hero, ` +
+      `${PRESERVE} ${CLEAR} ${selectedPreset} Place the exact same jewelry in a bright minimal editorial lifestyle scene: pearl-toned mood, ` +
+      `soft warm champagne highlights, premium styling. The jewelry must be the visual hero, ` +
       `visually identical to the input. Photorealistic. NO text, NO logo, NO watermark.`,
   };
 
