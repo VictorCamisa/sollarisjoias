@@ -55,6 +55,11 @@ async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; conten
   }
 }
 
+function extractImageBase64(imageUrl: string): string | null {
+  const match = imageUrl.match(/^data:image\/[a-zA-Z0-9.+-]+;base64,(.*)$/s);
+  return match?.[1] || null;
+}
+
 function buildPrompt(style: string, productDetails: string, customInstruction?: string, photoPreset = "standard"): string {
   const PRESERVE =
     "CRITICAL RULE — THIS IS PHOTO RETOUCHING, NOT IMAGE GENERATION. " +
@@ -126,6 +131,52 @@ function buildPrompt(style: string, productDetails: string, customInstruction?: 
 }
 
 /* ─── OpenAI gpt-image-1 ─── */
+async function processWithLovableGateway(
+  imageData: { bytes: Uint8Array; contentType: string },
+  prompt: string,
+  apiKey: string,
+  photoPreset = "standard",
+): Promise<string | null> {
+  const mimeType = imageData.contentType.split(";")[0] || "image/jpeg";
+  const base64Image = encodeBase64(imageData.bytes);
+  const model = ["small_set", "macro", "exact"].includes(photoPreset)
+    ? "google/gemini-3-pro-image-preview"
+    : "google/gemini-3.1-flash-image-preview";
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } },
+          ],
+        },
+      ],
+      modalities: ["image", "text"],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Lovable AI Gateway error:", res.status, errText);
+    if (res.status === 429) throw new Error("Limite de IA atingido. Tente novamente em alguns segundos.");
+    if (res.status === 402) throw new Error("Créditos de IA insuficientes.");
+    throw new Error(`Lovable AI retornou status ${res.status}.`);
+  }
+
+  const data = await res.json();
+  const generatedUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url as string | undefined;
+  return generatedUrl ? extractImageBase64(generatedUrl) : null;
+}
+
 async function processWithOpenAI(
   imageData: { bytes: Uint8Array; contentType: string },
   prompt: string,
