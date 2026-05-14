@@ -178,7 +178,7 @@ REGRAS:
 - Sempre mencione a peça específica comprada — nunca seja genérica
 - Celebre a decisão: "Que escolha incrível — ela vai amar!"
 - Se houve problema: resolva ANTES de qualquer cross-sell
-- Ofereça polimento/verificação gratuita aos 6 meses da compra`,
+- Ofereça polimento/verificação gratuita durante o primeiro ano da compra`,
   },
 ];
 

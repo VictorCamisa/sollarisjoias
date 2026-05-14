@@ -81,7 +81,7 @@ const CategoryStrip = () => {
               >
                 {cat ? (
                   <Link
-                    to={`/colecao?cat=${cat.slug}`}
+                    to={`/colecao?categoria=${cat.slug}`}
                     className="group block relative w-[170px] sm:w-[230px] aspect-[3/4] overflow-hidden bg-card border border-border/40 hover:border-bordeaux/50 transition-all duration-500"
                   >
                     {cat.image ? (
@@ -100,9 +100,6 @@ const CategoryStrip = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                     {/* Label */}
                     <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                      <p className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.28em] text-white/60 mb-1">
-                        {cat.count > 0 ? `${cat.count} peças` : "Em breve"}
-                      </p>
                       <h3 className="font-display text-white text-[18px] sm:text-[22px] leading-tight">
                         {cat.name}
                       </h3>

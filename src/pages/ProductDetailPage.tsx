@@ -418,11 +418,11 @@ const ProductInfoTabs = ({ product }: { product: any }) => {
                 <ShieldCheck className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                 <div>
                   <p className="font-sans text-[10px] tracking-[0.18em] uppercase text-foreground mb-1">
-                    Garantia SOLLARIS — 6 meses
+                    Garantia SOLLARIS — 1 ano
                   </p>
                   <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-                    Cobrimos defeitos de fabricação no banho e na estrutura. Falamos
-                    diretamente pelo WhatsApp para resolver com agilidade.
+                    Cobrimos defeitos de fabricação no banho e na estrutura. A garantia
+                    não cobre perda de pedrarias por impacto, queda ou mau uso.
                   </p>
                 </div>
               </div>
@@ -653,7 +653,7 @@ const ProductDetailPage = () => {
                   <span className="text-muted-foreground">à vista no Pix</span>
                 </p>
                 <p className="font-sans text-[12px] text-muted-foreground tabular-nums">
-                  até <span className="text-foreground">4× {fmt(product.price / 4)}</span> sem juros
+                  até <span className="text-foreground">6× {fmt(product.price / 6)}</span> sem juros
                 </p>
               </div>
             </div>
@@ -728,7 +728,7 @@ const ProductDetailPage = () => {
             {/* ─── Trust strip — compact horizontal ─── */}
             <div className="grid grid-cols-3 gap-2 py-3 border-y border-border/40">
               {[
-                { icon: ShieldCheck, label: "Garantia 6m" },
+                { icon: ShieldCheck, label: "Garantia 1 ano" },
                 { icon: Truck, label: "Envio rápido" },
                 { icon: RotateCcw, label: "Troca 7 dias" },
               ].map(({ icon: Icon, label }) => (

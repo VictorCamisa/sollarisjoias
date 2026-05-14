@@ -31,13 +31,13 @@ const Footer = () => {
             </p>
             <ul className="space-y-3.5">
               <li>
-                <Link to="/atelier" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                <Link to="/sobre" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
                   O Atelier
                 </Link>
               </li>
               <li>
-                <Link to="/journal" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
-                  Journal
+                <Link to="/vitrine" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                  Vitrine Editorial
                 </Link>
               </li>
               <li>
@@ -46,9 +46,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/concierge" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("sollaris:open-concierge"))}
+                  className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors text-left"
+                >
                   Concierge
-                </Link>
+                </button>
               </li>
             </ul>
           </div>
@@ -65,17 +69,17 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/colecao?colecao=heritage" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                <Link to="/colecao" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
                   Heritage
                 </Link>
               </li>
               <li>
-                <Link to="/colecao?colecao=editorial" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                <Link to="/vitrine" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
                   Editorial Bordeaux
                 </Link>
               </li>
               <li>
-                <Link to="/colecao?colecao=essentials" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
+                <Link to="/colecao" className="font-display text-[15px] text-maison-creme/90 hover:text-maison-gold transition-colors">
                   Sollaris Essentials
                 </Link>
               </li>
@@ -90,12 +94,12 @@ const Footer = () => {
             <ul className="space-y-3.5">
               <li>
                 <span className="font-display text-[15px] text-maison-creme/90">
-                  Garantia Vitalícia
+                  Garantia de 1 ano
                 </span>
               </li>
               <li>
                 <span className="font-display text-[15px] text-maison-creme/90">
-                  Banho 18k · 5 micra
+                  Banho 18k
                 </span>
               </li>
               <li>
@@ -120,7 +124,7 @@ const Footer = () => {
               <li className="flex items-start gap-2.5">
                 <MapPin className="h-3.5 w-3.5 text-maison-gold flex-shrink-0 mt-1" strokeWidth={1.5} />
                 <span className="font-display text-[14px] text-maison-creme/90 leading-relaxed">
-                  Rua Oscar Freire, 1234<br />Jardins · São Paulo
+                  Atendimento online<br />Brasil inteiro
                 </span>
               </li>
               <li className="flex items-start gap-2.5">

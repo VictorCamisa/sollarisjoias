@@ -135,7 +135,7 @@ const Dropdown = ({
 ═══════════════════════════════════════════════════════ */
 const CollectionPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialCat = searchParams.get("categoria") || "";
+  const initialCat = searchParams.get("categoria") || searchParams.get("cat") || "";
   const [activeCategory, setActiveCategory] = useState(initialCat);
   const [priceRange, setPriceRange] = useState(0);
   const [sortBy, setSortBy] = useState("recent");

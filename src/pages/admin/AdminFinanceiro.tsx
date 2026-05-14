@@ -129,13 +129,14 @@ const AdminFinanceiro = () => {
     setDialogOpen(true);
   };
 
-  const StatCard = ({ label, value, icon: Icon, color, bg }: any) => (
+  const StatCard = ({ label, value, icon: Icon, color, bg, helper }: any) => (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="admin-card p-4 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
         <div className={`${bg} ${color} p-1.5 rounded-lg`}><Icon className="h-3.5 w-3.5" /></div>
       </div>
       <span className="text-xl font-bold tabular-nums">{fmtBRL(value)}</span>
+      {helper && <span className="text-[10px] text-muted-foreground leading-snug">{helper}</span>}
     </motion.div>
   );
 
@@ -222,9 +223,9 @@ const AdminFinanceiro = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard label="Receitas" value={stats.income} icon={ArrowUpRight} color="text-emerald-400" bg="bg-emerald-400/10" />
         <StatCard label="Despesas" value={stats.expense} icon={ArrowDownRight} color="text-red-400" bg="bg-red-400/10" />
-        <StatCard label="Resultado" value={stats.balance} icon={DollarSign} color={stats.balance >= 0 ? "text-emerald-400" : "text-red-400"} bg={stats.balance >= 0 ? "bg-emerald-400/10" : "bg-red-400/10"} />
+        <StatCard label="Resultado" value={stats.balance} icon={DollarSign} color={stats.balance >= 0 ? "text-emerald-400" : "text-red-400"} bg={stats.balance >= 0 ? "bg-emerald-400/10" : "bg-red-400/10"} helper="Receitas pagas menos despesas pagas" />
         <StatCard label="Pendente" value={stats.pending} icon={Wallet} color="text-amber-400" bg="bg-amber-400/10" />
-        <StatCard label="Compras" value={stats.purchaseTotal} icon={ShoppingCart} color="text-violet-400" bg="bg-violet-400/10" />
+        <StatCard label="Compras totais" value={stats.purchaseTotal} icon={ShoppingCart} color="text-violet-400" bg="bg-violet-400/10" helper="Total investido em compras registradas" />
         <StatCard label="Crediário" value={stats.crediarioPending} icon={Users} color="text-blue-400" bg="bg-blue-400/10" />
       </div>
 
