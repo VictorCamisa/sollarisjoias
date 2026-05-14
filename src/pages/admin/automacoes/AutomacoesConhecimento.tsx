@@ -164,7 +164,7 @@ Meça o diâmetro interno do anel em mm e compare com a tabela.
 
 **GARANTIAS**
 - 1 ano de garantia contra defeito de fabricação
-- Polimento e revisão gratuitos em 6 meses
+- Polimento e revisão gratuitos durante o primeiro ano
 - Laudo de autenticidade das pedras incluído
 
 **IMPORTANTE**

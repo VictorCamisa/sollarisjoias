@@ -93,6 +93,34 @@ const TOOLS = [
   },
 ];
 
+const normalizeText = (value: unknown) =>
+  String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const STOPWORDS = new Set([
+  "a", "o", "as", "os", "um", "uma", "de", "da", "do", "das", "dos", "para", "pra", "pro",
+  "por", "com", "sem", "algo", "coisa", "quero", "queria", "encontre", "mostre", "me",
+  "dia", "uso", "usar", "todo", "toda", "todos", "todas",
+]);
+
+const inferCategory = (query: string) => {
+  const q = normalizeText(query);
+  if (/\b(anel|aneis|alianca|aliancas)\b/.test(q)) return "aneis";
+  if (/\b(brinco|brincos|argola|argolas|huggie|ear cuff)\b/.test(q)) return "brincos";
+  if (/\b(colar|colares|corrente|correntes|pingente|pingentes)\b/.test(q)) return "colares";
+  if (/\b(choker|gargantilha|gargantilhas)\b/.test(q)) return "choker";
+  if (/\b(pulseira|pulseiras|bracelete|braceletes)\b/.test(q)) return "pulseiras";
+  if (/\b(tornozeleira|tornozeleiras)\b/.test(q)) return "tornozeleiras";
+  return undefined;
+};
+
+const queryTokens = (query: string) =>
+  normalizeText(query)
+    .split(/[^a-z0-9]+/g)
+    .filter((token) => token.length >= 3 && !STOPWORDS.has(token));
+
 // ─────────────────────────────────────────────
 // Tool execution
 // ─────────────────────────────────────────────
@@ -104,6 +132,8 @@ async function executeTool(
 ): Promise<{ result: string; cart_update?: CartItem[]; checkout_url?: string }> {
   try {
     if (name === "search_products") {
+      const term = String(args.query || "").trim();
+      const inferredCategory = args.category || inferCategory(term);
       let q = supabase
         .from("products")
         .select("id, name, price, original_price, images, foto_frontal, material, pedra, banho, description, stock_quantity, categories!inner(name, slug)")
@@ -111,18 +141,50 @@ async function executeTool(
         .gt("stock_quantity", 0)
         .limit(Math.min(args.limit || 4, 6));
 
-      if (args.category) q = q.eq("categories.slug", args.category);
+      if (inferredCategory) q = q.eq("categories.slug", inferredCategory);
       if (args.max_price) q = q.lte("price", args.max_price);
       if (args.min_price) q = q.gte("price", args.min_price);
-      if (args.query) {
-        const term = String(args.query).trim();
+      if (term) {
         q = q.or(
           `name.ilike.%${term}%,description.ilike.%${term}%,material.ilike.%${term}%,pedra.ilike.%${term}%`
         );
       }
 
-      const { data, error } = await q;
+      let { data, error } = await q;
       if (error) return { result: `Erro: ${error.message}` };
+      if ((!data || data.length === 0) && term) {
+        let fallback = supabase
+          .from("products")
+          .select("id, name, price, original_price, images, foto_frontal, material, pedra, banho, description, stock_quantity, categories!inner(name, slug)")
+          .eq("stock_status", true)
+          .gt("stock_quantity", 0)
+          .limit(80);
+
+        if (inferredCategory) fallback = fallback.eq("categories.slug", inferredCategory);
+        if (args.max_price) fallback = fallback.lte("price", args.max_price);
+        if (args.min_price) fallback = fallback.gte("price", args.min_price);
+
+        const fb = await fallback;
+        if (fb.error) return { result: `Erro: ${fb.error.message}` };
+        const tokens = queryTokens(term);
+        data = (fb.data || [])
+          .map((p: any) => {
+            const haystack = normalizeText([
+              p.name,
+              p.description,
+              p.material,
+              p.pedra,
+              p.banho,
+              p.categories?.name,
+            ].join(" "));
+            const score = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 1 : 0), 0);
+            return { p, score };
+          })
+          .filter(({ score }: any) => score > 0 || tokens.length === 0)
+          .sort((a: any, b: any) => b.score - a.score || Number(a.p.price) - Number(b.p.price))
+          .slice(0, Math.min(args.limit || 4, 6))
+          .map(({ p }: any) => p);
+      }
       if (!data || data.length === 0) return { result: "Nenhuma peça encontrada com esses critérios." };
 
       const items = data.map((p: any) => ({
@@ -240,7 +302,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const systemPrompt = `Você é a **Consultora Sollaris**, vendedora pessoal IA da Sollaris Joias — uma joalheria de semijoias premium (banho 18k, 5 micra, pedras naturais, garantia vitalícia).
+    const systemPrompt = `Você é a **Consultora Sollaris**, vendedora pessoal IA da Sollaris Joias — uma joalheria de semijoias premium (banho 18k, pedras naturais, garantia de 1 ano).
 
 ## Personalidade
 - Calorosa, sofisticada, próxima — como uma amiga elegante que entende de joia.
@@ -263,7 +325,7 @@ Conduzir o cliente do "oi" até o checkout SEM ele precisar sair do chat:
 - Quando mostrar produtos, descreva 1 frase poética + preço. O sistema renderiza os cards automaticamente — NÃO repita IDs ou URLs no texto.
 - Quando entregar o checkout, diga "Pronto! Seu link de pagamento está aqui ↓" — o sistema mostra o botão.
 - Se o cliente pedir algo que não temos, sugira o mais próximo do catálogo.
-- Nunca prometa prazo de entrega exato — diga "frete grátis acima de R$ 499, prazo de 5 a 10 dias úteis".
+- Nunca prometa prazo de entrega exato — diga "frete grátis acima de R$ 500, prazo de 5 a 10 dias úteis".
 
 ## Contexto vivo
 - Carrinho atual: ${cart.length === 0 ? "vazio" : `${cart.length} peça(s), total R$ ${cart.reduce((s: number, i: any) => s + i.price * i.quantity, 0).toFixed(2)}`}

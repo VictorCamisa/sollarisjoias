@@ -36,7 +36,7 @@ const EditorialBlock = () => {
               <em className="not-italic font-display italic text-bordeaux">intenção.</em>
             </h2>
             <p className="font-sans text-foreground/75 leading-relaxed text-[15px] mb-4">
-              Cada peça do nosso portfólio é escolhida sob um olhar editorial rigoroso. Trabalhamos com semi-joias em banho de ouro 18k de alta camada (5 micra), feitas para durar e acompanhar seus dias.
+              Cada peça do nosso portfólio é escolhida sob um olhar editorial rigoroso. Trabalhamos com semijoias em banho de ouro 18k, feitas para durar e acompanhar seus dias.
             </p>
             <p className="font-sans text-foreground/75 leading-relaxed text-[15px] mb-8">
               Sem hype. Sem trend efêmero. Só peças que ficam bem em você hoje, amanhã, daqui a cinco anos.

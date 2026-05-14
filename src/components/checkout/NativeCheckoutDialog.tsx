@@ -523,7 +523,7 @@ const NativeCheckoutDialog = ({
               {(phase === "form" || phase === "rejected") && (
                 <div className="mt-3 flex items-center justify-between gap-2 text-[9px] tracking-[0.12em] uppercase text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5"><Lock className="h-2.5 w-2.5 text-accent" /> Pagamento seguro</span>
-                  <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-2.5 w-2.5 text-accent" /> Garantia 6 meses</span>
+                  <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-2.5 w-2.5 text-accent" /> Garantia 1 ano</span>
                   <span className="inline-flex items-center gap-1.5"><Truck className="h-2.5 w-2.5 text-accent" /> Trocas em 7 dias</span>
                 </div>
               )}
@@ -797,7 +797,7 @@ const NativeCheckoutDialog = ({
                               >
                                 {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
                                   <option key={n} value={n}>
-                                    {n}x de {formatBRL(total / n)}{n <= 3 ? " · sem juros" : " · com juros"}
+                                    {n}x de {formatBRL(total / n)}{n <= 6 ? " · sem juros" : " · com juros"}
                                   </option>
                                 ))}
                               </select>

@@ -102,7 +102,7 @@ export async function lookupAddress(cep: string): Promise<AddressLookup> {
 
 /**
  * Calcula frete pela UF + valor do pedido.
- * — Frete grátis se subtotal ≥ FREE_SHIPPING_THRESHOLD
+ * — Frete grátis se subtotal > FREE_SHIPPING_THRESHOLD
  * — Caso contrário usa tabela regional
  *
  * Para trocar por Melhor Envio depois:
@@ -110,7 +110,7 @@ export async function lookupAddress(cep: string): Promise<AddressLookup> {
  *   return { cost: data.price, etaDays: data.delivery_time, carrier: data.name, isFree: false };
  */
 export function calculateShipping(state: string, subtotal: number): ShippingQuote {
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) {
+  if (subtotal > FREE_SHIPPING_THRESHOLD) {
     const rate = REGION_RATES[state] || DEFAULT_RATE;
     return { cost: 0, etaDays: rate.eta, carrier: "Sollaris Premium", isFree: true };
   }

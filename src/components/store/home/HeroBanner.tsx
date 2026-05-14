@@ -34,7 +34,7 @@ const HeroBanner = () => {
             <em className="not-italic font-display italic text-maison-gold-soft">dia a dia</em> que importa.
           </h1>
           <p className="font-sans text-base sm:text-lg text-maison-creme/85 leading-relaxed mb-9 max-w-md">
-            Banho de ouro 18k · 5 micra · garantia vitalícia. Peças pensadas para você usar todo dia, sem medo.
+            Banho de ouro 18k e garantia Sollaris de 1 ano. Peças pensadas para você usar todo dia, sem medo.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
@@ -43,12 +43,6 @@ const HeroBanner = () => {
             >
               Ver coleção
               <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" strokeWidth={1.6} />
-            </Link>
-            <Link
-              to="/colecao?cat=aneis"
-              className="inline-flex items-center gap-2 text-maison-creme font-mono text-[11px] uppercase tracking-[0.22em] px-2 py-4 border-b border-maison-creme/40 hover:border-maison-gold hover:text-maison-gold transition-all"
-            >
-              Ver anéis
             </Link>
           </div>
         </motion.div>
