@@ -61,6 +61,8 @@ export const useFeaturedProducts = () =>
     },
   });
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const useProduct = (id: string) =>
   useQuery({
     queryKey: ["product", id],
@@ -69,9 +71,10 @@ export const useProduct = (id: string) =>
         .from("products")
         .select("*, categories(name, slug)")
         .eq("id", id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && UUID_RE.test(id),
+    retry: 1,
   });
